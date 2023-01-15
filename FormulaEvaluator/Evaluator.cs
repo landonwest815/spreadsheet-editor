@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Numerics;
 using System.Text.RegularExpressions;
 
 namespace FormulaEvaluator
@@ -25,13 +26,17 @@ namespace FormulaEvaluator
         // Delegate method to help find the value of a variable
         public delegate int Lookup(String variable_name);
 
-        // Method to evaluate an expression using arithmetic 
+        /// <summary> This method evaluates integer arithmetic expressions written 
+        /// using standard infix notation. </summary>
+        /// <param name="expression"></param>
+        /// <param name="variableEvaluator"></param>
+        /// <returns> An integer value of the calculated expression. </returns>
         public static int Evaluate(String expression, Lookup variableEvaluator) {
             // TODO...
 
             // Stacks for processing the expression in an arithmetic way
-            Stack values = new Stack();
-            Stack operators = new Stack();
+            Stack<int> values = new Stack<int>();
+            Stack<String> operators = new Stack<String>();
 
             // Removes all whitespace from the input expression
             String no_whitespace_expression = String.Concat(expression.Where(c => !Char.IsWhiteSpace(c)));
@@ -39,7 +44,107 @@ namespace FormulaEvaluator
             // Splits the expresion into an String array of tokens
             string[] substrings = Regex.Split(no_whitespace_expression, "(\\()|(\\))|(-)|(\\+)|(\\*)|(/)");
 
-            return 0;
+            foreach (String substring in substrings) {
+
+                int number;
+
+                bool isVariable = false;
+                bool topIsMultiply = operators.Peek() == "*";
+                bool topIsDivide = operators.Peek() == "/";
+                bool topIsAdd = operators.Peek() == "+";
+                bool topIsSubtract = operators.Peek() == "-";
+
+                if (int.TryParse(substring, out number))
+                {
+                    if (topIsMultiply)
+                    {
+                        operators.Pop();
+                        values.Push(number * values.Pop());
+                    }
+                    else if (topIsDivide)
+                    {
+                        operators.Pop();
+                        values.Push(number / values.Pop());
+                    }
+                    else
+                    {
+                        values.Push(number);
+                    }
+                }
+                else if (substring == "+" || substring == "-")
+                {
+                    if (topIsAdd)
+                    {
+                        operators.Pop();
+                        values.Push(values.Pop() + values.Pop());
+                    }
+                    else if (topIsSubtract)
+                    {
+                        operators.Pop();
+                        values.Push(values.Pop() - values.Pop());
+                    }
+
+                    operators.Push(substring);
+                }
+                else if (substring == "*" || substring == "/")
+                {
+                    operators.Push(substring);
+                }
+                else if (substring == "(")
+                {
+                    operators.Push(substring);
+                }
+                else if (substring == ")")
+                {
+                    if (topIsAdd)
+                    {
+                        operators.Pop();
+                        values.Push(values.Pop() + values.Pop());
+                    }
+                    else if (topIsSubtract)
+                    {
+                        operators.Pop();
+                        values.Push(values.Pop() - values.Pop());
+                    }
+
+                    operators.Pop();
+
+                    if (topIsMultiply)
+                    {
+                        operators.Pop();
+                        values.Push(values.Pop() * values.Pop());
+                    }
+                    else if (topIsDivide)
+                    {
+                        operators.Pop();
+                        values.Push(values.Pop() / values.Pop());
+                    }
+                }
+                else
+                {
+                    //variable
+                }
+            }
+
+            if (operators.Count == 0)
+            {
+                return values.Pop();
+            }
+            else
+            {
+                if (operators.Peek() == "+")
+                {
+                    return values.Pop() + values.Pop();
+                }
+                else if (operators.Peek() == "-")
+                {
+                    return values.Pop() - values.Pop();
+                }
+                else
+                {
+                    return 0;
+                }
+            }
         }
     }
 }
