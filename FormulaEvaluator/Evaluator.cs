@@ -44,19 +44,20 @@ namespace FormulaEvaluator
             // Splits the expresion into an String array of tokens
             string[] substrings = Regex.Split(no_whitespace_expression, "(\\()|(\\))|(-)|(\\+)|(\\*)|(/)");
 
+            // Loops through every token one by one
             foreach (String substring in substrings) {
 
-                Console.WriteLine(substring);
+                int number; // Used for integer tokens
 
-                int number;
+                bool isVariable = false; // Will implement later
 
-                bool isVariable = false;
-
+                // Helps simplify the process below
                 bool topIsMultiply = false;
                 bool topIsDivide = false;
                 bool topIsAdd = false;
                 bool topIsSubtract = false;
 
+                // Sets values for the above booleans when evaluating each token
                 if (operators.Count > 0) 
                 { 
                     topIsMultiply = operators.Peek() == "*";
@@ -65,102 +66,126 @@ namespace FormulaEvaluator
                     topIsSubtract = operators.Peek() == "-";
                 }
 
+                // If the current token is an integer...
                 if (int.TryParse(substring, out number))
                 {
+                    // If the top of the operators stack contains a '*'
                     if (topIsMultiply)
                     {
-                        operators.Pop();
-                        values.Push(number * values.Pop());
+                        operators.Pop(); // Pop it
+                        values.Push(number * values.Pop()); // Multiply current token with top value
                     }
+
+                    // If the top of the operators stack contains a '/'
                     else if (topIsDivide)
                     {
-                        operators.Pop();
-                        values.Push(values.Pop() / number);
+                        operators.Pop(); // Pop it
+                        values.Push(values.Pop() / number); // Divide top value by the current token
                     }
+                    // Otherwise push it onto values stack
                     else
                     {
-                        values.Push(number);
+                        values.Push(number); 
                     }
                 }
+                // If the current token is a '+' or '-'...
                 else if (substring == "+" || substring == "-")
                 {
+                    // If the top operator is a '+'
                     if (topIsAdd)
                     {
-                        operators.Pop();
-                        values.Push(values.Pop() + values.Pop());
+                        operators.Pop(); // Pop it
+                        values.Push(values.Pop() + values.Pop()); // Add the top two values
                     }
+                    // If the top operator is a '-'
                     else if (topIsSubtract)
                     {
-                        operators.Pop();
-                        values.Push(values.Pop() - values.Pop());
-                    }
-
-                    operators.Push(substring);
-                }
-                else if (substring == "*" || substring == "/")
-                {
-                    operators.Push(substring);
-                }
-                else if (substring == "(")
-                {
-                    operators.Push(substring);
-                }
-                else if (substring == ")")
-                {
-                    if (topIsAdd)
-                    {
-                        operators.Pop();
-                        values.Push(values.Pop() + values.Pop());
-                    }
-                    else if (topIsSubtract)
-                    {
-                        operators.Pop();
-                        int val1 = values.Pop();
-                        int val2 = values.Pop(); 
-                        values.Push(val2 - val1);
-                    }
-
-                    operators.Pop();
-
-                    if (topIsMultiply)
-                    {
-                        operators.Pop();
-                        values.Push(values.Pop() * values.Pop());
-                    }
-                    else if (topIsDivide)
-                    {
-                        operators.Pop();
+                        operators.Pop(); // Pop it
                         int val1 = values.Pop();
                         int val2 = values.Pop();
-                        values.Push(val2 / val1);
+                        values.Push(val2 - val1); // Subract the top value from the second highest value
+                    }
+
+                    operators.Push(substring); // Push current token onto operators stack
+                }
+                // If the current token is a '*' or '/'...
+                else if (substring == "*" || substring == "/")
+                {
+                    operators.Push(substring); // Push current token onto operators stack
+                }
+                // If the current token is a '('...
+                else if (substring == "(")
+                {
+                    operators.Push(substring); // Push current token onto operators stack
+                }
+                // If the current token is a ')'...
+                else if (substring == ")")
+                {
+                    // If the top operator is a '+'...
+                    if (topIsAdd)
+                    {
+                        operators.Pop(); // Pop it
+                        values.Push(values.Pop() + values.Pop()); // Add the two top values
+                    }
+                    // If the top operator is a '-'
+                    else if (topIsSubtract)
+                    {
+                        operators.Pop(); // Pop it
+                        int val1 = values.Pop();
+                        int val2 = values.Pop(); 
+                        values.Push(val2 - val1); // Subtract the top value from the second highest value
+                    }
+                    
+                    operators.Pop(); // Pop the '('
+
+                    if (operators.Count != 0)
+                    {
+                        // If the top operator is a '*'...
+                        if (operators.Peek() == "*")
+                        {
+                            operators.Pop(); // Pop it
+                            values.Push(values.Pop() * values.Pop()); // Multiply the top two values
+                        }
+                        // If the top operator is a '/'...
+                        else if (operators.Peek() == "/")
+                        {
+                            operators.Pop(); // Pop it
+                            int val1 = values.Pop();
+                            int val2 = values.Pop();
+                            values.Push(val2 / val1); // Divide the second highest value by the top value
+                        }
                     }
                 }
                 else
                 {
-                    //variable
+                    // Variable handling to be implemented later
                 }
             }
-
+            // If the operator stack is empty -> return the remaining value
             if (operators.Count == 0)
             {
                 return values.Pop();
             }
+            // Special cases
             else
             {
+                // If the top operator is a '+'...
                 if (operators.Peek() == "+")
                 {
-                    operators.Pop();
-                    return values.Pop() + values.Pop();
+                    operators.Pop(); // Pop it
+                    return values.Pop() + values.Pop(); // Add the two remaining values
                 }
+                // If the top operator is a '-'...
                 else if (operators.Peek() == "-")
                 {
                     int val1 = values.Pop();
                     int val2 = values.Pop();
-                    return val2 - val1;
+                    return val2 - val1; // Subtract the top value from the second highest value
                 }
+                // If something goes wrong...
                 else
                 {
-                    return 1;
+                    return 0;
                 }
             }
         }
