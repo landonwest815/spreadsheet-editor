@@ -11,7 +11,7 @@ Copyright:  CS 3500 and Landon West - This work may not be copied for use in Aca
 
 # Comments to Evaluators:
 
-Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam remaperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.
+comments
 
 # Assignment Specific Topics
 Any additional feedback or write up required by the assignment.
@@ -22,10 +22,12 @@ Make sure you spell check your file (did you install the VS spell checker?) and 
 
 # Consulted Peers:
 
-List any peers (or other people) in the class (or outside for that matter) that you talked with about the project for more than one minute.
+I did not talk with any peers for this assignment. I was at my parents' house (30 minutes from campus) all weekend and completed everything except the delegate portion during this time. I also do not have any contact information from any peers in CS3500 yet. 
 
 # References:
 
     1. How to remove whitespace from a C# string? - https://kodify.net/csharp/strings/remove-whitespace/
-    2. Title of page - URL
-    3. Title of page - URL
+    2. Int32.TryParse Method - https://learn.microsoft.com/en-us/dotnet/api/system.int32.tryparse?view=net-7.0
+    3. Why would you use String.Equals over ==? [duplicate] - https://stackoverflow.com/questions/1659097/why-would-you-use-string-equals-over
+    4. How to check if a Stack<T> is empty - https://stackoverflow.com/questions/25748906/how-to-check-if-a-stackt-is-empty
+    5. Testing Class Libraries with C# in Visual Studio - https://www.elijahgrubb.com/blog/2015/09/08/Testing-Class-Libraries/
