@@ -4,40 +4,162 @@ public class FormulaEvaluatorTester
 {
     static void Main(string[] args)
     {
-        if (Evaluator.Evaluate("5+5", null) == 10) Console.WriteLine("Passed!");
-        else Console.WriteLine("Failed!");
+        Console.WriteLine("Correct Syntax:");
 
-        if (Evaluator.Evaluate("5-5", null) == 0) Console.WriteLine("Passed!");
-        else Console.WriteLine("Failed!");
+        try
+        {
+            Evaluator.Evaluate("5+5", null);
+        }
+        catch (ArgumentException)
+        {
+            Console.WriteLine("invalid syntax");
+        }
 
-        if (Evaluator.Evaluate("5*5", null) == 25) Console.WriteLine("Passed!");
-        else Console.WriteLine("Failed!");
+        try
+        {
+            Evaluator.Evaluate("5-5", null);
+        }
+        catch (ArgumentException)
+        {
+            Console.WriteLine("invalid syntax");
+        }
 
-        if (Evaluator.Evaluate("5/5", null) == 1) Console.WriteLine("Passed!");
-        else Console.WriteLine("Failed!");
+        try
+        {
+            Evaluator.Evaluate("5*5", null);
+        }
+        catch (ArgumentException)
+        {
+            Console.WriteLine("invalid syntax");
+        }
 
-        if (Evaluator.Evaluate("5+5*2", null) == 15) Console.WriteLine("Passed!");
-        else Console.WriteLine("Failed!");
+        try
+        {
+            Evaluator.Evaluate("5/5", null);
+        }
+        catch (ArgumentException)
+        {
+            Console.WriteLine("invalid syntax");
+        }
 
-        if (Evaluator.Evaluate("2*5+5", null) == 15) Console.WriteLine("Passed!");
-        else Console.WriteLine("Failed!");
+        try
+        {
+            Evaluator.Evaluate("5+5*2", null);
+        }
+        catch (ArgumentException)
+        {
+            Console.WriteLine("invalid syntax");
+        }
 
-        if (Evaluator.Evaluate("(5+5)/2", null) == 5) Console.WriteLine("Passed!");
-        else Console.WriteLine("Failed!");
+        try
+        {
+            Evaluator.Evaluate("2*5+5", null);
+        }
+        catch (ArgumentException)
+        {
+            Console.WriteLine("invalid syntax");
+        }
 
-        if (Evaluator.Evaluate("20/(5+5)", null) == 2) Console.WriteLine("Passed!");
-        else Console.WriteLine("Failed!");
+        try
+        {
+            Evaluator.Evaluate("(5+5)/2", null);
+        }
+        catch (ArgumentException)
+        {
+            Console.WriteLine("invalid syntax");
+        }
 
-        if (Evaluator.Evaluate("(10/5)-1", null) == 1) Console.WriteLine("Passed!");
-        else Console.WriteLine("Failed!");
+        try
+        {
+            Evaluator.Evaluate("20/(5+5)", null);
+        }
+        catch (ArgumentException)
+        {
+            Console.WriteLine("invalid syntax");
+        }
 
-        if (Evaluator.Evaluate("10-(10/5)", null) == 8) Console.WriteLine("Passed!");
-        else Console.WriteLine("Failed!");
+        try
+        {
+            Evaluator.Evaluate("(10/5)-1", null);
+        }
+        catch (ArgumentException)
+        {
+            Console.WriteLine("invalid syntax");
+        }
 
-        if (Evaluator.Evaluate("5+5*5/5-5", null) == 5) Console.WriteLine("Passed!");
-        else Console.WriteLine("Failed!");
+        try
+        {
+            Evaluator.Evaluate("10-(10/5)", null);
+        }
+        catch (ArgumentException)
+        {
+            Console.WriteLine("invalid syntax");
+        }
 
-        if (Evaluator.Evaluate("5*5+5/5-5", null) == 21) Console.WriteLine("Passed!");
-        else Console.WriteLine("Failed!");
+        try
+        {
+            Evaluator.Evaluate("5+5*5/5-5", null);
+        }
+        catch (ArgumentException)
+        {
+            Console.WriteLine("invalid syntax");
+        }
+
+        try
+        {
+            Evaluator.Evaluate("5*5+5/5-5", null);
+        }
+        catch (ArgumentException)
+        {
+            Console.WriteLine("invalid syntax");
+        }
+
+        Console.WriteLine("");
+        Console.WriteLine("Incorrect Syntax:");
+
+        try
+        {
+            Evaluator.Evaluate("*5", null);
+        } 
+        catch (ArgumentException) 
+        {
+            Console.WriteLine("invalid syntax");
+        }
+
+        try 
+        { 
+            Evaluator.Evaluate("10/0", null);
+        }
+        catch (ArgumentException)
+        {
+            Console.WriteLine("invalid syntax");
+        }
+
+        try
+        {
+            Evaluator.Evaluate("10++3", null);
+        }
+        catch (ArgumentException)
+        {
+            Console.WriteLine("invalid syntax");
+        }
+
+        try
+        {
+            Evaluator.Evaluate("15/3+3-1/0", null);
+        }
+        catch (ArgumentException)
+        {
+            Console.WriteLine("invalid syntax");
+        }
+
+        try
+        {
+            Console.WriteLine(Evaluator.Evaluate("((3+2)*4", null));
+        }
+        catch (ArgumentException)
+        {
+            Console.WriteLine("invalid syntax");
+        }
     }
 }

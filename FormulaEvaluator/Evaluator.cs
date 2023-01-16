@@ -72,6 +72,9 @@ namespace FormulaEvaluator
                     // If the top of the operators stack contains a '*'
                     if (topIsMultiply)
                     {
+                        if (values.Count == 0) 
+                            throw new ArgumentException();
+                        
                         operators.Pop(); // Pop it
                         values.Push(number * values.Pop()); // Multiply current token with top value
                     }
@@ -79,6 +82,9 @@ namespace FormulaEvaluator
                     // If the top of the operators stack contains a '/'
                     else if (topIsDivide)
                     {
+                        if (number == 0)
+                            throw new ArgumentException();
+                        
                         operators.Pop(); // Pop it
                         values.Push(values.Pop() / number); // Divide top value by the current token
                     }
@@ -94,12 +100,18 @@ namespace FormulaEvaluator
                     // If the top operator is a '+'
                     if (topIsAdd)
                     {
+                        if (values.Count < 2)
+                            throw new ArgumentException();
+                        
                         operators.Pop(); // Pop it
                         values.Push(values.Pop() + values.Pop()); // Add the top two values
                     }
                     // If the top operator is a '-'
                     else if (topIsSubtract)
                     {
+                        if (values.Count < 2)
+                            throw new ArgumentException();
+                        
                         operators.Pop(); // Pop it
                         int val1 = values.Pop();
                         int val2 = values.Pop();
@@ -124,18 +136,27 @@ namespace FormulaEvaluator
                     // If the top operator is a '+'...
                     if (topIsAdd)
                     {
+                        if (values.Count < 2)
+                            throw new ArgumentException();
+                       
                         operators.Pop(); // Pop it
                         values.Push(values.Pop() + values.Pop()); // Add the two top values
                     }
                     // If the top operator is a '-'
                     else if (topIsSubtract)
                     {
+                        if (values.Count < 2)
+                            throw new ArgumentException();
+
                         operators.Pop(); // Pop it
                         int val1 = values.Pop();
                         int val2 = values.Pop(); 
                         values.Push(val2 - val1); // Subtract the top value from the second highest value
                     }
                     
+                    if (operators.Peek() != "(")
+                        throw new ArgumentException();
+
                     operators.Pop(); // Pop the '('
 
                     if (operators.Count != 0)
@@ -149,6 +170,9 @@ namespace FormulaEvaluator
                         // If the top operator is a '/'...
                         else if (operators.Peek() == "/")
                         {
+                            if (values.Peek() == 0)
+                                throw new ArgumentException();
+
                             operators.Pop(); // Pop it
                             int val1 = values.Pop();
                             int val2 = values.Pop();
@@ -164,11 +188,20 @@ namespace FormulaEvaluator
             // If the operator stack is empty -> return the remaining value
             if (operators.Count == 0)
             {
+                if (values.Count > 1)
+                    throw new ArgumentException();
+
                 return values.Pop();
             }
             // Special cases
             else
             {
+                if (operators.Count > 1)
+                    throw new ArgumentException();
+
+                if (values.Count > 2)
+                    throw new ArgumentException();
+
                 // If the top operator is a '+'...
                 if (operators.Peek() == "+")
                 {
@@ -185,7 +218,7 @@ namespace FormulaEvaluator
                 // If something goes wrong...
                 else
                 {
-                    return 0;
+                    throw new ArgumentException();
                 }
             }
         }
