@@ -4,7 +4,7 @@ Partner:    None
 Course:     CS 3500, University of Utah, School of Computing
 GitHub ID:  landonwest815
 Repo:       https://github.com/uofu-cs3500-spring23/spreadsheet-landonwest815
-Date:       Day-Month-Year Time (when submission was completed) 
+Date:       18-Jan-2023 5:00pm (when submission was completed) 
 Project:    Formula Evaluator
 Copyright:  CS 3500 and Landon West - This work may not be copied for use in Academic Coursework.
 ```

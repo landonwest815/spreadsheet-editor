@@ -8,7 +8,7 @@ namespace FormulaEvaluator
     /// <summary>
     /// Author:    Landon West
     /// Partner:   None
-    /// Date:      1/13/2023
+    /// Date:      13-Jan-2023
     /// Course:    CS 3500, University of Utah, School of Computing
     /// Copyright: CS 3500 and Landon West - This work may not 
     ///            be copied for use in Academic Coursework.
@@ -85,7 +85,7 @@ namespace FormulaEvaluator
                     if (topIsMultiply)
                     {
                         // ERROR CHECKER
-                        if (values.Count == 0) 
+                        if (values.Count == 0)
                             throw new ArgumentException();
 
                         // Pop the operators stack and multiply the current token with the top of the values stack
@@ -102,7 +102,7 @@ namespace FormulaEvaluator
 
                         // ERROR CHECKER
                         if (values.Count == 0)
-                            throw new ArgumentException();
+                            throw new ArgumentException();  
 
                         //Pop the operators stack and divide the top of the values stack by the current token
                         operators.Pop();

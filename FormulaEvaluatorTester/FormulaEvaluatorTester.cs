@@ -3,8 +3,29 @@ using System.Collections;
 
 namespace FormulaEvaluator;
 
+/// <summary>
+/// Author:    Landon West
+/// Partner:   None
+/// Date:      13-Jan-2023
+/// Course:    CS 3500, University of Utah, School of Computing
+/// Copyright: CS 3500 and Landon West - This work may not 
+///            be copied for use in Academic Coursework.
+///
+/// I, Landon West, certify that I wrote this code from scratch and
+/// did not copy it in part or whole from another source.  All 
+/// references used in the completion of the assignments are cited 
+/// in my README file.
+///
+/// File Contents
+///
+///    This tester class passes in expressions -- that involve numbers, variables, and operators -- to be evaluated.
+/// </summary>
 public class EvaluateTester
     {
+    /// <summary> This is the delegate used to determine a variable's value in the evaluate method </summary>
+    /// <param name="v"> variable from expression </param>
+    /// <returns> the integer value tied to the variable (if the variable exists) </returns>
+    /// <exception cref="ArgumentException"> throws ArgumentException if invalid syntax is detected </exception>
     public static int VariableLookup(string v)
         {
             if (v == "A1")
@@ -29,8 +50,11 @@ public class EvaluateTester
                 throw new ArgumentException();
         }
 
+    /// <summary> This class contains all the written expressions to be tested </summary>
     public class Tests
     {
+        /// <summary> This is the main method for the tests to run in </summary>
+        /// <param name="args"> necessary parameter for main method to function </param>
         static void Main(string[] args)
         {
             // ADDITION TESTS:
