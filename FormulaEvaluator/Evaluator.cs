@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Numerics;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 
 namespace FormulaEvaluator
@@ -19,37 +20,43 @@ namespace FormulaEvaluator
     ///
     /// File Contents
     ///
-    ///    This library class evaluates...
+    ///    This library class evaluates an arithmetic expression that may contain 
+    ///    numbers, variables, and operators.
     /// </summary>
     public static class Evaluator
     {
-        // Delegate method to help find the value of a variable
+        /// <summary>
+        /// This delegate handles all variables passed into the Evaluate method
+        /// </summary>
+        /// <param name="variable_name"> variable from expression </param>
+        /// <returns> an integer value (if no expression is thrown) </returns>
         public delegate int Lookup(String variable_name);
 
         /// <summary> This method evaluates integer arithmetic expressions written 
         /// using standard infix notation. </summary>
-        /// <param name="expression"></param>
-        /// <param name="variableEvaluator"></param>
-        /// <returns> An integer value of the calculated expression. </returns>
+        /// <param name="expression"> arithmetic expression to be calculated</param>
+        /// <param name="variableEvaluator"> delegate to help with variables </param>
+        /// <returns> An integer value of the calculated expression. (If an exception is not thrown) </returns>
+        /// <exception cref="ArgumentException"> throws ArgumentException if invalid syntax is detected </exception>
         public static int Evaluate(String expression, Lookup variableEvaluator) {
-            // TODO...
 
             // Stacks for processing the expression in an arithmetic way
             Stack<int> values = new Stack<int>();
             Stack<String> operators = new Stack<String>();
 
-            // Removes all whitespace from the input expression
+            // Removes whitespace from the input expression
             String no_whitespace_expression = String.Concat(expression.Where(c => !Char.IsWhiteSpace(c)));
 
             // Splits the expresion into an String array of tokens
-            string[] substrings = Regex.Split(no_whitespace_expression, "(\\()|(\\))|(-)|(\\+)|(\\*)|(/)");
+            string[] tokens = Regex.Split(no_whitespace_expression, "(\\()|(\\))|(-)|(\\+)|(\\*)|(/)");
 
             // Loops through every token one by one
-            foreach (String substring in substrings) {
+            foreach (String t in tokens) {
 
-                int number; // Used for integer tokens
+                // Initial Setup:
 
-                bool isVariable = false; // Will implement later
+                // Used for integer tokens
+                int value;
 
                 // Helps simplify the process below
                 bool topIsMultiply = false;
@@ -66,128 +73,188 @@ namespace FormulaEvaluator
                     topIsSubtract = operators.Peek() == "-";
                 }
 
+                // The Process:
+
                 // If the current token is an integer...
-                if (int.TryParse(substring, out number))
+                if (int.TryParse(t, out value))
                 {
                     // If the top of the operators stack contains a '*'
                     if (topIsMultiply)
                     {
+                        // ERROR CHECKER
                         if (values.Count == 0) 
                             throw new ArgumentException();
                         
-                        operators.Pop(); // Pop it
-                        values.Push(number * values.Pop()); // Multiply current token with top value
+                        // Pop the operators stack and multiply the current token with the top of the values stack
+                        operators.Pop();
+                        values.Push(value * values.Pop());
                     }
 
                     // If the top of the operators stack contains a '/'
                     else if (topIsDivide)
                     {
-                        if (number == 0)
+                        // ERROR CHECKER
+                        if (value == 0)
                             throw new ArgumentException();
                         
-                        operators.Pop(); // Pop it
-                        values.Push(values.Pop() / number); // Divide top value by the current token
+                        //Pop the operators stack and divide the top of the values stack by the current token
+                        operators.Pop();
+                        values.Push(values.Pop() / value);
                     }
-                    // Otherwise push it onto values stack
+                    // Otherwise (Not '*' or '/') push it onto the values stack
                     else
                     {
-                        values.Push(number); 
+                        values.Push(value); 
                     }
                 }
                 // If the current token is a '+' or '-'...
-                else if (substring == "+" || substring == "-")
+                else if (t == "+" || t == "-")
                 {
                     // If the top operator is a '+'
                     if (topIsAdd)
                     {
+                        // ERROR CHECKER
                         if (values.Count < 2)
                             throw new ArgumentException();
                         
-                        operators.Pop(); // Pop it
-                        values.Push(values.Pop() + values.Pop()); // Add the top two values
+                        // Pop the operators stack and add the top two values on the values stack together
+                        operators.Pop();
+                        values.Push(values.Pop() + values.Pop());
                     }
                     // If the top operator is a '-'
                     else if (topIsSubtract)
                     {
+                        // ERROR CHECKER
                         if (values.Count < 2)
                             throw new ArgumentException();
                         
-                        operators.Pop(); // Pop it
+                        // Pop the operators stack and subtract the top value of the values stack from the second highest value on the values stack
+                        operators.Pop();
                         int val1 = values.Pop();
                         int val2 = values.Pop();
-                        values.Push(val2 - val1); // Subract the top value from the second highest value
+                        values.Push(val2 - val1);
                     }
-
-                    operators.Push(substring); // Push current token onto operators stack
+                    // Push current token onto operators stack
+                    operators.Push(t);
                 }
                 // If the current token is a '*' or '/'...
-                else if (substring == "*" || substring == "/")
+                else if (t == "*" || t == "/")
                 {
-                    operators.Push(substring); // Push current token onto operators stack
+                    // Push current token onto operators stack
+                    operators.Push(t);
                 }
                 // If the current token is a '('...
-                else if (substring == "(")
+                else if (t == "(")
                 {
-                    operators.Push(substring); // Push current token onto operators stack
+                    // Push current token onto operators stack
+                    operators.Push(t);
                 }
                 // If the current token is a ')'...
-                else if (substring == ")")
+                else if (t == ")")
                 {
-                    // If the top operator is a '+'...
+                    // If the top operator is a '+'
                     if (topIsAdd)
                     {
+                        // ERROR CHECKER
                         if (values.Count < 2)
                             throw new ArgumentException();
-                       
-                        operators.Pop(); // Pop it
-                        values.Push(values.Pop() + values.Pop()); // Add the two top values
+
+                        // Pop the operators stack and add the top two values on the values stack together
+                        operators.Pop();
+                        values.Push(values.Pop() + values.Pop());
                     }
                     // If the top operator is a '-'
                     else if (topIsSubtract)
                     {
+                        // ERROR CHECKER
                         if (values.Count < 2)
                             throw new ArgumentException();
 
-                        operators.Pop(); // Pop it
+                        // Pop the operators stack and subtract the top value of the values stack from the second highest value on the values stack
+                        operators.Pop();
                         int val1 = values.Pop();
-                        int val2 = values.Pop(); 
-                        values.Push(val2 - val1); // Subtract the top value from the second highest value
+                        int val2 = values.Pop();
+                        values.Push(val2 - val1);
                     }
                     
+                    // ERROR CHECKER
                     if (operators.Peek() != "(")
                         throw new ArgumentException();
 
-                    operators.Pop(); // Pop the '('
+                    // Pop the '('
+                    operators.Pop();
 
+                    // If the operator stack is not empty...
                     if (operators.Count != 0)
                     {
                         // If the top operator is a '*'...
                         if (operators.Peek() == "*")
                         {
-                            operators.Pop(); // Pop it
-                            values.Push(values.Pop() * values.Pop()); // Multiply the top two values
+                            // Pop the operators stack and multiply the top two values in the values stack
+                            operators.Pop();
+                            values.Push(values.Pop() * values.Pop());
                         }
                         // If the top operator is a '/'...
                         else if (operators.Peek() == "/")
                         {
+                            // ERROR CHECKER
                             if (values.Peek() == 0)
                                 throw new ArgumentException();
 
-                            operators.Pop(); // Pop it
+                            // Pop the operators stack and divide the second highest value in the values stack by the top value
+                            operators.Pop();
                             int val1 = values.Pop();
                             int val2 = values.Pop();
-                            values.Push(val2 / val1); // Divide the second highest value by the top value
+                            values.Push(val2 / val1);
                         }
                     }
                 }
-                else
+                //If the current token is a variable...
+                else if (Regex.IsMatch(t, "[a-zA-Z]+[0-9]+"))
                 {
-                    // Variable handling to be implemented later
+                    // Obtains the value if there is one
+                    int val = variableEvaluator(t);
+
+                    // Follows the Integer Steps
+
+                    // If the top of the operators stack contains a '*'
+                    if (topIsMultiply)
+                    {
+                        if (values.Count == 0)
+                            throw new ArgumentException();
+
+                        operators.Pop(); // Pop it
+                        values.Push(val * values.Pop()); // Multiply current token with top value
+                    }
+
+                    // If the top of the operators stack contains a '/'
+                    else if (topIsDivide)
+                    {
+                        if (val == 0)
+                            throw new ArgumentException();
+
+                        operators.Pop(); // Pop it
+                        values.Push(values.Pop() / val); // Divide top value by the current token
+                    }
+                    // Otherwise push it onto values stack
+                    else
+                    {
+                        values.Push(val);
+                    }
+                }
+                // Remaining tokens to be checked should only be random whitespaces...
+                else if (!String.IsNullOrEmpty(t))
+                {
+                    throw new ArgumentException();
                 }
             }
+
+            // Finishing Steps:
+
             // If the operator stack is empty -> return the remaining value
             if (operators.Count == 0)
             {
+                // ERROR CHECKER
                 if (values.Count > 1)
                     throw new ArgumentException();
 
@@ -196,26 +263,31 @@ namespace FormulaEvaluator
             // Special cases
             else
             {
+                // ERROR CHECKER
                 if (operators.Count > 1)
                     throw new ArgumentException();
 
+                // ERROR CHECKER
                 if (values.Count > 2)
                     throw new ArgumentException();
 
                 // If the top operator is a '+'...
                 if (operators.Peek() == "+")
                 {
-                    operators.Pop(); // Pop it
-                    return values.Pop() + values.Pop(); // Add the two remaining values
+                    // Pop the operator stack and add the top two values in the values stack
+                    operators.Pop();
+                    return values.Pop() + values.Pop();
                 }
                 // If the top operator is a '-'...
                 else if (operators.Peek() == "-")
                 {
+                    // Pop the operator stack and subtract the top value in the values stack from the second highest value in the values stack
+                    operators.Pop();
                     int val1 = values.Pop();
                     int val2 = values.Pop();
-                    return val2 - val1; // Subtract the top value from the second highest value
+                    return val2 - val1;
                 }
-                // If something goes wrong...
+                // If anything else goes wrong...
                 else
                 {
                     throw new ArgumentException();
