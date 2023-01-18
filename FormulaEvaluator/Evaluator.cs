@@ -75,16 +75,19 @@ namespace FormulaEvaluator
 
                 // The Process:
 
-                // If the current token is an integer...
-                if (int.TryParse(t, out value))
+                // If the current token is an integer or a variable...
+                if (int.TryParse(t, out value) || Regex.IsMatch(t, "[a-zA-Z]+[0-9]+"))
                 {
+                    if (Regex.IsMatch(t, "[a-zA-Z]+[0-9]+"))
+                        value = variableEvaluator(t);
+
                     // If the top of the operators stack contains a '*'
                     if (topIsMultiply)
                     {
                         // ERROR CHECKER
                         if (values.Count == 0) 
                             throw new ArgumentException();
-                        
+
                         // Pop the operators stack and multiply the current token with the top of the values stack
                         operators.Pop();
                         values.Push(value * values.Pop());
@@ -96,12 +99,16 @@ namespace FormulaEvaluator
                         // ERROR CHECKER
                         if (value == 0)
                             throw new ArgumentException();
-                        
+
+                        // ERROR CHECKER
+                        if (values.Count == 0)
+                            throw new ArgumentException();
+
                         //Pop the operators stack and divide the top of the values stack by the current token
                         operators.Pop();
                         values.Push(values.Pop() / value);
                     }
-                    // Otherwise (Not '*' or '/') push it onto the values stack
+                    // Otherwise push it onto the values stack
                     else
                     {
                         values.Push(value); 
@@ -137,14 +144,8 @@ namespace FormulaEvaluator
                     // Push current token onto operators stack
                     operators.Push(t);
                 }
-                // If the current token is a '*' or '/'...
-                else if (t == "*" || t == "/")
-                {
-                    // Push current token onto operators stack
-                    operators.Push(t);
-                }
-                // If the current token is a '('...
-                else if (t == "(")
+                // If the current token is a '*' or '/' or '('...
+                else if (t == "*" || t == "/" || t == "(")
                 {
                     // Push current token onto operators stack
                     operators.Push(t);
@@ -176,7 +177,11 @@ namespace FormulaEvaluator
                         int val2 = values.Pop();
                         values.Push(val2 - val1);
                     }
-                    
+
+                    // ERROR CHECKER
+                    if (operators.Count == 0)
+                        throw new ArgumentException();
+
                     // ERROR CHECKER
                     if (operators.Peek() != "(")
                         throw new ArgumentException();
@@ -209,39 +214,6 @@ namespace FormulaEvaluator
                         }
                     }
                 }
-                //If the current token is a variable...
-                else if (Regex.IsMatch(t, "[a-zA-Z]+[0-9]+"))
-                {
-                    // Obtains the value if there is one
-                    int val = variableEvaluator(t);
-
-                    // Follows the Integer Steps
-
-                    // If the top of the operators stack contains a '*'
-                    if (topIsMultiply)
-                    {
-                        if (values.Count == 0)
-                            throw new ArgumentException();
-
-                        operators.Pop(); // Pop it
-                        values.Push(val * values.Pop()); // Multiply current token with top value
-                    }
-
-                    // If the top of the operators stack contains a '/'
-                    else if (topIsDivide)
-                    {
-                        if (val == 0)
-                            throw new ArgumentException();
-
-                        operators.Pop(); // Pop it
-                        values.Push(values.Pop() / val); // Divide top value by the current token
-                    }
-                    // Otherwise push it onto values stack
-                    else
-                    {
-                        values.Push(val);
-                    }
-                }
                 // Remaining tokens to be checked should only be random whitespaces...
                 else if (!String.IsNullOrEmpty(t))
                 {
@@ -250,6 +222,12 @@ namespace FormulaEvaluator
             }
 
             // Finishing Steps:
+
+            // If the values stack is emtpy -> invalid syntax
+            if (values.Count == 0)
+            {
+                    throw new ArgumentException();
+            }
 
             // If the operator stack is empty -> return the remaining value
             if (operators.Count == 0)
@@ -273,7 +251,11 @@ namespace FormulaEvaluator
 
                 // If the top operator is a '+'...
                 if (operators.Peek() == "+")
-                {
+                {                        
+                    // ERROR CHECKER
+                    if (values.Count < 2)
+                        throw new ArgumentException();
+              
                     // Pop the operator stack and add the top two values in the values stack
                     operators.Pop();
                     return values.Pop() + values.Pop();
@@ -281,6 +263,10 @@ namespace FormulaEvaluator
                 // If the top operator is a '-'...
                 else if (operators.Peek() == "-")
                 {
+                    // ERROR CHECKER
+                    if (values.Count < 2)
+                        throw new ArgumentException();
+
                     // Pop the operator stack and subtract the top value in the values stack from the second highest value in the values stack
                     operators.Pop();
                     int val1 = values.Pop();
