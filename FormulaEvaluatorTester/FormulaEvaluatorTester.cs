@@ -1,183 +1,581 @@
 ﻿
+using System.Collections;
+
 namespace FormulaEvaluator;
 
-public class VariableTester
-{
-    public static int OtherLookup(string v)
+public class EvaluateTester
     {
-        if (v == "A2")
-            return 2;
-        else if (v == "B2")
-            return 4;
-        else if (v == "C2")
-            return 6;
-        else
-            throw new ArgumentException();
-    }
+    public static int VariableLookup(string v)
+        {
+            if (v == "A1")
+                return 1;
+            else if (v == "B1")
+                return 2;
+            else if (v == "C1")
+                return 3;
+            else if (v == "A2")
+                return 2;
+            else if (v == "B2")
+                return 4;
+            else if (v == "C2")
+                return 6;
+            else if (v == "A3")
+                return 3;
+            else if (v == "B3")
+                return 6;
+            else if (v == "C3")
+                return 9;
+            else
+                throw new ArgumentException();
+        }
 
-
-    public class FormulaEvaluatorTester
+    public class Tests
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Correct Syntax:");
+            // ADDITION TESTS:
 
-            try
-            {
-                int val = Evaluator.Evaluate("5+5", null);
-            }
-            catch (ArgumentException)
-            {
-                Console.WriteLine("invalid syntax 1");
-            }
+                Console.WriteLine("Failed Addition Tests:");
 
-            try
-            {
-                Evaluator.Evaluate("5-5", null);
-            }
-            catch (ArgumentException)
-            {
-                Console.WriteLine("invalid syntax 2");
-            }
+                // 0+0  ZEROS
+                try
+                {
+                    int val = Evaluator.Evaluate("0+0", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax1");
+                }
 
-            try
-            {
-                Evaluator.Evaluate("5*5", null);
-            }
-            catch (ArgumentException)
-            {
-                Console.WriteLine("invalid syntax 3");
-            }
+                // 5+5  SIMPLE ADDITION
+                try
+                {
+                    int val = Evaluator.Evaluate("5+5", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax2");
+                }
 
-            try
-            {
-                Evaluator.Evaluate("5/5", null);
-            }
-            catch (ArgumentException)
-            {
-                Console.WriteLine("invalid syntax 4");
-            }
+                // 5+5-2  ADDITION & SUBTRACTION AFTER
+                try
+                {
+                    Evaluator.Evaluate("5+5-2", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax3");
+                }
 
-            try
-            {
-                Evaluator.Evaluate("5+5*2", null);
-            }
-            catch (ArgumentException)
-            {
-                Console.WriteLine("invalid syntax 5");
-            }
+                // 10-5+5  ADDITION & SUBTRACTION BEFORE
+                try
+                {
+                    Evaluator.Evaluate("10-5+5", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax4");
+                }
 
-            try
-            {
-                Evaluator.Evaluate("2*5+5", null);
-            }
-            catch (ArgumentException)
-            {
-                Console.WriteLine("invalid syntax 6");
-            }
+                // 5+5*2  ADDITION & MULTIPLICATION AFTER
+                try
+                {
+                    Evaluator.Evaluate("5+5*2", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax5");
+                }
 
-            try
-            {
-                Evaluator.Evaluate("(5+5)/2", null);
-            }
-            catch (ArgumentException)
-            {
-                Console.WriteLine("invalid syntax 7");
-            }
+                // 2*5+5  ADDITION & MULTIPLICATION BEFORE
+                try
+                {
+                    Evaluator.Evaluate("2*5+5", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax6");
+                }
 
-            try
-            {
-                Evaluator.Evaluate("20/(5+5)", null);
-            }
-            catch (ArgumentException)
-            {
-                Console.WriteLine("invalid syntax 8");
-            }
+                // 5+5/2  ADDITION & DIVISION AFTER
+                try
+                {
+                    Evaluator.Evaluate("5+5/2", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax7");
+                }
 
-            try
-            {
-                Evaluator.Evaluate("(10/5)-1", null);
-            }
-            catch (ArgumentException)
-            {
-                Console.WriteLine("invalid syntax 9");
-            }
+                // 5/1+5  ADDITION & DIVISION BEFORE
+                try
+                {
+                    Evaluator.Evaluate("5/1+5", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax8");
+                }
 
-            try
-            {
-                Evaluator.Evaluate("10-(10/5)", null);
-            }
-            catch (ArgumentException)
-            {
-                Console.WriteLine("invalid syntax 10");
-            }
+                // 5+5+A1  ADDITION & VARIABLE AFTER
+                try
+                {
+                    Evaluator.Evaluate("5+5+A1", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax9");
+                }
 
-            try
-            {
-                Evaluator.Evaluate("5+5*5/5-5", null);
-            }
-            catch (ArgumentException)
-            {
-                Console.WriteLine("invalid syntax 11");
-            }
+                // A2+5+5+A1  ADDITION & VARIABLE BEFORE/AFTER
+                try
+                {
+                    Evaluator.Evaluate("A2+5+5+A1", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax10");
+                }
 
-            try
-            {
-                Evaluator.Evaluate("5*5+5/5-5", null);
-            }
-            catch (ArgumentException)
-            {
-                Console.WriteLine("invalid syntax 12");
-            }
+                // A2+A1  VARIABLE ADDITION
+                try
+                {
+                    Evaluator.Evaluate("A2+A1", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax11");
+                }
 
-            Console.WriteLine("");
-            Console.WriteLine("Incorrect Syntax:");
+            // SUBTRACTION TESTS:
 
-            try
-            {
-                Evaluator.Evaluate("*5", null);
-            }
-            catch (ArgumentException)
-            {
-                Console.WriteLine("invalid syntax");
-            }
+                Console.WriteLine("Failed Subtraction Tests:");
 
-            try
-            {
-                Evaluator.Evaluate("10/0", null);
-            }
-            catch (ArgumentException)
-            {
-                Console.WriteLine("invalid syntax");
-            }
+                // 0-0  ZEROS
+                try
+                {
+                    int val = Evaluator.Evaluate("0-0", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax");
+                }
 
-            try
-            {
-                Evaluator.Evaluate("10++3", null);
-            }
-            catch (ArgumentException)
-            {
-                Console.WriteLine("invalid syntax");
-            }
+                // 5-5  SIMPLE ADDITION
+                try
+                {
+                    int val = Evaluator.Evaluate("5-5", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax");
+                }
 
-            try
-            {
-                Evaluator.Evaluate("15/3+3-1/0", null);
-            }
-            catch (ArgumentException)
-            {
-                Console.WriteLine("invalid syntax");
-            }
+                // 5-5+2  SUBTRACTION & ADDITION AFTER
+                try
+                {
+                    Evaluator.Evaluate("5-5+2", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax");
+                }
 
-            try
-            {
-                Console.WriteLine(Evaluator.Evaluate("((3+2)*4", null));
-            }
-            catch (ArgumentException)
-            {
-                Console.WriteLine("invalid syntax");
-            }
+                // 10+5-5  SUBTRACTION & ADDITION BEFORE
+                try
+                {
+                    Evaluator.Evaluate("10+5-5", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax");
+                }
 
+                // 20-5*2  SUBTRACTION & MULTIPLICATION AFTER
+                try
+                {
+                    Evaluator.Evaluate("20-5*2", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax");
+                }
+
+                // 2*10-5  SUBTRACTION & MULTIPLICATION BEFORE
+                try
+                {
+                    Evaluator.Evaluate("2*20-5", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax");
+                }
+
+                // 15-10/2  SUBTRACTION & DIVISION AFTER
+                try
+                {
+                    Evaluator.Evaluate("15-10/2", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax");
+                }
+
+                // 10/5-1  SUBTRACTION & DIVISION BEFORE
+                try
+                {
+                    Evaluator.Evaluate("10/5-1", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax");
+                }
+
+                // 5-5+A1  SUBTRACTION & VARIABLE AFTER
+                try
+                {
+                    Evaluator.Evaluate("5-5+A1", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax");
+                }
+
+                // A2+5-5+A1  SUBTRACTION & VARIABLE BEFORE/AFTER
+                try
+                {
+                    Evaluator.Evaluate("A2+5-5+A1", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax");
+                }
+
+                // A2-A1  VARIABLE SUBTRACTION
+                try
+                {
+                    Evaluator.Evaluate("A2-A1", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax");
+                }
+
+            // MULTIPLICATION TESTS:
+
+                Console.WriteLine("Failed Multiplication Tests:");
+
+                // 0*0  ZEROS
+                try
+                {
+                    int val = Evaluator.Evaluate("0*0", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax");
+                }
+
+                // 5*5  SIMPLE MULTIPLICATION
+                try
+                {
+                    int val = Evaluator.Evaluate("5*5", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax");
+                }
+
+                // 5*5+2  MULTIPLICATION & ADDITION AFTER
+                try
+                {
+                    Evaluator.Evaluate("5*5+2", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax");
+                }
+
+                // 10+5*5  MULTIPLICATION & ADDITION BEFORE
+                try
+                {
+                    Evaluator.Evaluate("10+5*5", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax");
+                }
+
+                // 2*10/2  MULTIPLICATION & DIVISION AFTER
+                try
+                {
+                    Evaluator.Evaluate("2*10/2", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax");
+                }
+
+                // 10/5*1  MULTIPLICATION & DIVISION BEFORE
+                try
+                {
+                    Evaluator.Evaluate("10/5*1", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax");
+                }
+
+                // 5*5+A1  MULTIPLICATION & VARIABLE AFTER
+                try
+                {
+                    Evaluator.Evaluate("5*5+A1", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax");
+                }
+
+                // A2+5*5+A1  MULTIPLICATION & VARIABLE BEFORE/AFTER
+                try
+                {
+                    Evaluator.Evaluate("A2+5*5+A1", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax");
+                }
+
+                // A2*A1  VARIABLE MULTIPLICATION
+                try
+                {
+                    Evaluator.Evaluate("A2*A1", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax");
+                }
+
+            // DIVISION TESTS:
+
+                Console.WriteLine("Failed Division Tests:");
+
+                // 5/5  SIMPLE DIVISION
+                try
+                {
+                    int val = Evaluator.Evaluate("5/5", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax");
+                }
+
+                // 5/5+2  DIVISION & ADDITION AFTER
+                try
+                {
+                    Evaluator.Evaluate("5/5+2", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax");
+                }
+
+                // 10+5/5  DIVISION & ADDITION BEFORE
+                try
+                {
+                    Evaluator.Evaluate("10+5/5", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax");
+                }
+
+                // 5/5+A1  DIVISION & VARIABLE AFTER
+                try
+                {
+                    Evaluator.Evaluate("5/5+A1", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax");
+                }
+
+                // A2+5/5+A1  DIVISION & VARIABLE BEFORE/AFTER
+                try
+                {
+                    Evaluator.Evaluate("A2+5/5+A1", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax");
+                }
+
+                // A2*A1  VARIABLE DIVISION
+                try
+                {
+                    Evaluator.Evaluate("A2/A1", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax");
+                }
+
+            // PARANTHESIS TESTS:
+
+                Console.WriteLine("Failed Paranthesis Tests:");
+
+                // (5+5)  SIMPLE PARANTHESIS
+                try
+                {
+                    Evaluator.Evaluate("(5+5)", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax");
+                }
+
+                // ((5+5))  DOUBLE PARANTHESIS
+                try
+                {
+                    Evaluator.Evaluate("((5+5))", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax");
+                }
+
+                // ((5+5)*5)  PARANTHESIS WITH ADDITION AND MULTIPLICATION AFTER
+                try
+                {
+                    Evaluator.Evaluate("((5+5)*5)", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax");
+                }
+
+                // (5*(5+5))  PARANTHESIS WITH ADDITION AND MULTIPLICATION BEFORE
+                try
+                {
+                    Evaluator.Evaluate("(5*(5+5))", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("invalid syntax");
+                }
+
+            // ARGUMENTEXCEPTION TESTS:
+
+                Console.WriteLine("THERE SHOULD BE 11 ERRORS BELOW:");
+
+                // 5/0  DIVIDE BY ZERO
+                try
+                {
+                    int val = Evaluator.Evaluate("5/0", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("error #1");
+                }
+
+                // 5+  UNBALANCED ADDITION
+                try
+                {
+                    int val = Evaluator.Evaluate("5+", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("error #2");
+                }
+
+                // +5  UNBALANCED ADDITION pt.2
+                try
+                {
+                    int val = Evaluator.Evaluate("+5", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("error #3");
+                }
+
+                // 5-  UNBALANCED SUBTRACTION
+                try
+                {
+                    int val = Evaluator.Evaluate("5-", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("error #4");
+                }
+
+                // -5  UNBALANCED SUBTRACTION pt.2
+                try
+                {
+                    int val = Evaluator.Evaluate("-5", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("error #5");
+                }
+
+                // 5*  UNBALANCED MULTIPLICATION
+                try
+                {
+                    int val = Evaluator.Evaluate("5*", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("error #6");
+                }
+
+                // *5  UNBALANCED MULTIPLICATION pt.2
+                try
+                {
+                    int val = Evaluator.Evaluate("*5", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("error #7");
+                }
+
+                // 5/  UNBALANCED DIVISION
+                try
+                {
+                    int val = Evaluator.Evaluate("5/", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("error #8");
+                }
+
+                // /5  UNBALANCED ADDITION pt.2
+                try
+                {
+                    int val = Evaluator.Evaluate("/5", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("error #9");
+                }
+
+                // (5  UNBALANCED PARANTHESIS
+                try
+                {
+                    int val = Evaluator.Evaluate("(5", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("error #10");
+                }
+
+                // 5)  UNBALANCED PARANTHESIS pt.2
+                try
+                {
+                    int val = Evaluator.Evaluate("5)", VariableLookup);
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("error #11");
+                }
         }
     }
 }
