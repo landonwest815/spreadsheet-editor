@@ -19,7 +19,7 @@ All files related to this assignment are spell-checked.
 
 # Consulted Peers:
 
-I did not talk with any peers for this assignment. If I was confused with anything I used google.
+I did not talk with any peers for this assignment. If I was confused with anything I used google. I did not talk with any peers because I didn't have any confusion with this assignment besides some small syntax concerns.
 
 # References:
 
