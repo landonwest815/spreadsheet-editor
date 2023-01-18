@@ -12,9 +12,8 @@ Copyright:  CS 3500 and Landon West - This work may not be copied for use in Aca
 
 # Overview of the Spreadsheet functionality
 
-The Spreadsheet program is currently capable of ....  Future extensions are ...
+The Spreadsheet program is currently capable of calculating correctly formatted expressions arithmetically.  Future extensions are ...
 
 # Time Expenditures:
 
-    1. Assignment One:   Predicted Hours:          20        Actual Hours:    3
-    2. Assignment Two:   Predicted Hours:           ?        Actual Hours:    ?
+    1. Assignment One:   Predicted Hours:          20        Actual Hours:    ~15

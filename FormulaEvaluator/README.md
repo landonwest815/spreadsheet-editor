@@ -11,18 +11,15 @@ Copyright:  CS 3500 and Landon West - This work may not be copied for use in Aca
 
 # Comments to Evaluators:
 
-comments
+The comments throughout the Evaluate walk-through the process step by step.
 
 # Assignment Specific Topics
-Any additional feedback or write up required by the assignment.
 
-Leave a space for a new paragraph.
-
-Make sure you spell check your file (did you install the VS spell checker?) and use your best writing ability.
+All files related to this assignment are spell-checked.
 
 # Consulted Peers:
 
-I did not talk with any peers for this assignment. I was at my parents' house (30 minutes from campus) all weekend and completed everything except the delegate portion during this time. I also do not have any contact information from any peers in CS3500 yet. 
+I did not talk with any peers for this assignment. If I was confused with anything I used google.
 
 # References:
 
@@ -31,3 +28,5 @@ I did not talk with any peers for this assignment. I was at my parents' house (3
     3. Why would you use String.Equals over ==? [duplicate] - https://stackoverflow.com/questions/1659097/why-would-you-use-string-equals-over
     4. How to check if a Stack<T> is empty - https://stackoverflow.com/questions/25748906/how-to-check-if-a-stackt-is-empty
     5. Testing Class Libraries with C# in Visual Studio - https://www.elijahgrubb.com/blog/2015/09/08/Testing-Class-Libraries/
+    6. C# | IsNullOrWhiteSpace() Method - https://www.geeksforgeeks.org/c-sharp-isnullorwhitespace-method/
+    7. Regular Expression Language - Quick Reference - https://learn.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference
