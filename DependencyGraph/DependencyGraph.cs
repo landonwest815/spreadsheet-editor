@@ -37,18 +37,23 @@ namespace SpreadsheetUtilities
 /// </summary>
 public class DependencyGraph
     {
+
+        Dictionary<string, HashSet<string>> dependents;
+        Dictionary<string, HashSet<string>> dependees;
+        int size;
+
+
         /// <summary> Creates an empty DependencyGraph. </summary>
         public DependencyGraph()
         {
-
+            dependents = new Dictionary<string, HashSet<string>>();
+            dependees = new Dictionary<string, HashSet<string>>();
+            size = 0;
         }
         /// <summary> The number of ordered pairs in the DependencyGraph. </summary> 
         public int Size
         {
-            get 
-                { 
-                    return 0; 
-                }
+            get { return size; }
         }
         /// <summary> The size of dependees(s).
         /// This property is an example of an indexer.  If dg is a DependencyGraph, you would
@@ -57,17 +62,17 @@ public class DependencyGraph
         /// It should return the size of dependees("a") </summary>
         public int this[string s]
             {
-                get { return 0; }
+                get { return dependees[s].Count; }
             }
         /// <summary> Reports whether dependents(s) is non-empty. </summary>
         public bool HasDependents(string s)
             {
-                return false;
+                return dependents[s].Count > 0;
             }
         /// <summary> Reports whether dependees(s) is non-empty. </summary>
         public bool HasDependees(string s)
             {
-                return false;
+                return dependees[s].Count > 0;
             }
         /// <summary> Enumerates dependents(s). </summary>
         public IEnumerable<string> GetDependents(string s)
@@ -79,22 +84,55 @@ public class DependencyGraph
             {
                 return null;
             }
-        /// <summary> <para>Adds the ordered pair (s,t), if it doesn't exist</para>
-        /// <para>This should be thought of as:</para> 
-        ///   t depends on s </summary>
+        /// <summary> <para> Adds the ordered pair (s,t), if it doesn't exist </para>
+        /// <para> This should be thought of as: </para> t depends on s </summary>
         /// <param name="s"> s must be evaluated first. T depends on S</param>
         /// <param name="t"> t cannot be evaluated until s is</param>        /// 
         public void AddDependency(string s, string t)
             {
+                if (dependents.ContainsKey(s))
+                {
+                    dependents[s].Add(t);
+                } 
+                else
+                {
+                    dependents.Add(s, new HashSet<string>() {t});
+                }
 
+                if (dependees.ContainsKey(t)) 
+                {
+                    dependees[t].Add(s);
+                }
+                else
+                {
+                    dependees.Add(t, new HashSet<string>() {s});
+                }
+                size++;
             }
         /// <summary> Removes the ordered pair (s,t), if it exists </summary>
         /// <param name="s"></param>
         /// <param name="t"></param>
         public void RemoveDependency(string s, string t)
             {
+                if (dependents.ContainsKey(s))
+                {
+                    dependents.Remove(s);
+                }
+                else
+                {
+                   
+                }
 
-            }
+                if (dependees.ContainsKey(t))
+                {
+                    dependees.Remove(t);
+                }
+                else
+                {
+
+                }
+                size--;
+        }
         /// <summary> Removes all existing ordered pairs of the form (s,r).  Then, for each
         /// t in newDependents, adds the ordered pair (s,t). </summary>
         public void ReplaceDependents(string s, IEnumerable<string> newDependents)
