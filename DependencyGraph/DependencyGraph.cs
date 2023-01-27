@@ -70,6 +70,8 @@ namespace SpreadsheetUtilities
         /// If dg is a DependencyGraph, you would invoke it like this: dg["a"]
         /// It should return the size of dependees("a") 
         /// </summary>
+        /// <param name="s"> the dependent </param>
+        /// <returns> the amount of dependees the dependent contains </returns>
         public int this[string s]
         {
             get
@@ -81,9 +83,11 @@ namespace SpreadsheetUtilities
             }
         }
 
-        /// <summary> 
+        /// <summary>
         /// Reports whether dependents(s) is non-empty. 
         /// </summary>
+        /// <param name="s"> The variable to check for dependents of </param>
+        /// <returns> a bool variable </returns>
         public bool HasDependents(string s)
         {
             if (dependents.ContainsKey(s))
@@ -95,6 +99,8 @@ namespace SpreadsheetUtilities
         /// <summary> 
         /// Reports whether dependees(s) is non-empty. 
         /// </summary>
+        /// <param name="s"> The variable to check for dependees of </param>
+        /// <returns> a bool variable </returns>
         public bool HasDependees(string s)
         {
             if (dependees.ContainsKey(s))
@@ -106,6 +112,8 @@ namespace SpreadsheetUtilities
         /// <summary> 
         /// Enumerates dependents(s). 
         /// </summary>
+        /// <param name="s"> The variable to get the dependents of </param>
+        /// <returns> an IEnumerable of the dependents (an empty one if the key doesn't exist) </returns>
         public IEnumerable<string> GetDependents(string s)
         {
             if (dependents.ContainsKey(s))
@@ -117,6 +125,8 @@ namespace SpreadsheetUtilities
         /// <summary> 
         /// Enumerates dependees(s). 
         /// </summary>
+        /// <param name="s"> The variable to get the dependees for </param>
+        /// <returns> an IEnumerable of the dependents (an empty one if the key doesn't exist) </returns>
         public IEnumerable<string> GetDependees(string s)
         {
             if (dependees.ContainsKey(s))
@@ -196,10 +206,12 @@ namespace SpreadsheetUtilities
             }
         }
 
-        /// <summary> 
+        /// <summary>
         /// Removes all existing ordered pairs of the form (s,r).  
         /// Then, for each t in newDependents, adds the ordered pair (s,t). 
         /// </summary>
+        /// <param name="s"> the dependee of the dependents being replaced </param>
+        /// <param name="newDependents"> the replacement dependent(s) </param>
         public void ReplaceDependents(string s, IEnumerable<string> newDependents)
         {
             // As long as s exists in the dependents dictionary...
@@ -225,6 +237,8 @@ namespace SpreadsheetUtilities
         /// Removes all existing ordered pairs of the form (r,s).  
         /// Then, for each t in newDependees, adds the ordered pair (t,s). 
         /// </summary>
+        /// <param name="s"> the dependent of the dependees being replaced </param>
+        /// <param name="newDependents"> the replacement dependee(s) </param>
         public void ReplaceDependees(string s, IEnumerable<string> newDependees)
         {
             // As long as s exists in the dependees dictionary...
@@ -244,4 +258,3 @@ namespace SpreadsheetUtilities
             }
         }
     }
-}
