@@ -16,5 +16,5 @@ The Spreadsheet program is currently capable of calculating correctly formatted 
 
 # Time Expenditures:
 
-    1. Assignment One:   Predicted Hours:          20        Actual Hours:    ~15
-    2. Assignment Two:   Predicted Hours:          15        Actual Hours:     ~1
+    1. Assignment One:   Predicted Hours:          20        Actual Hours:    15
+    2. Assignment Two:   Predicted Hours:          15        Actual Hours:    10

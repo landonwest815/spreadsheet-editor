@@ -11,7 +11,7 @@ Copyright:  CS 3500 and Landon West - This work may not be copied for use in Aca
 
 # Comments to Evaluators:
 
-    x
+    N/A
 
 # Assignment Specific Topics
 
@@ -19,7 +19,7 @@ Copyright:  CS 3500 and Landon West - This work may not be copied for use in Aca
 
 # Consulted Peers:
 
-    No peers were consulted for this assignment. I already had a good grasp on how to get the project done, however, the lecture on Tuesday the 24th made it even more clear how to get it done.
+    No peers were consulted for this assignment. I already had a good grasp on how to get the project done, however, the lectures made it even more clear how to get it done.
 
 # References:
 
@@ -28,7 +28,3 @@ Copyright:  CS 3500 and Landon West - This work may not be copied for use in Aca
     3. HashSet<T> Class - https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.hashset-1?view=net-7.0
     4. Is there an AddRange equivalent for a HashSet in C# - https://stackoverflow.com/questions/15267034/is-there-an-addrange-equivalent-for-a-hashset-in-c-sharp
     5. How to write Hashset values to the console? [duplicate] - https://stackoverflow.com/questions/33868610/how-to-write-hashset-values-to-the-console
-    6. name - link
-    7. name - link
-    8. name - link
-    9. name - link
