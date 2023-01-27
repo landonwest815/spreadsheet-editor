@@ -253,8 +253,9 @@ namespace SpreadsheetUtilities
                 // Iterate through the replacement dependees and add them all
                 foreach (string item in newDependees)
                 {
-                    AddDependency(item, s);
+                    AddDependency(item, s);  
                 }
             }
         }
     }
+}
