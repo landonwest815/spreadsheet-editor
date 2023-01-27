@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 namespace SpreadsheetUtilities
 {
@@ -132,28 +133,36 @@ namespace SpreadsheetUtilities
         /// <param name="t"> t cannot be evaluated until s is </param>
         public void AddDependency(string s, string t)
         {
-            // Add to dependents dictionary
-            if (dependents.ContainsKey(s))
-            {
-                dependents[s].Add(t);
-            }
-            else
-            {
-                dependents.Add(s, new HashSet<string>() { t });
-            }
+                // Add to dependents dictionary
+                if (dependents.ContainsKey(s))
+                    {
+                    // Check if it already exists
+                    if (dependents[s].Contains(t))
+                    {
+                        return; // Exits the method as it can't be added (no duplicates)
+                    }
+                    else
+                    {
+                        dependents[s].Add(t);
+                    }
+                }
+                else
+                {
+                    dependents.Add(s, new HashSet<string>() { t });
+                }
 
-            // Add to dependees dictionary
-            if (dependees.ContainsKey(t))
-            {
-                dependees[t].Add(s);
-            }
-            else
-            {
-                dependees.Add(t, new HashSet<string>() { s });
-            }
+                // Add to dependees dictionary
+                if (dependees.ContainsKey(t))
+                {
+                    dependees[t].Add(s);
+                }
+                else
+                {
+                    dependees.Add(t, new HashSet<string>() { s });
+                }
 
-            // Increment the size
-            size++;
+                // Increment the size
+                size++;
         }
 
         /// <summary> 
@@ -166,7 +175,18 @@ namespace SpreadsheetUtilities
             // Remove dependent from the dependents dictionary
             if (dependents.ContainsKey(s))
             {
-                dependents[s].Remove(t);
+                // Check if it exists
+                if (!dependents[s].Contains(t))
+                {
+                    return; // Exits the method as the dependency to remove does not exist
+                }
+                else
+                {
+                    dependents[s].Remove(t);
+                }
+
+                // Decrement the size
+                size--;
             }
 
             // Remove dependee from the dependents dictionary
@@ -174,9 +194,6 @@ namespace SpreadsheetUtilities
             {
                 dependees[t].Remove(s);
             }
-
-            // Decrement the size
-            size--;
         }
 
         /// <summary> 

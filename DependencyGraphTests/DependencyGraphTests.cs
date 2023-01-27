@@ -247,5 +247,72 @@ namespace DevelopmentTests
             t.RemoveDependency("a", "b");
             Assert.IsFalse(t.HasDependees("a"));
         }
+
+        /// <summary> Tests for duplicate input dependencies </summary>
+        [TestMethod()]
+        public void DuplicateTest()
+        {
+            DependencyGraph t = new DependencyGraph();
+            t.AddDependency("a", "b");
+            t.AddDependency("a", "b");
+            Assert.AreEqual(1, t.Size);
+            t.RemoveDependency("a", "b");
+            Assert.AreEqual(0, t.Size);
+        }
+
+        /// <summary> Tests for mirrored dependency inputs </summary>
+        [TestMethod()]
+        public void MirroredDependenciesTest()
+        {
+            DependencyGraph t = new DependencyGraph();
+            t.AddDependency("a", "a");
+            Assert.IsTrue(t.HasDependents("a"));
+            Assert.IsTrue(t.HasDependees("a"));
+            t.AddDependency("a", "b");
+            t.RemoveDependency("a", "a");
+            Assert.IsTrue(t.HasDependents("a"));
+            Assert.IsFalse(t.HasDependees("a"));
+        }
+
+        /// <summary> Tests removing a dependency that doesn't exist in the DG </summary>
+        [TestMethod()]
+        public void RemovingNonexistantDependenciesTest()
+        {
+            DependencyGraph t = new DependencyGraph();
+            t.AddDependency("a", "b");
+            t.RemoveDependency("a", "q");
+            Assert.AreEqual(1, t.Size);
+            t.AddDependency("d", "f");
+            Assert.AreEqual(2, t.Size);
+            t.RemoveDependency("d", "a");
+            Assert.AreEqual(2, t.Size);
+        }
+
+        /// <summary> Tests removing on an empty DG </summary>
+        [TestMethod()]
+        public void RemovingOnEmptyDGTest()
+        {
+            DependencyGraph t = new DependencyGraph();
+            t.RemoveDependency("a", "b");
+            Assert.AreEqual(0, t.Size);
+            t.AddDependency("d", "f");
+            Assert.AreEqual(1, t.Size);
+            t.RemoveDependency("d", "f");
+            t.RemoveDependency("z", "s");
+            Assert.AreEqual(0, t.Size);
+        }
+
+        /// <summary> Tests simple assertions using a DG with complex variable names </summary>
+        [TestMethod()]
+        public void ComplicatedVariableNamesTest()
+        {
+            var t = new DependencyGraph();
+            t.AddDependency("California", "Nevada");
+            t.AddDependency("Nevada", "Arizona");
+            t.AddDependency("Washington D.C.", "New York");
+            Assert.IsTrue(t.HasDependents("California"));
+            Assert.IsFalse(t.HasDependents("New York"));
+            Assert.AreEqual(3, t.Size);
+        }
     }
 } 
