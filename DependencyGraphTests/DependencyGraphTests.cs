@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SpreadsheetUtilities;
 namespace DevelopmentTests
@@ -202,5 +200,52 @@ namespace DevelopmentTests
                 HashSet<string>(t.GetDependees(letters[i]))));
             }
         }
+        /// <summary> Calling the indexer after adding and after removing dependencies </summary>
+        [TestMethod()]
+        public void IndexerTest()
+        {
+            DependencyGraph t = new DependencyGraph();
+            t.AddDependency("a", "b");
+            t.AddDependency("b", "c");
+            t.AddDependency("c", "d");
+            Assert.AreEqual(1, t["b"]);
+            t.AddDependency("e", "b");
+            Assert.AreEqual(2, t["b"]);
+            t.RemoveDependency("a", "b");
+            Assert.AreEqual(1, t["b"]);
+            Assert.AreEqual(0, t["z"]);
+        }
+
+        /// <summary> Calls the hasDependents() method after adding and after removing dependencies </summary>
+        [TestMethod()]
+        public void HasDependentsTest()
+        { 
+            DependencyGraph t = new DependencyGraph();
+            t.AddDependency("a", "b");
+            t.AddDependency("b", "c");
+            Assert.IsTrue(t.HasDependents("a"));
+            Assert.IsTrue(t.HasDependents("b"));
+            Assert.IsFalse(t.HasDependents("c"));
+            t.RemoveDependency("b", "c");
+            Assert.IsFalse(t.HasDependents("b"));
+            t.RemoveDependency("a", "b");
+            Assert.IsFalse(t.HasDependents("a"));
+        }
+
+        /// <summary> Calls the hasDependees() method after adding and after removing dependencies </summary>
+        [TestMethod()]
+        public void HasDependeesTest()
+        {
+            DependencyGraph t = new DependencyGraph();
+            t.AddDependency("a", "b");
+            t.AddDependency("b", "c");
+            Assert.IsFalse(t.HasDependees("a"));
+            Assert.IsTrue(t.HasDependees("b"));
+            Assert.IsTrue(t.HasDependees("c"));
+            t.RemoveDependency("b", "c");
+            Assert.IsFalse(t.HasDependents("c"));
+            t.RemoveDependency("a", "b");
+            Assert.IsFalse(t.HasDependees("a"));
+        }
     }
-}
+} 
