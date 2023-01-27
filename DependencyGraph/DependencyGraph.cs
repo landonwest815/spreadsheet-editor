@@ -9,32 +9,32 @@ using System.Linq;
 using System.Text;
 namespace SpreadsheetUtilities
 {
-/// <summary>
-/// (s1,t1) is an ordered pair of strings
-/// t1 depends on s1; s1 must be evaluated before t1
-/// A DependencyGraph can be modeled as a set of ordered pairs of strings. 
-/// Two ordered pairs (s1,t1) and (s2,t2) are considered equal if and only if s1 equals s2 and t1 equals t2.
-/// Recall that sets never contain duplicates. If an attempt is made to add an element to a
-/// set, and the element is already in the set, the set remains unchanged.
-/// 
-/// Given a DependencyGraph DG:
-/// 
-///    (1) If s is a string, the set of all strings t such that (s,t) is in DG is called dependents(s).
-///        (The set of things that depend on s)    
-///        
-///    (2) If s is a string, the set of all strings t such that (t,s) is in DG is called dependees(s).
-///        (The set of things that s depends on) 
-//
-//      For example, suppose DG = {("a", "b"), ("a", "c"), ("b", "d"), ("d", "d")}
-//          dependents("a") = {"b", "c"}
-//          dependents("b") = {"d"}
-//          dependents("c") = {}
-//          dependents("d") = {"d"}
-//          dependees("a") = {}
-//          dependees("b") = {"a"}
-//          dependees("c") = {"a"}
-//          dependees("d") = {"b", "d"}
-/// </summary>
+    /// <summary>
+    /// (s1,t1) is an ordered pair of strings
+    /// t1 depends on s1; s1 must be evaluated before t1
+    /// A DependencyGraph can be modeled as a set of ordered pairs of strings. 
+    /// Two ordered pairs (s1,t1) and (s2,t2) are considered equal if and only if s1 equals s2 and t1 equals t2.
+    /// Recall that sets never contain duplicates. If an attempt is made to add an element to a
+    /// set, and the element is already in the set, the set remains unchanged.
+    /// 
+    /// Given a DependencyGraph DG:
+    /// 
+    ///    (1) If s is a string, the set of all strings t such that (s,t) is in DG is called dependents(s).
+    ///        (The set of things that depend on s)    
+    ///        
+    ///    (2) If s is a string, the set of all strings t such that (t,s) is in DG is called dependees(s).
+    ///        (The set of things that s depends on) 
+    //
+    //      For example, suppose DG = {("a", "b"), ("a", "c"), ("b", "d"), ("d", "d")}
+    //          dependents("a") = {"b", "c"}
+    //          dependents("b") = {"d"}
+    //          dependents("c") = {}
+    //          dependents("d") = {"d"}
+    //          dependees("a") = {}
+    //          dependees("b") = {"a"}
+    //          dependees("c") = {"a"}
+    //          dependees("d") = {"b", "d"}
+    /// </summary>
     public class DependencyGraph
     {
         // Sets up two dictionaries for the handling of Dependents and Dependees separately and effiecently
@@ -71,7 +71,13 @@ namespace SpreadsheetUtilities
         /// </summary>
         public int this[string s]
         {
-            get { return dependees[s].Count; }
+            get
+            {
+                if (dependees.ContainsKey(s))
+                    return dependees[s].Count;
+                else
+                    return 0;
+            }
         }
 
         /// <summary> 
@@ -79,7 +85,10 @@ namespace SpreadsheetUtilities
         /// </summary>
         public bool HasDependents(string s)
         {
-            return dependents[s].Count > 0;
+            if (dependents.ContainsKey(s))
+                return dependents[s].Count > 0;
+            else
+                return false;
         }
 
         /// <summary> 
@@ -87,7 +96,10 @@ namespace SpreadsheetUtilities
         /// </summary>
         public bool HasDependees(string s)
         {
-            return dependees[s].Count > 0;
+            if (dependees.ContainsKey(s))
+                return dependees[s].Count > 0;
+            else
+                return false;
         }
 
         /// <summary> 
@@ -124,20 +136,20 @@ namespace SpreadsheetUtilities
             if (dependents.ContainsKey(s))
             {
                 dependents[s].Add(t);
-            } 
+            }
             else
             {
-                dependents.Add(s, new HashSet<string>() {t});
+                dependents.Add(s, new HashSet<string>() { t });
             }
 
             // Add to dependees dictionary
-            if (dependees.ContainsKey(t)) 
+            if (dependees.ContainsKey(t))
             {
                 dependees[t].Add(s);
             }
             else
             {
-                dependees.Add(t, new HashSet<string>() {s});
+                dependees.Add(t, new HashSet<string>() { s });
             }
 
             // Increment the size
@@ -162,7 +174,7 @@ namespace SpreadsheetUtilities
             {
                 dependees[t].Remove(s);
             }
-               
+
             // Decrement the size
             size--;
         }
@@ -177,12 +189,14 @@ namespace SpreadsheetUtilities
             if (dependents.ContainsKey(s))
             {
                 // Iterate through the dependents of s and remove them all
+                // This is O(N) Time Complexity (this is allowed by assignment specifications)
                 foreach (string item in dependents[s])
                 {
                     RemoveDependency(s, item);
                 }
-                
+
                 // Iterate through the replacement dependents and add them all
+                // This is also O(N) Time Complexity
                 foreach (string item in newDependents)
                 {
                     AddDependency(s, item);
