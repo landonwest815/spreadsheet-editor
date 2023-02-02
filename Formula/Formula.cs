@@ -261,7 +261,7 @@ namespace SpreadsheetUtilities
             Stack<double> values = new Stack<double>();
             Stack<String> operators = new Stack<String>();
 
-            // Splits the expresion into an String array of tokens
+            // Splits the expresion into a List of tokens
             List<string> tokens = GetTokens(data).ToList();
 
             // Loops through every token one by one
@@ -454,9 +454,13 @@ namespace SpreadsheetUtilities
     /// </summary>
     public IEnumerable<String> GetVariables()
     {
+        // List of tokens in the formula
         List<String> tokens = GetTokens(data).ToList();
-        HashSet<String> variables = new HashSet<String>();
 
+        // List for variables to be put into using a HashSet for no duplicates
+        HashSet<String> variables = new HashSet<String>();
+            
+        // Loops through tokens and adds them to variables if they are variables
         foreach (String token in tokens)
             {
                 if (IsVariable(token))
@@ -465,6 +469,7 @@ namespace SpreadsheetUtilities
                 }
             }
 
+        // Returns the HashSet as an IEnumerable
         return variables;
     }
 
@@ -507,13 +512,13 @@ namespace SpreadsheetUtilities
     /// </summary>
     public override bool Equals(object? obj)
     {
-        if (obj == null || obj is not Formula)
-            {
-                return false;
-            }
-
+        // Checks if obj is not a Formula or null
+        if (obj == null || obj is not Formula) { return false; }
+        
+        // Creates a Formula from the obj
         Formula? objFormula = obj as Formula;
 
+        // Compares the two Formulas
         return this.data == objFormula.data;
     }
 
@@ -575,7 +580,6 @@ namespace SpreadsheetUtilities
           yield return s;
         }
       }
-
     }
   }
 
@@ -584,17 +588,12 @@ namespace SpreadsheetUtilities
   /// </summary>
   public class FormulaFormatException : Exception
   {
-        public FormulaFormatException()
-        {
-        }
+        public FormulaFormatException() {}
 
         /// <summary>
         /// Constructs a FormulaFormatException containing the explanatory message.
         /// </summary>
-        public FormulaFormatException(String message)
-        : base(message)
-    {
-    }
+        public FormulaFormatException(String message) : base(message) {}
   }
 
   /// <summary>
@@ -605,17 +604,15 @@ namespace SpreadsheetUtilities
     /// <summary>
     /// Constructs a FormulaError containing the explanatory reason.
     /// </summary>
-    /// <param name="reason"></param>
-    public FormulaError(String reason)
-        : this()
-    {
-      Reason = reason;
-    }
+    /// <param name="reason"> The reason why this FormulaError was created. </param>
+    public FormulaError(String reason) : this()
+        { Reason = reason; }
 
     /// <summary>
     ///  The reason why this FormulaError was created.
     /// </summary>
-    public string Reason { get; private set; }
+    public string Reason 
+        { get; private set; }
   }
 }
 
