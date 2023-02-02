@@ -5,14 +5,29 @@ namespace FormulaTests
     [TestClass]
     public class FormulaTests
     {
+        Dictionary<String, double> vDict;
 
         // Normalize function
-
-
+        public string VariableNormalize(string variable)
+        {
+            variable.ToUpper();
+            return variable;
+        }
 
         // isValid function
+        public bool VariableValidizer(string variable)
+        {
+            if (vDict.ContainsKey(variable))
+            {
+                return true;
+            }
+            return false;
+        }
 
-
+        public double VariableLookup(string variable)
+        {
+            return vDict[variable];
+        }
 
         // Lookup function
 
@@ -20,7 +35,10 @@ namespace FormulaTests
         public void TestMethod1()
         {
 
-            Formula f1 = new Formula("1+2+A2");
+            vDict = new Dictionary<string, double>();
+            vDict.Add("A1", 5.0);
+            Formula f1 = new Formula("1+2+A1");
+            Assert.AreEqual(8.0, f1.Evaluate(VariableLookup));
 
         }
 
@@ -28,7 +46,8 @@ namespace FormulaTests
         public void TestMethod2()
         {
 
-            Formula f2 = new Formula("((1+3)");
+            Formula f2 = new Formula("((1+3))");
+            Assert.AreEqual(4.0, f2.Evaluate(VariableLookup));
 
         }
     }

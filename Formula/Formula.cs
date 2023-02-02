@@ -48,7 +48,8 @@ namespace SpreadsheetUtilities
   public class Formula
   {
         string allowableTokens = "()+-*/";
-        string inputFormula;
+        string operators = "+-*/";
+        string data;
         /// <summary>
         /// Creates a Formula from a string that consists of an infix expression written as
         /// described in the class comment.  If the expression is syntactically invalid,
@@ -59,11 +60,12 @@ namespace SpreadsheetUtilities
         /// </summary>
         public Formula(String formula) : this(formula, s => s, s => true)
     {
-            inputFormula = formula;
-            IsValidSyntax(inputFormula);
-            // parse through the formula
-            // check that it is valid
-    }
+            // Checks if the provided formula contains valid syntax
+            IsValidSyntax(formula);
+
+            // Stores the formula in the data variable
+            data = formula;
+        }
 
     /// <summary>
     /// Creates a Formula from a string that consists of an infix expression written as
@@ -89,86 +91,103 @@ namespace SpreadsheetUtilities
     /// </summary>
     public Formula(String formula, Func<string, string> normalize, Func<string, bool> isValid)
     {
-            inputFormula = formula;
-            isValid(inputFormula);
-            // normalize variables
-            // check if it is syntacically valid
-            // check if the variables are valid
+            // Checks if the provided formula contains valid syntax
+            IsValidSyntax(formula);
+
+            // Stores the formula in the data variable
+            data = formula;
+
+            // Normalizes the data
+            data = normalize(data);
+
+            // Checks for valid variables within the formula
+            if (!isValid(data)) throw new FormulaFormatException("Invalid variable(s) detected");
     }
 
-        private void IsValidSyntax(String formula)
+    /// <summary>
+    /// This helper method iterates through the tokens in a formula and makes sure they pass the requirements of a syntactically valid expression
+    /// </summary>
+    /// <param name="formula"> the formula being checked </param>
+    /// <exception cref="FormulaFormatException"> throws if any rules are broken </exception>
+    private void IsValidSyntax(String formula)
+    {
+        List<String> tokens = GetTokens(formula).ToList();
+        int leftpar = 0;
+        int rightpar = 0;
+
+        // Check if there is atleast 1 token
+        if (tokens.Count < 1)
         {
-            List<String> tokens = GetTokens(formula).ToList();
-            int leftpar = 0;
-            int rightpar = 0;
-
-            // Check if there is atleast 1 token
-            if (tokens.Count < 1)
-            {
-                throw new FormulaFormatException("There is not atleast 1 token");
-            }
-
-            // Check if first token is one of the following: opening paranthesis, number, or variable
-            if (!(tokens[0] == "(" || IsNumber(tokens[0]) || IsVariable(tokens[0])))
-            {
-                throw new FormulaFormatException("First token is not a '(', number, or variable");
-            }
-
-            //Check if last token is one of the following: number, variable, or closing paranthesis
-            if (!(IsNumber(tokens.Last()) || IsVariable(tokens.Last()) || tokens.Last() == ")"))
-            {
-                throw new FormulaFormatException("Last token is not a number, variable, or ')'");
-            }
-
-            for (int i = 0; i < tokens.Count; i++)
-            {
-                // Checks if the current token is valid
-                if (!IsValidToken(tokens[i]))
-                {
-                    throw new FormulaFormatException("Formula contains invalid token");
-                }
-
-                // Checks if the previous token was an opening paranthesis or an operator
-                if (i > 0)
-                {
-                    if (tokens[i - 1] == "(" || IsOperator(tokens[i - 1]))
-                    {
-                        // If it was then the current token must be a number, variable, or opening paranthesis
-                        if (!(IsNumber(tokens[i]) || IsVariable(tokens[i]) || tokens[i] == "("))
-                        {
-                            throw new FormulaFormatException("'(' or an operator is not followed by a number, variable, or '('");
-                        }
-                    }
-
-                    // Checks if the previous token was a number, variable, or opening paranthesis
-                    if (IsNumber(tokens[i - 1]) || IsVariable(tokens[i - 1]) || tokens[i - 1] == "(")
-                    {
-                        // If it was then the current token must be a number or an operator
-                        if (!(tokens[i] == "(" || IsOperator(tokens[i])))
-                        {
-                            throw new FormulaFormatException("A number, variable, or '(' is not followed by a '(' or an operator");
-                        }
-                    }
-                }
-
-                // Updates paranthesis counters
-                if (tokens[i] == "(") leftpar++;
-                if (tokens[i] == ")") rightpar++;
-
-                // Checks if rightpar is greater than leftpar
-                if (rightpar > leftpar)
-                {
-                    throw new FormulaFormatException("Closing paranthesis exceed opening paranthesis at some point in the formula");
-                }   
-            }
-
-            // Check if paranthesis counters match
-            if (leftpar != rightpar) 
-            {
-                throw new FormulaFormatException("Unbalanced paranthesis");
-            }
+            throw new FormulaFormatException("There is not atleast 1 token");
         }
 
+        // Check if first token is one of the following: opening paranthesis, number, or variable
+        if (!(tokens[0] == "(" || IsNumber(tokens[0]) || IsVariable(tokens[0])))
+        {
+            throw new FormulaFormatException("First token is not a '(', number, or variable");
+        }
+
+        // Check if last token is one of the following: number, variable, or closing paranthesis
+        if (!(IsNumber(tokens.Last()) || IsVariable(tokens.Last()) || tokens.Last() == ")"))
+        {
+            throw new FormulaFormatException("Last token is not a number, variable, or ')'");
+        }
+
+        // Loops through the tokens and checks for rules
+        for (int i = 0; i < tokens.Count; i++)
+        {
+            // Checks if the current token is valid
+            if (!IsValidToken(tokens[i]))
+            {
+                throw new FormulaFormatException("Formula contains invalid token");
+            }
+
+            // Checks if the previous token was an opening paranthesis or an operator
+            if (i > 0)
+            {
+                if (tokens[i - 1] == "(" || IsOperator(tokens[i - 1]))
+                {
+                    // If it was then the current token must be a number, variable, or opening paranthesis
+                    if (!(IsNumber(tokens[i]) || IsVariable(tokens[i]) || tokens[i] == "("))
+                    {
+                        throw new FormulaFormatException("'(' or an operator is not followed by a number, variable, or '('");
+                    }
+                }
+
+                // Checks if the previous token was a number, variable, or closing paranthesis
+                if (IsNumber(tokens[i - 1]) || IsVariable(tokens[i - 1]) || tokens[i - 1] == ")")
+                {
+                    // If it was then the current token must be a number or an operator
+                    if (!(tokens[i] == ")" || IsOperator(tokens[i])))
+                    {
+                        throw new FormulaFormatException("A number, variable, or '(' is not followed by a '(' or an operator");
+                    }
+                }
+            }
+
+            // Updates paranthesis counters
+            if (tokens[i] == "(") leftpar++;
+            if (tokens[i] == ")") rightpar++;
+
+            // Checks if rightpar is greater than leftpar
+            if (rightpar > leftpar)
+            {
+                throw new FormulaFormatException("Closing paranthesis exceed opening paranthesis at some point in the formula");
+            }   
+        }
+
+        // Check if paranthesis counters match
+        if (leftpar != rightpar) 
+        {
+            throw new FormulaFormatException("Unbalanced paranthesis");
+        }
+    }
+    
+    /// <summary>
+    /// This helper method checks if a token is valid
+    /// </summary>
+    /// <param name="token"> the token being checked </param>
+    /// <returns> bool value depending on if the token was valid </returns>
     private bool IsValidToken(String token)
         {
             // If the token is a number
@@ -193,6 +212,11 @@ namespace SpreadsheetUtilities
             return false;
         } 
 
+    /// <summary>
+    /// This helper method checks if a token is a number
+    /// </summary>
+    /// <param name="token"> he token being checked </param>
+    /// <returns> bool value depending on whether the token was a number or not </returns>
     private static bool IsNumber(String token)
         {
             if (Double.TryParse(token, out double num))
@@ -200,16 +224,26 @@ namespace SpreadsheetUtilities
             return false;
         }
 
+    /// <summary>
+    /// This helper method checks if a token is a variable
+    /// </summary>
+    /// <param name="token"> the token being checked </param>
+    /// <returns> bool value depending on whether the token was a variable or not </returns>
     private static bool IsVariable(String token)
         {
             if (Regex.IsMatch(token, "[a-zA-Z]+[0-9]+"))
             { return true; }
             return false;
         }
-
+            
+    /// <summary>
+    /// This helper method checks if a token is an operator
+    /// </summary>
+    /// <param name="token"> the token being checked </param>
+    /// <returns> a bool value depending on whether the token was a operator or not </returns>
     private bool IsOperator(String token)
         {
-            if (allowableTokens.Contains(token))
+            if (operators.Contains(token))
             { return true; }
             return false;
         }
@@ -242,7 +276,7 @@ namespace SpreadsheetUtilities
             Stack<String> operators = new Stack<String>();
 
             // Removes whitespace from the input expression
-            String no_whitespace_expression = String.Concat(inputFormula.Where(c => !Char.IsWhiteSpace(c)));
+            String no_whitespace_expression = String.Concat(data.Where(c => !Char.IsWhiteSpace(c)));
 
             // Splits the expresion into an String array of tokens
             string[] tokens = Regex.Split(no_whitespace_expression, "(\\()|(\\))|(-)|(\\+)|(\\*)|(/)");
@@ -282,10 +316,6 @@ namespace SpreadsheetUtilities
                     // If the top of the operators stack contains a '*'
                     if (topIsMultiply)
                     {
-                        // ERROR CHECKER
-                        if (values.Count == 0)
-                            throw new ArgumentException();
-
                         // Pop the operators stack and multiply the current token with the top of the values stack
                         operators.Pop();
                         values.Push(value * values.Pop());
@@ -296,10 +326,6 @@ namespace SpreadsheetUtilities
                     {
                         // ERROR CHECKER
                         if (value == 0)
-                            throw new ArgumentException();
-
-                        // ERROR CHECKER
-                        if (values.Count == 0)
                             throw new ArgumentException();
 
                         //Pop the operators stack and divide the top of the values stack by the current token
@@ -318,10 +344,6 @@ namespace SpreadsheetUtilities
                     // If the top operator is a '+'
                     if (topIsAdd)
                     {
-                        // ERROR CHECKER
-                        if (values.Count < 2)
-                            throw new ArgumentException();
-
                         // Pop the operators stack and add the top two values on the values stack together
                         operators.Pop();
                         values.Push(values.Pop() + values.Pop());
@@ -329,10 +351,6 @@ namespace SpreadsheetUtilities
                     // If the top operator is a '-'
                     else if (topIsSubtract)
                     {
-                        // ERROR CHECKER
-                        if (values.Count < 2)
-                            throw new ArgumentException();
-
                         // Pop the operators stack and subtract the top value of the values stack from the second highest value on the values stack
                         operators.Pop();
                         double val1 = values.Pop();
@@ -354,10 +372,6 @@ namespace SpreadsheetUtilities
                     // If the top operator is a '+'
                     if (topIsAdd)
                     {
-                        // ERROR CHECKER
-                        if (values.Count < 2)
-                            throw new ArgumentException();
-
                         // Pop the operators stack and add the top two values on the values stack together
                         operators.Pop();
                         values.Push(values.Pop() + values.Pop());
@@ -365,24 +379,12 @@ namespace SpreadsheetUtilities
                     // If the top operator is a '-'
                     else if (topIsSubtract)
                     {
-                        // ERROR CHECKER
-                        if (values.Count < 2)
-                            throw new ArgumentException();
-
                         // Pop the operators stack and subtract the top value of the values stack from the second highest value on the values stack
                         operators.Pop();
                         double val1 = values.Pop();
                         double val2 = values.Pop();
                         values.Push(val2 - val1);
                     }
-
-                    // ERROR CHECKER
-                    if (operators.Count == 0)
-                        throw new ArgumentException();
-
-                    // ERROR CHECKER
-                    if (operators.Peek() != "(")
-                        throw new ArgumentException();
 
                     // Pop the '('
                     operators.Pop();
@@ -421,39 +423,17 @@ namespace SpreadsheetUtilities
 
             // Finishing Steps:
 
-            // If the values stack is emtpy -> invalid syntax
-            if (values.Count == 0)
-            {
-                throw new ArgumentException();
-            }
-
             // If the operator stack is empty -> return the remaining value
             if (operators.Count == 0)
             {
-                // ERROR CHECKER
-                if (values.Count > 1)
-                    throw new ArgumentException();
-
                 return values.Pop();
             }
             // Special cases
             else
             {
-                // ERROR CHECKER
-                if (operators.Count > 1)
-                    throw new ArgumentException();
-
-                // ERROR CHECKER
-                if (values.Count > 2)
-                    throw new ArgumentException();
-
                 // If the top operator is a '+'...
                 if (operators.Peek() == "+")
                 {
-                    // ERROR CHECKER
-                    if (values.Count < 2)
-                        throw new ArgumentException();
-
                     // Pop the operator stack and add the top two values in the values stack
                     operators.Pop();
                     return values.Pop() + values.Pop();
@@ -461,10 +441,6 @@ namespace SpreadsheetUtilities
                 // If the top operator is a '-'...
                 else if (operators.Peek() == "-")
                 {
-                    // ERROR CHECKER
-                    if (values.Count < 2)
-                        throw new ArgumentException();
-
                     // Pop the operator stack and subtract the top value in the values stack from the second highest value in the values stack
                     operators.Pop();
                     double val1 = values.Pop();
