@@ -10,7 +10,8 @@ namespace FormulaTests
         // Normalize function
         public string VariableNormalize(string variable)
         {
-            variable.ToUpper();
+            variable = variable.ToUpper();
+            Console.WriteLine(variable);
             return variable;
         }
 
@@ -35,8 +36,10 @@ namespace FormulaTests
         public void TestMethod1()
         {
 
-            vDict = new Dictionary<string, double>();
-            vDict.Add("A1", 5.0);
+            vDict = new Dictionary<string, double>
+            {
+                { "A1", 5.0 }
+            };
             Formula f1 = new Formula("1+2+A1");
             Assert.AreEqual(8.0, f1.Evaluate(VariableLookup));
 
@@ -46,9 +49,33 @@ namespace FormulaTests
         public void TestMethod2()
         {
 
-            Formula f2 = new Formula("((1+3))");
-            Assert.AreEqual(4.0, f2.Evaluate(VariableLookup));
+            vDict = new Dictionary<string, double>
+            {
+                { "a1", 1.0 },
+                { "A1", 2.0 }
+            };
+            Formula f2 = new Formula("a1 + A1");
+            Assert.AreEqual(3.0, f2.Evaluate(VariableLookup));
 
+        }
+
+        [TestMethod]
+        public void TestMethod3()
+        {
+            vDict = new Dictionary<string, double>
+            {
+                { "A1", 1.0 },
+                { "a1", 2.0 }
+            };
+            Formula f3 = new Formula("a1 + A1", VariableNormalize, VariableValidizer);
+            Assert.AreEqual(2.0, f3.Evaluate(VariableLookup));
+        }
+
+        [TestMethod]
+        public void TestMethod4()
+        {
+            vDict = new Dictionary<string, double>();
+            vDict.Add("A1", 1.0);
         }
     }
 }

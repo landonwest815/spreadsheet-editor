@@ -47,6 +47,7 @@ namespace SpreadsheetUtilities
   /// </summary>
   public class Formula
   {
+        List<string> formulaVariables;
         string allowableTokens = "()+-*/";
         string operators = "+-*/";
         string data;
@@ -101,8 +102,13 @@ namespace SpreadsheetUtilities
             data = normalize(data);
 
             // Checks for valid variables within the formula
-            if (!isValid(data)) throw new FormulaFormatException("Invalid variable(s) detected");
-    }
+            formulaVariables = GetVariables().ToList();
+            
+            foreach (var variable in formulaVariables)
+            {
+                if (!isValid(variable)) throw new FormulaFormatException("Invalid variable(s) detected");
+            }
+        }
 
     /// <summary>
     /// This helper method iterates through the tokens in a formula and makes sure they pass the requirements of a syntactically valid expression
@@ -468,7 +474,18 @@ namespace SpreadsheetUtilities
     /// </summary>
     public IEnumerable<String> GetVariables()
     {
-      return null;
+        List<String> tokens = GetTokens(data).ToList();
+        HashSet<String> variables = new HashSet<String>();
+
+        foreach (String token in tokens)
+            {
+                if (IsVariable(token))
+                {
+                    variables.Add(token);
+                }
+            }
+
+        return variables;
     }
 
     /// <summary>
