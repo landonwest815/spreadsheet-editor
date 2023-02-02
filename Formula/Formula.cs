@@ -18,6 +18,7 @@
 
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -46,17 +47,22 @@ namespace SpreadsheetUtilities
   /// </summary>
   public class Formula
   {
-    /// <summary>
-    /// Creates a Formula from a string that consists of an infix expression written as
-    /// described in the class comment.  If the expression is syntactically invalid,
-    /// throws a FormulaFormatException with an explanatory Message.
-    /// 
-    /// The associated normalizer is the identity function, and the associated validator
-    /// maps every string to true.  
-    /// </summary>
-    public Formula(String formula) : this(formula, s => s, s => true)
+        string allowableTokens = "()+-*/";
+        string inputFormula;
+        /// <summary>
+        /// Creates a Formula from a string that consists of an infix expression written as
+        /// described in the class comment.  If the expression is syntactically invalid,
+        /// throws a FormulaFormatException with an explanatory Message.
+        /// 
+        /// The associated normalizer is the identity function, and the associated validator
+        /// maps every string to true.  
+        /// </summary>
+        public Formula(String formula) : this(formula, s => s, s => true)
     {
-        
+            inputFormula = formula;
+            IsValidSyntax(inputFormula);
+            // parse through the formula
+            // check that it is valid
     }
 
     /// <summary>
@@ -83,8 +89,130 @@ namespace SpreadsheetUtilities
     /// </summary>
     public Formula(String formula, Func<string, string> normalize, Func<string, bool> isValid)
     {
-
+            inputFormula = formula;
+            isValid(inputFormula);
+            // normalize variables
+            // check if it is syntacically valid
+            // check if the variables are valid
     }
+
+        private void IsValidSyntax(String formula)
+        {
+            List<String> tokens = GetTokens(formula).ToList();
+            int leftpar = 0;
+            int rightpar = 0;
+
+            // Check if there is atleast 1 token
+            if (tokens.Count < 1)
+            {
+                throw new FormulaFormatException("There is not atleast 1 token");
+            }
+
+            // Check if first token is one of the following: opening paranthesis, number, or variable
+            if (!(tokens[0] == "(" || IsNumber(tokens[0]) || IsVariable(tokens[0])))
+            {
+                throw new FormulaFormatException("First token is not a '(', number, or variable");
+            }
+
+            //Check if last token is one of the following: number, variable, or closing paranthesis
+            if (!(IsNumber(tokens.Last()) || IsVariable(tokens.Last()) || tokens.Last() == ")"))
+            {
+                throw new FormulaFormatException("Last token is not a number, variable, or ')'");
+            }
+
+            for (int i = 0; i < tokens.Count; i++)
+            {
+                // Checks if the current token is valid
+                if (!IsValidToken(tokens[i]))
+                {
+                    throw new FormulaFormatException("Formula contains invalid token");
+                }
+
+                // Checks if the previous token was an opening paranthesis or an operator
+                if (i > 0)
+                {
+                    if (tokens[i - 1] == "(" || IsOperator(tokens[i - 1]))
+                    {
+                        // If it was then the current token must be a number, variable, or opening paranthesis
+                        if (!(IsNumber(tokens[i]) || IsVariable(tokens[i]) || tokens[i] == "("))
+                        {
+                            throw new FormulaFormatException("'(' or an operator is not followed by a number, variable, or '('");
+                        }
+                    }
+
+                    // Checks if the previous token was a number, variable, or opening paranthesis
+                    if (IsNumber(tokens[i - 1]) || IsVariable(tokens[i - 1]) || tokens[i - 1] == "(")
+                    {
+                        // If it was then the current token must be a number or an operator
+                        if (!(tokens[i] == "(" || IsOperator(tokens[i])))
+                        {
+                            throw new FormulaFormatException("A number, variable, or '(' is not followed by a '(' or an operator");
+                        }
+                    }
+                }
+
+                // Updates paranthesis counters
+                if (tokens[i] == "(") leftpar++;
+                if (tokens[i] == ")") rightpar++;
+
+                // Checks if rightpar is greater than leftpar
+                if (rightpar > leftpar)
+                {
+                    throw new FormulaFormatException("Closing paranthesis exceed opening paranthesis at some point in the formula");
+                }   
+            }
+
+            // Check if paranthesis counters match
+            if (leftpar != rightpar) 
+            {
+                throw new FormulaFormatException("Unbalanced paranthesis");
+            }
+        }
+
+    private bool IsValidToken(String token)
+        {
+            // If the token is a number
+            if (IsNumber(token))
+            {
+                return true;
+            }
+
+            // If the token is a variable
+            if (IsVariable(token))
+            {
+                return true;
+            }
+
+            // If the token is any of the allowable tokens
+            if (allowableTokens.Contains(token))
+            {
+                return true;
+            }
+
+            // If none of the above cases yield true
+            return false;
+        } 
+
+    private static bool IsNumber(String token)
+        {
+            if (Double.TryParse(token, out double num))
+            { return true; }
+            return false;
+        }
+
+    private static bool IsVariable(String token)
+        {
+            if (Regex.IsMatch(token, "[a-zA-Z]+[0-9]+"))
+            { return true; }
+            return false;
+        }
+
+    private bool IsOperator(String token)
+        {
+            if (allowableTokens.Contains(token))
+            { return true; }
+            return false;
+        }
 
     /// <summary>
     /// Evaluates this Formula, using the lookup delegate to determine the values of
@@ -110,11 +238,11 @@ namespace SpreadsheetUtilities
     public object Evaluate(Func<string, double> lookup)
     {
             // Stacks for processing the expression in an arithmetic way
-            Stack<int> values = new Stack<int>();
+            Stack<double> values = new Stack<double>();
             Stack<String> operators = new Stack<String>();
 
             // Removes whitespace from the input expression
-            String no_whitespace_expression = String.Concat(str.Where(c => !Char.IsWhiteSpace(c)));
+            String no_whitespace_expression = String.Concat(inputFormula.Where(c => !Char.IsWhiteSpace(c)));
 
             // Splits the expresion into an String array of tokens
             string[] tokens = Regex.Split(no_whitespace_expression, "(\\()|(\\))|(-)|(\\+)|(\\*)|(/)");
@@ -126,7 +254,7 @@ namespace SpreadsheetUtilities
                 // Initial Setup:
 
                 // Used for integer tokens
-                int value;
+                double value;
 
                 // Helps simplify the process below
                 bool topIsMultiply = false;
@@ -146,10 +274,10 @@ namespace SpreadsheetUtilities
                 // The Process:
 
                 // If the current token is an integer or a variable...
-                if (int.TryParse(t, out value) || Regex.IsMatch(t, "[a-zA-Z]+[0-9]+"))
+                if (Double.TryParse(t, out value) || Regex.IsMatch(t, "[a-zA-Z]+[0-9]+"))
                 {
                     if (Regex.IsMatch(t, "[a-zA-Z]+[0-9]+"))
-                        value = variableEvaluator(t);
+                        value = lookup(t);
 
                     // If the top of the operators stack contains a '*'
                     if (topIsMultiply)
@@ -207,8 +335,8 @@ namespace SpreadsheetUtilities
 
                         // Pop the operators stack and subtract the top value of the values stack from the second highest value on the values stack
                         operators.Pop();
-                        int val1 = values.Pop();
-                        int val2 = values.Pop();
+                        double val1 = values.Pop();
+                        double val2 = values.Pop();
                         values.Push(val2 - val1);
                     }
                     // Push current token onto operators stack
@@ -243,8 +371,8 @@ namespace SpreadsheetUtilities
 
                         // Pop the operators stack and subtract the top value of the values stack from the second highest value on the values stack
                         operators.Pop();
-                        int val1 = values.Pop();
-                        int val2 = values.Pop();
+                        double val1 = values.Pop();
+                        double val2 = values.Pop();
                         values.Push(val2 - val1);
                     }
 
@@ -278,8 +406,8 @@ namespace SpreadsheetUtilities
 
                             // Pop the operators stack and divide the second highest value in the values stack by the top value
                             operators.Pop();
-                            int val1 = values.Pop();
-                            int val2 = values.Pop();
+                            double val1 = values.Pop();
+                            double val2 = values.Pop();
                             values.Push(val2 / val1);
                         }
                     }
@@ -339,8 +467,8 @@ namespace SpreadsheetUtilities
 
                     // Pop the operator stack and subtract the top value in the values stack from the second highest value in the values stack
                     operators.Pop();
-                    int val1 = values.Pop();
-                    int val2 = values.Pop();
+                    double val1 = values.Pop();
+                    double val2 = values.Pop();
                     return val2 - val1;
                 }
                 // If anything else goes wrong...
