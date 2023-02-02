@@ -237,7 +237,7 @@ namespace SpreadsheetUtilities
     /// <returns> bool value depending on whether the token was a variable or not </returns>
     private static bool IsVariable(String token)
         {
-            if (Regex.IsMatch(token, "[a-zA-Z]+[0-9]+"))
+            if (Regex.IsMatch(token, @"[a-zA-Z_](?: [a-zA-Z_]|\d)*"))
             { return true; }
             return false;
         }
@@ -314,10 +314,17 @@ namespace SpreadsheetUtilities
                 // The Process:
 
                 // If the current token is an integer or a variable...
-                if (Double.TryParse(t, out value) || Regex.IsMatch(t, "[a-zA-Z]+[0-9]+"))
+                if (double.TryParse(t, out value) || IsVariable(t))
                 {
-                    if (Regex.IsMatch(t, "[a-zA-Z]+[0-9]+"))
-                        value = lookup(t);
+                    if (IsVariable(t))
+                        try
+                        {
+                            value = lookup(t);
+                        }
+                        catch(Exception)
+                        {
+                            throw new ArgumentException("Variable does not exist");
+                        }
 
                     // If the top of the operators stack contains a '*'
                     if (topIsMultiply)
@@ -500,7 +507,7 @@ namespace SpreadsheetUtilities
     /// </summary>
     public override string ToString()
     {
-      return null;
+        return String.Concat(data.Where(c => !Char.IsWhiteSpace(c)));
     }
 
     /// <summary>
@@ -527,7 +534,14 @@ namespace SpreadsheetUtilities
     /// </summary>
     public override bool Equals(object? obj)
     {
-      return false;
+        if (obj == null || obj is not Formula)
+            {
+                return false;
+            }
+
+        Formula? objFormula = obj as Formula;
+
+        return this.data == objFormula.data;
     }
 
     /// <summary>
@@ -557,7 +571,7 @@ namespace SpreadsheetUtilities
     /// </summary>
     public override int GetHashCode()
     {
-      return 0;
+      return data.GetHashCode();
     }
 
     /// <summary>

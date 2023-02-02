@@ -1,5 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SpreadsheetUtilities;
+using System.Reflection.Metadata.Ecma335;
+
 namespace FormulaTests
 {
     [TestClass]
@@ -76,6 +78,15 @@ namespace FormulaTests
         {
             vDict = new Dictionary<string, double>();
             vDict.Add("A1", 1.0);
+        }
+
+        [TestMethod]
+        public void TestMethod5()
+        {
+            Formula f1 = new Formula("1.00 + 2.00");
+            Formula f2 = new Formula("1.0+2.0");
+
+            Assert.IsTrue(f1.Equals(f2));
         }
     }
 }
