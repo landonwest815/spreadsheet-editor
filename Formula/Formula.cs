@@ -61,11 +61,8 @@ namespace SpreadsheetUtilities
         /// </summary>
         public Formula(String formula) : this(formula, s => s, s => true)
     {
-            // Checks if the provided formula contains valid syntax
-            IsValidSyntax(formula);
-
-            // Stores the formula in the data variable
-            data = formula;
+            // Checks if the provided formula contains valid syntax and truncates doubles at the same time
+            data = IsValidSyntax(formula);
         }
 
     /// <summary>
@@ -92,11 +89,8 @@ namespace SpreadsheetUtilities
     /// </summary>
     public Formula(String formula, Func<string, string> normalize, Func<string, bool> isValid)
     {
-            // Checks if the provided formula contains valid syntax
-            IsValidSyntax(formula);
-
-            // Stores the formula in the data variable
-            data = formula;
+            // Checks if the provided formula contains valid syntax and truncates doubles at the same time
+            data = IsValidSyntax(formula);
 
             // Normalizes the data
             data = normalize(data);
@@ -115,8 +109,9 @@ namespace SpreadsheetUtilities
     /// </summary>
     /// <param name="formula"> the formula being checked </param>
     /// <exception cref="FormulaFormatException"> throws if any rules are broken </exception>
-    private void IsValidSyntax(String formula)
+    private string IsValidSyntax(string formula)
     {
+        string checkedFormula = "";
         List<String> tokens = GetTokens(formula).ToList();
         int leftpar = 0;
         int rightpar = 0;
@@ -180,6 +175,15 @@ namespace SpreadsheetUtilities
             {
                 throw new FormulaFormatException("Closing paranthesis exceed opening paranthesis at some point in the formula");
             }   
+
+            if (IsNumber(tokens[i]))
+                {
+                    checkedFormula = string.Concat(checkedFormula, Double.Parse(tokens[i]).ToString());
+                }
+                else
+                {
+                    checkedFormula = string.Concat(checkedFormula, tokens[i]);
+                }
         }
 
         // Check if paranthesis counters match
@@ -187,6 +191,7 @@ namespace SpreadsheetUtilities
         {
             throw new FormulaFormatException("Unbalanced paranthesis");
         }
+            return checkedFormula;
     }
     
     /// <summary>
@@ -196,26 +201,7 @@ namespace SpreadsheetUtilities
     /// <returns> bool value depending on if the token was valid </returns>
     private bool IsValidToken(String token)
         {
-            // If the token is a number
-            if (IsNumber(token))
-            {
-                return true;
-            }
-
-            // If the token is a variable
-            if (IsVariable(token))
-            {
-                return true;
-            }
-
-            // If the token is any of the allowable tokens
-            if (allowableTokens.Contains(token))
-            {
-                return true;
-            }
-
-            // If none of the above cases yield true
-            return false;
+            return (IsVariable(token) || IsNumber(token) || allowableTokens.Contains(token));
         } 
 
     /// <summary>
@@ -225,9 +211,7 @@ namespace SpreadsheetUtilities
     /// <returns> bool value depending on whether the token was a number or not </returns>
     private static bool IsNumber(String token)
         {
-            if (Double.TryParse(token, out double num))
-            { return true; }
-            return false;
+            return Double.TryParse(token, out double num);
         }
 
     /// <summary>
@@ -237,9 +221,7 @@ namespace SpreadsheetUtilities
     /// <returns> bool value depending on whether the token was a variable or not </returns>
     private static bool IsVariable(String token)
         {
-            if (Regex.IsMatch(token, @"[a-zA-Z_](?: [a-zA-Z_]|\d)*"))
-            { return true; }
-            return false;
+            return Regex.IsMatch(token, @"[a-zA-Z_](?: [a-zA-Z_]|\d)*");
         }
             
     /// <summary>
@@ -249,9 +231,7 @@ namespace SpreadsheetUtilities
     /// <returns> a bool value depending on whether the token was a operator or not </returns>
     private bool IsOperator(String token)
         {
-            if (operators.Contains(token))
-            { return true; }
-            return false;
+            return operators.Contains(token);
         }
 
     /// <summary>
@@ -281,16 +261,12 @@ namespace SpreadsheetUtilities
             Stack<double> values = new Stack<double>();
             Stack<String> operators = new Stack<String>();
 
-            // Removes whitespace from the input expression
-            String no_whitespace_expression = String.Concat(data.Where(c => !Char.IsWhiteSpace(c)));
-
             // Splits the expresion into an String array of tokens
-            string[] tokens = Regex.Split(no_whitespace_expression, "(\\()|(\\))|(-)|(\\+)|(\\*)|(/)");
+            List<string> tokens = GetTokens(data).ToList();
 
             // Loops through every token one by one
             foreach (String t in tokens)
             {
-
                 // Initial Setup:
 
                 // Used for integer tokens
@@ -317,14 +293,16 @@ namespace SpreadsheetUtilities
                 if (double.TryParse(t, out value) || IsVariable(t))
                 {
                     if (IsVariable(t))
+                    {
                         try
                         {
                             value = lookup(t);
                         }
-                        catch(Exception)
+                        catch (Exception)
                         {
-                            throw new ArgumentException("Variable does not exist");
+                            return new FormulaError("Variable does not exist in the current context");
                         }
+                    }
 
                     // If the top of the operators stack contains a '*'
                     if (topIsMultiply)
@@ -339,7 +317,7 @@ namespace SpreadsheetUtilities
                     {
                         // ERROR CHECKER
                         if (value == 0)
-                            throw new ArgumentException();
+                            return new FormulaError("Encountered a division by zero");
 
                         //Pop the operators stack and divide the top of the values stack by the current token
                         operators.Pop();
@@ -417,7 +395,7 @@ namespace SpreadsheetUtilities
                         {
                             // ERROR CHECKER
                             if (values.Peek() == 0)
-                                throw new ArgumentException();
+                                return new FormulaError("Encountered a division by zero");
 
                             // Pop the operators stack and divide the second highest value in the values stack by the top value
                             operators.Pop();
@@ -426,11 +404,6 @@ namespace SpreadsheetUtilities
                             values.Push(val2 / val1);
                         }
                     }
-                }
-                // Remaining tokens to be checked should only be random whitespaces...
-                else if (!String.IsNullOrEmpty(t))
-                {
-                    throw new ArgumentException();
                 }
             }
 
@@ -463,7 +436,7 @@ namespace SpreadsheetUtilities
                 // If anything else goes wrong...
                 else
                 {
-                    throw new ArgumentException();
+                    return new FormulaError("Unknown error has been run into");
                 }
             }
     }
@@ -507,7 +480,7 @@ namespace SpreadsheetUtilities
     /// </summary>
     public override string ToString()
     {
-        return String.Concat(data.Where(c => !Char.IsWhiteSpace(c)));
+        return data;
     }
 
     /// <summary>
@@ -551,7 +524,7 @@ namespace SpreadsheetUtilities
     /// </summary>
     public static bool operator ==(Formula f1, Formula f2)
     {
-      return false;
+      return f1.Equals(f2);
     }
 
     /// <summary>
@@ -561,7 +534,7 @@ namespace SpreadsheetUtilities
     /// </summary>
     public static bool operator !=(Formula f1, Formula f2)
     {
-      return false;
+      return !(f1.Equals(f2));
     }
 
     /// <summary>

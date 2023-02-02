@@ -7,29 +7,23 @@ namespace FormulaTests
     [TestClass]
     public class FormulaTests
     {
-        Dictionary<String, double> vDict;
+        Dictionary<String, double> variables;
 
         // Normalize function
-        public string VariableNormalize(string variable)
+        public string VariableNormalizer(string variable)
         {
-            variable = variable.ToUpper();
-            Console.WriteLine(variable);
-            return variable;
+            return variable.ToUpper();
         }
 
         // isValid function
         public bool VariableValidizer(string variable)
         {
-            if (vDict.ContainsKey(variable))
-            {
-                return true;
-            }
-            return false;
+            return (variables.ContainsKey(variable));
         }
 
         public double VariableLookup(string variable)
         {
-            return vDict[variable];
+            return variables[variable];
         }
 
         // Lookup function
@@ -38,7 +32,7 @@ namespace FormulaTests
         public void TestMethod1()
         {
 
-            vDict = new Dictionary<string, double>
+            variables = new Dictionary<string, double>
             {
                 { "A1", 5.0 }
             };
@@ -51,7 +45,7 @@ namespace FormulaTests
         public void TestMethod2()
         {
 
-            vDict = new Dictionary<string, double>
+            variables = new Dictionary<string, double>
             {
                 { "a1", 1.0 },
                 { "A1", 2.0 }
@@ -64,20 +58,20 @@ namespace FormulaTests
         [TestMethod]
         public void TestMethod3()
         {
-            vDict = new Dictionary<string, double>
+            variables = new Dictionary<string, double>
             {
                 { "A1", 1.0 },
                 { "a1", 2.0 }
             };
-            Formula f3 = new Formula("a1 + A1", VariableNormalize, VariableValidizer);
+            Formula f3 = new Formula("a1 + A1", VariableNormalizer, VariableValidizer);
             Assert.AreEqual(2.0, f3.Evaluate(VariableLookup));
         }
 
         [TestMethod]
         public void TestMethod4()
         {
-            vDict = new Dictionary<string, double>();
-            vDict.Add("A1", 1.0);
+            variables = new Dictionary<string, double>();
+            variables.Add("A1", 1.0);
         }
 
         [TestMethod]
@@ -87,6 +81,7 @@ namespace FormulaTests
             Formula f2 = new Formula("1.0+2.0");
 
             Assert.IsTrue(f1.Equals(f2));
+            Assert.IsTrue(f1.GetHashCode() == f2.GetHashCode());
         }
     }
 }
