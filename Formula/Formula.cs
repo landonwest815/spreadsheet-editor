@@ -288,6 +288,7 @@ namespace SpreadsheetUtilities
                     double val2 = values.Pop();
                     values.Push(val2 - val1);
                 }
+
                 operators.Pop();
             });
 
@@ -401,21 +402,24 @@ namespace SpreadsheetUtilities
                     if (operators.Count != 0)
                     {
                         // If the top operator is a '*'...
-                        if (topIsMultiply)
+                        if (operators.Peek() == "*")
                         {
-                            ApplyOperator();
+                            // Pop the operators stack and multiply the top two values in the values stack
+                            operators.Pop();
+                            values.Push(values.Pop() * values.Pop());
                         }
                         // If the top operator is a '/'...
-                        else if (topIsDivide)
+                        else if (operators.Peek() == "/")
                         {
-                            try
-                            {
-                                ApplyOperator();
-                            }
-                            catch (ArgumentException)
-                            {
-                                return new FormulaError("Divison by zero encountered");
-                            }
+                            // ERROR CHECKER
+                            if (values.Peek() == 0)
+                                return new FormulaError("Encountered a division by zero");
+
+                            // Pop the operators stack and divide the second highest value in the values stack by the top value
+                            operators.Pop();
+                            double val1 = values.Pop();
+                            double val2 = values.Pop();
+                            values.Push(val2 / val1);
                         }
                     }
                 }
