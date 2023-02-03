@@ -5,7 +5,7 @@ Date:       13-Jan-2023
 Course:     CS 3500, University of Utah, School of Computing
 GitHub ID:  landonwest815
 Repo:       https://github.com/uofu-cs3500-spring23/spreadsheet-landonwest815
-Date:       xx-Feb-2023 xx:xxpm (of when submission is ready to be evaluated)
+Date:       2-Feb-2023 11:10pm (of when submission is ready to be evaluated)
 Solution:   Spreadsheet
 Copyright:  CS 3500 and Landon West - This work may not be copied for use in Academic Coursework.
 ```
@@ -23,5 +23,5 @@ Future extensions include:
 
     1. Assignment One:          Predicted Hours:          20        Actual Hours:    15
     2. Assignment Two:          Predicted Hours:          15        Actual Hours:    10
-    3. Assignment Three:        Predicted Hours:          15        Actual Hours:    10
+    3. Assignment Three:        Predicted Hours:          15        Actual Hours:    15
     4. Assignment Four:         Predicted Hours:          --        Actual Hours:    --      

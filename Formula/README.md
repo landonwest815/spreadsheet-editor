@@ -4,7 +4,7 @@ Partner:    None
 Course:     CS 3500, University of Utah, School of Computing
 GitHub ID:  landonwest815
 Repo:       https://github.com/uofu-cs3500-spring23/spreadsheet-landonwest815
-Date:       xx-Feb-2023 x:00pm (when submission was completed) 
+Date:       2-Feb-2023 11:10pm (when submission was completed) 
 Project:    Formula
 Copyright:  CS 3500 and Landon West - This work may not be copied for use in Academic Coursework.
 ```
@@ -21,7 +21,7 @@ All files related to this assignment are spell-checked.
 # Consulted Peers:
 
 The only peer I talked with about this assignment was Luke from my Lab Section.
-We discussed how the == and != methods compare to the Equals method.
+We discussed how the == and != methods work compared to the Equals method.
 Nothing we talked about contained any code specific terms or syntax.
 All discussion was on a conceptual level.
 
@@ -34,9 +34,5 @@ All discussion was on a conceptual level.
     5. Check if object is NOT of type (!= equivalent for "IS") - C# - https://stackoverflow.com/questions/529944/check-if-object-is-not-of-type-equivalent-for-is-c-sharp
     6. C# String Concatenation - https://www.w3schools.com/cs/cs_strings_concat.php
     7. C# difference between == and Equals() - https://stackoverflow.com/questions/814878/c-sharp-difference-between-and-equals
-    8. Title - link
-    9. Title - link
-    10. Title - link
-    11. Title - link
-    12. Title - link
-    13. Title - link
+    8. How can I do unit test for hashCode()? - https://stackoverflow.com/questions/4449728/how-can-i-do-unit-test-for-hashcode
+    9. Method Within A Method - https://stackoverflow.com/questions/8135050/method-within-a-method

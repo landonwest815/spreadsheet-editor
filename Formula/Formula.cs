@@ -16,7 +16,6 @@
 //  (Version 1.2) Changed the definition of equality with regards
 //                to numeric tokens
 
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
