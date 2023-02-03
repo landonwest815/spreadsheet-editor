@@ -39,6 +39,9 @@ namespace FormulaTests
             }
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod()]
         [ExpectedException(typeof(FormulaFormatException))]
         public void ValidizerTest()
@@ -46,6 +49,9 @@ namespace FormulaTests
             Formula f = new Formula("1+A2", s => s, VariableValidizer);
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod()]
         [ExpectedException(typeof(FormulaFormatException))]
         public void InvalidTokenTest() 
@@ -53,6 +59,9 @@ namespace FormulaTests
             Formula f = new Formula("1&4");
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod()]
         [ExpectedException(typeof(FormulaFormatException))]
         public void InvalidTokenAfterOpeningParanthesisTest() 
@@ -60,6 +69,9 @@ namespace FormulaTests
             Formula f = new Formula("(+5)");
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod()]
         [ExpectedException(typeof(FormulaFormatException))]
         public void UnbalancedParanthesisTest()
@@ -67,6 +79,9 @@ namespace FormulaTests
             Formula f = new Formula("(1+2");
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod()]
         [ExpectedException(typeof(FormulaFormatException))]
         public void EmptyFormulaTest()
@@ -74,6 +89,29 @@ namespace FormulaTests
             Formula f = new Formula("");
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
+        [TestMethod()]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void EmptyParanthesisTest()
+        {
+            Formula f = new Formula("()");
+        }
+
+        /// <summary>
+        /// See Title
+        /// </summary>
+        [TestMethod()]
+        public void SingleNumberTest()
+        {
+            Formula f = new Formula("1");
+            Assert.AreEqual(1.0, f.Evaluate(s => 0.0));
+        }
+
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod()]
         public void VariableLookupTest()
         {
@@ -82,6 +120,9 @@ namespace FormulaTests
             Assert.AreEqual(1.0, f.Evaluate(VariableLookup));
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod()]
         public void InconclusiveVariableLookupTest()
         {
@@ -90,6 +131,9 @@ namespace FormulaTests
             Assert.IsInstanceOfType(f.Evaluate(VariableLookup), typeof(FormulaError));
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod()]
         public void SubtractionTest()
         {
@@ -97,6 +141,9 @@ namespace FormulaTests
             Assert.AreEqual(1.0, f.Evaluate(s => 0.0));
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod()]
         public void DivisionTest()
         {
@@ -104,6 +151,9 @@ namespace FormulaTests
             Assert.AreEqual(10.0, f.Evaluate(s => 0.0));
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod()]
         public void DivisionByZeroTest()
         {
@@ -111,6 +161,9 @@ namespace FormulaTests
             Assert.IsInstanceOfType(f.Evaluate(s => 0.0), typeof(FormulaError));
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod()]
         public void ComplexDoublesTest()
         {
@@ -118,6 +171,9 @@ namespace FormulaTests
             Assert.AreEqual(4.41, f.Evaluate(s => 0.0));
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod()]
         public void ScientificNotationTest()
         {
@@ -126,6 +182,9 @@ namespace FormulaTests
             Assert.IsTrue(f1 == f2);
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod()]
         public void ScientificNotationAdditionTest()
         {
@@ -134,6 +193,9 @@ namespace FormulaTests
             Assert.AreEqual(f1.Evaluate(s => 0.0), f2.Evaluate(s => 0.0));
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod()]
         public void ToStringTest()
         {
@@ -142,6 +204,9 @@ namespace FormulaTests
             Assert.AreEqual(f1.ToString(), f2.ToString());
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod] 
         public void ToStringNormalizedTest() 
         {
@@ -150,6 +215,9 @@ namespace FormulaTests
             Assert.AreEqual(f1.ToString(), f2.ToString());
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod]
         public void ToStringNotNormalizedTest()
         {
@@ -158,6 +226,9 @@ namespace FormulaTests
             Assert.AreNotEqual(f1.ToString(), f2.ToString());
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod()]
         public void EqualsTest()
         {
@@ -166,6 +237,9 @@ namespace FormulaTests
             Assert.IsTrue(f1.Equals(f2));
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod()]
         public void NotEqualsTest()
         {
@@ -174,6 +248,9 @@ namespace FormulaTests
             Assert.IsFalse(f1.Equals(f2));
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod()]
         public void NonFormulaEqualsTest()
         {
@@ -182,6 +259,9 @@ namespace FormulaTests
             Assert.IsFalse(f.Equals(s));
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod()]
         public void OperatorEqualsTest()
         {
@@ -190,6 +270,9 @@ namespace FormulaTests
             Assert.IsTrue(f1 == f2);
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod()]
         public void OperatorNotEqualsTest()
         {
@@ -198,6 +281,9 @@ namespace FormulaTests
             Assert.IsTrue(f1 != f2);
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod()]
         public void EqualHashCodesTest()
         {
@@ -208,6 +294,9 @@ namespace FormulaTests
             Assert.AreEqual(f1.GetHashCode(), f2.GetHashCode());
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod()]
         public void NotEqualHashCodesTest()
         {
@@ -218,6 +307,9 @@ namespace FormulaTests
 
         // PS1 Grading Tests
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod(), Timeout(5000)]
         public void TestSingleNumber()
         {
@@ -225,6 +317,9 @@ namespace FormulaTests
             Assert.AreEqual(5.0, f.Evaluate(VariableLookup));
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod(), Timeout(5000)]
         public void TestSingleVariable()
         {
@@ -232,6 +327,9 @@ namespace FormulaTests
             Assert.AreEqual(13.0, f.Evaluate(s => 13.0));
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod(), Timeout(5000)]
         public void TestAddition()
         {
@@ -239,6 +337,9 @@ namespace FormulaTests
             Assert.AreEqual(8.0, f.Evaluate(VariableLookup));
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod(), Timeout(5000)]
         public void TestSubtraction()
         {
@@ -246,6 +347,9 @@ namespace FormulaTests
             Assert.AreEqual(8.0, f.Evaluate(VariableLookup));
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod(), Timeout(5000)]
         public void TestMultiplication()
         {
@@ -253,6 +357,9 @@ namespace FormulaTests
             Assert.AreEqual(8.0, f.Evaluate(VariableLookup));
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod(), Timeout(5000)]
         public void TestDivision()
         {
@@ -260,6 +367,9 @@ namespace FormulaTests
             Assert.AreEqual(8.0, f.Evaluate(VariableLookup));
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod(), Timeout(5000)]
         public void TestArithmeticWithVariable()
         {
@@ -267,6 +377,9 @@ namespace FormulaTests
             Assert.AreEqual(6.0, f.Evaluate(s => 4));
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod(), Timeout(5000)]
         public void TestLeftToRight()
         {
@@ -274,6 +387,9 @@ namespace FormulaTests
             Assert.AreEqual(15.0, f.Evaluate(s => 0.0));
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod(), Timeout(5000)]
         public void TestOrderOperations()
         {
@@ -281,6 +397,9 @@ namespace FormulaTests
             Assert.AreEqual(20.0, f.Evaluate(s => 0.0));
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod(), Timeout(5000)]
         public void TestParenthesesTimes()
         {
@@ -288,6 +407,9 @@ namespace FormulaTests
             Assert.AreEqual(24.0, f.Evaluate(s => 0.0));
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod(), Timeout(5000)]
         public void TestTimesParentheses()
         {
@@ -295,6 +417,9 @@ namespace FormulaTests
             Assert.AreEqual(16.0, f.Evaluate(s => 0.0));
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod(), Timeout(5000)]
         public void TestPlusParentheses()
         {
@@ -302,6 +427,9 @@ namespace FormulaTests
             Assert.AreEqual(10.0, f.Evaluate(s => 0.0));
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod(), Timeout(5000)]
         public void TestPlusComplex()
         {
@@ -309,6 +437,9 @@ namespace FormulaTests
             Assert.AreEqual(50.0, f.Evaluate(s => 0.0));
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod(), Timeout(5000)]
         public void TestOperatorAfterParens()
         {
@@ -316,6 +447,9 @@ namespace FormulaTests
             Assert.AreEqual(0.0, f.Evaluate(s => 0.0));
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod(), Timeout(5000)]
         public void TestComplexTimesParentheses()
         {
@@ -323,6 +457,9 @@ namespace FormulaTests
             Assert.AreEqual(26.0, f.Evaluate(s => 0.0));
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod(), Timeout(5000)]
         public void TestComplexAndParentheses()
         {
@@ -330,6 +467,9 @@ namespace FormulaTests
             Assert.AreEqual(194.0, f.Evaluate(s => 0.0));
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod(), Timeout(5000)]
         public void TestDivideByZero()
         {
@@ -337,6 +477,9 @@ namespace FormulaTests
             Assert.IsInstanceOfType(f.Evaluate(s => 0.0), typeof(FormulaError));
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod(), Timeout(5000)]
         [ExpectedException(typeof(FormulaFormatException))]
         public void TestSingleOperator()
@@ -344,6 +487,9 @@ namespace FormulaTests
             Formula f = new Formula("+");
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod(), Timeout(5000)]
         [ExpectedException(typeof(FormulaFormatException))]
         public void TestExtraOperator()
@@ -351,6 +497,9 @@ namespace FormulaTests
             Formula f = new Formula("2+5+");
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod(), Timeout(5000)]
         [ExpectedException(typeof(FormulaFormatException))]
         public void TestExtraParentheses()
@@ -358,6 +507,9 @@ namespace FormulaTests
             Formula f = new Formula("2+5*7)");
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod(), Timeout(5000)]
         [ExpectedException(typeof(FormulaFormatException))]
         public void TestParensNoOperator()
@@ -365,7 +517,9 @@ namespace FormulaTests
             Formula f = new Formula("5+7+(5)8");
         }
 
-
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod(), Timeout(5000)]
         [ExpectedException(typeof(FormulaFormatException))]
         public void TestEmpty()
@@ -373,6 +527,9 @@ namespace FormulaTests
             Formula f = new Formula("");
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod(), Timeout(5000)]
         public void TestComplexNestedParensRight()
         {
@@ -380,6 +537,9 @@ namespace FormulaTests
             Assert.AreEqual(6.0, f.Evaluate(s => 1.0));
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod(), Timeout(5000)]
         public void TestComplexNestedParensLeft()
         {
@@ -387,6 +547,9 @@ namespace FormulaTests
             Assert.AreEqual(12.0, f.Evaluate(s => 2.0));
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod(), Timeout(5000)]
         public void TestRepeatedVar()
         {
@@ -394,8 +557,10 @@ namespace FormulaTests
             Assert.AreEqual(0.0, f.Evaluate(s => 3.0));
         }
 
+        /// <summary>
+        /// See Title
+        /// </summary>
         [TestMethod(), Timeout(5000)]
-        [TestCategory("30")]
         public void TestClearStacks()
         {
             //Test if code doesn't clear stacks between evaluations
