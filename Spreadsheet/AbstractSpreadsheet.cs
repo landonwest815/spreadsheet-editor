@@ -314,7 +314,6 @@ namespace SS
             return GetCellsToRecalculate(new HashSet<String>() { name });
         }
 
-
         /// <summary>
         /// A helper for the GetCellsToRecalculate method.
         /// 
