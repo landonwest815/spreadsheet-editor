@@ -99,7 +99,6 @@ namespace SS
         /// </summary>
         public abstract IEnumerable<String> GetNamesOfAllNonemptyCells();
 
-
         /// <summary>
         ///   Returns the contents (as opposed to the value) of the named cell.
         /// </summary>
@@ -284,7 +283,7 @@ namespace SS
         /// </returns>
         protected IEnumerable<String> GetCellsToRecalculate(ISet<String> names)
         {
-            LinkedList<String> changed = new LinkedList<String>();
+            LinkedList<String> changed = new LinkedList<String>(); 
             HashSet<String>    visited = new HashSet<String>();
             foreach (String name in names)
             {

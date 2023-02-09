@@ -79,6 +79,26 @@ namespace SpreadsheetTests
         }
 
         [TestMethod]
+        public void DependenciesTest()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+            sheet.SetCellContents("A1", 1.0);
+            sheet.SetCellContents("B1", new Formula("A1+3"));
+            sheet.SetCellContents("C1", new Formula("B1-3"));
+            sheet.SetCellContents("D1", new Formula("A1-1"));
+
+            List<string> list = sheet.SetCellContents("A1", 5.0).ToList();
+
+            list.ForEach(Console.Write);
+
+            Assert.IsTrue(list.OrderBy(x => x).SequenceEqual(new List<string>() { "A1", "B1", "C1", "D1" }.OrderBy(x => x)));
+
+            List<string> list2 = sheet.SetCellContents("B1", 3.0).ToList();
+
+            Assert.IsTrue(list2.SequenceEqual(new List<string>() { "B1", "C1" }));
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(InvalidNameException))]
         public void NullNameTest()
         {
@@ -87,11 +107,12 @@ namespace SpreadsheetTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void NullTextTest()
+        [ExpectedException(typeof(InvalidNameException))]
+        public void EmptyTextTest()
         {
             Spreadsheet sheet = new Spreadsheet();
             sheet.SetCellContents("A1", "");
+            sheet.GetCellContents("A1");
         }
 
         [TestMethod]

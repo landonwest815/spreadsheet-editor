@@ -229,6 +229,13 @@ namespace SS
                 cells[name].SetContents(text);
             }
 
+            if (text == "") // If the cell is being set to "", then it is considered an empty cell again and should not be in the dictionary
+            {  
+                cells.Remove(name);
+                return new HashSet<string>();
+            }
+
+            //return DependentsSet(name);
             return DependentsSet(name);
         }
 
@@ -270,7 +277,7 @@ namespace SS
         {
             if (name == null)
                 throw new ArgumentNullException();
-            if (!cells.ContainsKey(name))
+            if (name == null || !cells.ContainsKey(name)) // This is redundant because the line above will catch null names, however this meets the assignment specifications
                 throw new InvalidNameException();
 
             return dependencyGraph.GetDependees(name);
@@ -300,7 +307,7 @@ namespace SS
         private ISet<string> DependentsSet(string name)
         {
             ISet<string> dependees = new HashSet<string> { name };
-            foreach (var variable in dependencyGraph.GetDependees(name))
+            foreach (var variable in GetCellsToRecalculate(name))
                 dependees.Add(variable);
             return dependees;
         }
