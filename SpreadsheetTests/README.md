@@ -6,14 +6,15 @@ Course:     CS 3500, University of Utah, School of Computing
 GitHub ID:  landonwest815
 Repo:       https://github.com/uofu-cs3500-spring23/spreadsheet-landonwest815
 Date:       xx-Feb-2023 xx:00pm (when submission was completed) 
-Project:    Spreadsheet
+Project:    SpreadsheetTests
 Copyright:  CS 3500 and Landon West - This work may not be copied for use in Academic Coursework.
 ```
 
 # Comments to Evaluators:
 
-    No comments for the spreadsheet class
-    See README for the tester class for relevant comment
+    The only things not included in my Code Coverage are the following:
+        - two closing brackets within the tester file
+        - the GetDirectDependents() method in the spreadsheet class, because it is protected and not within scope
 
 # Assignment Specific Topics
 

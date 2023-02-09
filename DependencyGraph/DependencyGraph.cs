@@ -42,9 +42,6 @@ namespace SpreadsheetUtilities
         Dictionary<string, HashSet<string>> dependents;
         Dictionary<string, HashSet<string>> dependees;
 
-        // Size counter for amount of dependencies
-        int size;
-
         /// <summary>
         /// Creates an empty DependencyGraph.
         /// </summary>
@@ -53,7 +50,7 @@ namespace SpreadsheetUtilities
             // Initializes the three built-in variables
             dependents = new Dictionary<string, HashSet<string>>();
             dependees = new Dictionary<string, HashSet<string>>();
-            size = 0;
+            Size = 0;
         }
 
         /// <summary> 
@@ -61,7 +58,7 @@ namespace SpreadsheetUtilities
         /// </summary> 
         public int Size
         {
-            get { return size; }
+            get; private set;
         }
 
         /// <summary> 
@@ -143,36 +140,21 @@ namespace SpreadsheetUtilities
         /// <param name="t"> t cannot be evaluated until s is </param>
         public void AddDependency(string s, string t)
         {
-                // Add to dependents dictionary
-                if (dependents.ContainsKey(s))
-                    {
-                    // Check if it already exists
-                    if (dependents[s].Contains(t))
-                    {
-                        return; // Exits the method as it can't be added (no duplicates)
-                    }
-                    else
-                    {
-                        dependents[s].Add(t);
-                    }
-                }
-                else
-                {
-                    dependents.Add(s, new HashSet<string>() { t });
-                }
+            HashSet<string> dependencies;
 
-                // Add to dependees dictionary
-                if (dependees.ContainsKey(t))
-                {
-                    dependees[t].Add(s);
-                }
-                else
-                {
-                    dependees.Add(t, new HashSet<string>() { s });
-                }
+            if (!dependents.TryGetValue(s, out dependencies))
+            {
+                dependencies = new HashSet<String>();
+                dependents.Add(s, dependencies);
+            }
+            if (dependencies.Add(t)) Size++;
 
-                // Increment the size
-                size++;
+            if (!dependees.TryGetValue(t, out dependencies))
+            {
+                dependencies = new HashSet<String>();
+                dependees.Add(t, dependencies);
+            }
+            dependencies.Add(s);
         }
 
         /// <summary> 
@@ -182,28 +164,22 @@ namespace SpreadsheetUtilities
         /// <param name="t"> The dependent to remove </param>
         public void RemoveDependency(string s, string t)
         {
-            // Remove dependent from the dependents dictionary
-            if (dependents.ContainsKey(s))
-            {
-                // Check if it exists
-                if (!dependents[s].Contains(t))
-                {
-                    return; // Exits the method as the dependency to remove does not exist
-                }
-                else
-                {
-                    dependents[s].Remove(t);
-                }
+            HashSet<string> dependencies;
 
-                // Decrement the size
-                size--;
+            if (dependents.TryGetValue(s, out dependencies))
+            {
+                if (dependencies.Remove(t)) Size--;
+            }
+            if (dependees.TryGetValue(t, out dependencies))
+            {
+                dependencies.Remove(s);
             }
 
-            // Remove dependee from the dependents dictionary
-            if (dependees.ContainsKey(t))
-            {
-                dependees[t].Remove(s);
-            }
+            if (dependents.ContainsKey(s) && dependents[s].Count == 0)
+                dependents.Remove(s);
+
+            if (dependees.ContainsKey(t) && dependees[t].Count == 0)
+                dependees.Remove(t);
         }
 
         /// <summary>
@@ -214,22 +190,13 @@ namespace SpreadsheetUtilities
         /// <param name="newDependents"> the replacement dependent(s) </param>
         public void ReplaceDependents(string s, IEnumerable<string> newDependents)
         {
-            // As long as s exists in the dependents dictionary...
-            if (dependents.ContainsKey(s))
+            foreach (String r in GetDependents(s))
             {
-                // Iterate through the dependents of s and remove them all
-                // This is O(N) Time Complexity (this is allowed by assignment specifications)
-                foreach (string item in dependents[s])
-                {
-                    RemoveDependency(s, item);
-                }
-
-                // Iterate through the replacement dependents and add them all
-                // This is also O(N) Time Complexity
-                foreach (string item in newDependents)
-                {
-                    AddDependency(s, item);
-                }
+                RemoveDependency(s, r);
+            }
+            foreach (String t in newDependents)
+            {
+                AddDependency(s, t);
             }
         }
 
@@ -241,20 +208,13 @@ namespace SpreadsheetUtilities
         /// <param name="newDependents"> the replacement dependee(s) </param>
         public void ReplaceDependees(string s, IEnumerable<string> newDependees)
         {
-            // As long as s exists in the dependees dictionary...
-            if (dependees.ContainsKey(s))
+            foreach (String r in GetDependees(s))
             {
-                // Iterate through the dependees of s and remove them all
-                foreach (string item in dependees[s])
-                {
-                    RemoveDependency(item, s);
-                }
-
-                // Iterate through the replacement dependees and add them all
-                foreach (string item in newDependees)
-                {
-                    AddDependency(item, s);  
-                }
+                RemoveDependency(r, s);
+            }
+            foreach (String t in newDependees)
+            {
+                AddDependency(t, s);
             }
         }
     }
