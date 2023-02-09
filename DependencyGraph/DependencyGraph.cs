@@ -142,7 +142,7 @@ namespace SpreadsheetUtilities
         {
             HashSet<string> dependencies;
 
-            if (!dependents.TryGetValue(s, out dependencies))
+            if (!dependents.TryGetValue(s, out dependencies)) 
             {
                 dependencies = new HashSet<String>();
                 dependents.Add(s, dependencies);
