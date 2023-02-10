@@ -12,16 +12,18 @@ Copyright:  CS 3500 and Landon West - This work may not be copied for use in Aca
 
 # Comments to Evaluators:
 
-    No comments for the spreadsheet class
-    See README for the tester class for relevant comment
+    All the helper methods have documentation describing their purpose(s)
 
 # Assignment Specific Topics
 
-    None
+    Software Practices:
+        - I have been using a lot more helper methods to help reduce copied code structure
+        - I have been simplifying my if statements and aligning them for easier readability
 
 # Consulted Peers:
 
     I did not talk with anyone for this assignment. All my questions were answered through the links mentioned below.
+    A lot of my questions were also answered by simply attending the lectures.
 
 # References:
 
@@ -34,3 +36,5 @@ Copyright:  CS 3500 and Landon West - This work may not be copied for use in Aca
     5. How can I check if an object is of a certain type at runtime in C#? - https://stackoverflow.com/questions/3401447/how-can-i-check-if-an-object-is-of-a-certain-type-at-runtime-in-c
     6. How to add item to the beginning of List<T>? - https://stackoverflow.com/questions/390491/how-to-add-item-to-the-beginning-of-listt
     7. How do I parse a string with a decimal point to a double? - https://stackoverflow.com/questions/1354924/how-do-i-parse-a-string-with-a-decimal-point-to-a-double
+    8. Check whether two lists have the same items in C# - https://www.techiedelight.com/check-whether-two-lists-have-the-same-items-in-csharp/
+    9. if statement for throwing Exception? - https://stackoverflow.com/questions/6184691/if-statement-for-throwing-exception

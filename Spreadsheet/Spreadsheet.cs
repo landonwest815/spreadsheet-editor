@@ -170,10 +170,9 @@ namespace SS
         /// <exception cref="InvalidNameException"> throws if the name given does not exist in the current context </exception>
         public override object GetCellContents(string name)
         {
-            if (cells.ContainsKey(name)) // checks to make sure the name given exists in the dictionary
-                return cells[name].GetContents();
-            else
-                throw new InvalidNameException();
+            // checks to make sure the name given exists in the dictionary
+            if (cells.ContainsKey(name)) return cells[name].GetContents();
+            else                         throw new InvalidNameException();
         }
 
         /// <summary>
@@ -193,9 +192,7 @@ namespace SS
         /// <returns> an ISet of type string that contains the name of the cell that was adjusted and all the cells that depend on the adjusted cell </returns>
         public override ISet<string> SetCellContents(string name, double number)
         {
-            bool nameExists = NameExists(name); // Checks if the input name is valid; See method NameExists() for further documentation
-
-            if (!nameExists) // Checks if the cell exists already
+            if (!NameExists(name)) // Checks if the cell exists already
                 cells.Add(name, new Cell(name, number));
             else
             {
@@ -203,7 +200,7 @@ namespace SS
                 cells[name].SetContents(number);
             }
 
-            return DependentsSet(name);
+            return NameWithDependents(name);
         }
 
         /// <summary>
@@ -215,13 +212,9 @@ namespace SS
         /// <exception cref="ArgumentNullException"> throws if the text input is an empty string </exception>
         public override ISet<string> SetCellContents(string name, string text)
         {
+            if (text == null) throw new ArgumentNullException(); // Error checker
 
-            if (text == null) // Checks if the input text is not null
-                throw new ArgumentNullException();
-
-            bool nameExists = NameExists(name); // Checks if the input name is valid; See method NameExists() for further documentation
-
-            if (!nameExists)
+            if (!NameExists(name)) // Checks if the cell exists already
                 cells.Add(name, new Cell(name, text));
             else
             {
@@ -229,8 +222,7 @@ namespace SS
                 cells[name].SetContents(text);
             }
 
-            //return DependentsSet(name);
-            return DependentsSet(name);
+            return NameWithDependents(name);
         }
 
         /// <summary>
@@ -242,14 +234,9 @@ namespace SS
         /// <exception cref="ArgumentNullException"> throws if the formula expression is empty </exception>
         public override ISet<string> SetCellContents(string name, Formula formula)
         {
-            ISet<string> dependentsSet = new HashSet<string>();
+            if (formula.ToString() == null) throw new ArgumentNullException(); // Error checker
 
-            bool nameExists = NameExists(name); // Checks if the input name is valid; See method NameExists() for further documentation
-
-            if (formula.ToString() == null) // Checks if the formula expression is null
-                throw new ArgumentNullException();
-
-            if (!nameExists)
+            if (!NameExists(name))
                 cells.Add(name, new Cell(name, formula));
             else
             {
@@ -261,15 +248,14 @@ namespace SS
 
             try // Checks for circular exception
             {
-                dependentsSet = DependentsSet(name);
+                ISet<string> dependentsSet = NameWithDependents(name);
+                return dependentsSet;
             }
             catch (CircularException)
             {
-                RemoveDependencies(name, formula);
-                return new HashSet<string>();
+                RemoveDependencies(name, formula); // Restore dependency graph
+                throw new CircularException();
             }
-
-            return dependentsSet;
         }
 
         /// <summary>
@@ -281,10 +267,8 @@ namespace SS
         /// <exception cref="InvalidNameException"> throws if the name given does not exist in the dictionary </exception>
         protected override IEnumerable<string> GetDirectDependents(string name)
         {
-            if (name == null)
-                throw new ArgumentNullException();
-            if (name == null || !cells.ContainsKey(name)) // This is redundant because the line above will catch null names, however this meets the assignment specifications
-                throw new InvalidNameException();
+            if (name == null) throw new ArgumentNullException();
+            if (name == null || !cells.ContainsKey(name)) throw new InvalidNameException();
 
             return dependencyGraph.GetDependees(name);
         }
@@ -299,8 +283,7 @@ namespace SS
         /// <exception cref="InvalidNameException"> throws if the name is not a valid cell name </exception>
         private bool NameExists(string name)
         {
-            if (!Regex.IsMatch(name, @"^[a-zA-Z_][a-zA-Z_0-9]*$") || name == null) // Catches invalid names
-                throw new InvalidNameException();
+            if (!Regex.IsMatch(name, @"^[a-zA-Z_][a-zA-Z_0-9]*$") || name == null) throw new InvalidNameException();
 
             return cells.ContainsKey(name);
         }
@@ -310,12 +293,12 @@ namespace SS
         /// </summary>
         /// <param name="name"> the cell that the dependents depend on </param>
         /// <returns> an Iset of type string with the cell name and its dependents </returns>
-        private ISet<string> DependentsSet(string name)
+        private ISet<string> NameWithDependents(string name)
         {
-            ISet<string> dependees = new HashSet<string> { name };
+            ISet<string> dependents = new HashSet<string> { name };
             foreach (var variable in GetCellsToRecalculate(name))
-                dependees.Add(variable);
-            return dependees;
+                dependents.Add(variable);
+            return dependents;
         }
 
         /// <summary>

@@ -25,4 +25,4 @@ Future extensions include:
     1. Assignment One:          Predicted Hours:          20        Actual Hours:    15
     2. Assignment Two:          Predicted Hours:          15        Actual Hours:    10
     3. Assignment Three:        Predicted Hours:          15        Actual Hours:    15
-    4. Assignment Four:         Predicted Hours:          10        Actual Hours:    7      
+    4. Assignment Four:         Predicted Hours:          10        Actual Hours:    12      

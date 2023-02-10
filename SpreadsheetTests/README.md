@@ -12,13 +12,14 @@ Copyright:  CS 3500 and Landon West - This work may not be copied for use in Aca
 
 # Comments to Evaluators:
 
-    The only things not included in my Code Coverage are the following:
-        - two closing brackets within the tester file
-        - the GetDirectDependents() method in the spreadsheet class, because it is protected and not within scope
+    The only segments of code that are not included in my code coverage include:
+        - Occasional brackets
+        - Null checking statements (I have nullable enabled so I cannot pass in null values through the tester)
 
 # Assignment Specific Topics
 
-    None
+    Software Practice:
+        - Learned more about how to test for specific exceptions
 
 # Consulted Peers:
 
@@ -35,3 +36,5 @@ Copyright:  CS 3500 and Landon West - This work may not be copied for use in Aca
     5. How can I check if an object is of a certain type at runtime in C#? - https://stackoverflow.com/questions/3401447/how-can-i-check-if-an-object-is-of-a-certain-type-at-runtime-in-c
     6. How to add item to the beginning of List<T>? - https://stackoverflow.com/questions/390491/how-to-add-item-to-the-beginning-of-listt
     7. How do I parse a string with a decimal point to a double? - https://stackoverflow.com/questions/1354924/how-do-i-parse-a-string-with-a-decimal-point-to-a-double
+    8. Check whether two lists have the same items in C# - https://www.techiedelight.com/check-whether-two-lists-have-the-same-items-in-csharp/
+    9. if statement for throwing Exception? - https://stackoverflow.com/questions/6184691/if-statement-for-throwing-exception
