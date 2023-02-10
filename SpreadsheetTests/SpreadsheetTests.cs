@@ -212,6 +212,9 @@ namespace SpreadsheetTests
             sheet.GetCellContents("B1");
         }
 
+        /// <summary>
+        /// See title
+        /// </summary>
         [TestMethod]
         public void SetEmptyCellTest()
         {
