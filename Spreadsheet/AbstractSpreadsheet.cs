@@ -315,9 +315,12 @@ namespace SS
 
         /// <summary>
         /// A helper for the GetCellsToRecalculate method.
-        /// 
-        ///   -- You should fully comment what is going on below using XML tags as appropriate --
         /// </summary>
+        /// <param name="start"> keeps track of the name of the cell we started with </param>
+        /// <param name="name"> current dependent from iterating through the dependents of the current cell name </param>
+        /// <param name="visited"> list that adds cells once they have been visited and checked for dependents </param>
+        /// <param name="changed"> list that adds cells if they need to be recalculated due to a change </param>
+        /// <exception cref="CircularException"></exception>
         private void Visit(String start, String name, ISet<String> visited, LinkedList<String> changed)
         {
             visited.Add(name);
