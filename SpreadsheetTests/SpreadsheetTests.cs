@@ -211,5 +211,17 @@ namespace SpreadsheetTests
             sheet.SetCellContents("A1", 1.0);
             sheet.GetCellContents("B1");
         }
+
+        [TestMethod]
+        public void SetEmptyCellTest()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+            sheet.SetCellContents("A1", 3.0);
+            sheet.SetCellContents("B1", 5.0);
+            sheet.SetCellContents("C1", 7.0);
+            sheet.SetCellContents("A1", "");
+
+            Assert.AreEqual(2.0, sheet.GetNamesOfAllNonemptyCells().ToList().Count);
+        }
     }
 }

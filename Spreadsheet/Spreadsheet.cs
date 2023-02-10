@@ -222,6 +222,12 @@ namespace SS
                 cells[name].SetContents(text);
             }
 
+            if (text == "") // "" signifies an empty cell so it is removed
+            {
+                cells.Remove(name);
+                return new HashSet<string>();
+            }
+
             return NameWithDependents(name);
         }
 
