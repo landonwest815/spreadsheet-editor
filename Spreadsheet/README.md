@@ -9,7 +9,7 @@ Date:       9-Feb-2023 10:40am (when submission was completed)
 Project:    Spreadsheet
 Copyright:  CS 3500 and Landon West - This work may not be copied for use in Academic Coursework.
 ```
-
+ 
 # Comments to Evaluators:
 
     All the helper methods have documentation describing their purpose(s)

@@ -10,7 +10,7 @@ Solution:   Spreadsheet
 Copyright:  CS 3500 and Landon West - This work may not be copied for use in Academic Coursework.
 ```
 
-# Overview of the Spreadsheet functionality
+# Overview of the Spreadsheet functionality 
 
 The Spreadsheet program is currently capable of:
     - Creating Formula objects that are syntactically correct and can contain variables depending on how the user defines their validity

@@ -9,7 +9,7 @@ Date:       9-Feb-2023 10:40am (when submission was completed)
 Project:    SpreadsheetTests
 Copyright:  CS 3500 and Landon West - This work may not be copied for use in Academic Coursework.
 ```
-
+ 
 # Comments to Evaluators:
 
     The only segments of code that are not included in my code coverage include:
