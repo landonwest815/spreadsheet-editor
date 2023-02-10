@@ -8,6 +8,16 @@ namespace SpreadsheetTests
     public class SpreadsheetTests
     {
         [TestMethod]
+        public void test()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+            sheet.SetCellContents("A1", 3.0);
+            sheet.SetCellContents("B1", new Formula("A1"));
+
+            Console.WriteLine(sheet.SetCellContents("A1", 1.0));
+        }
+        
+        [TestMethod]
         public void SpreadsheetSize()
         {
             // spreadsheet data
@@ -76,6 +86,16 @@ namespace SpreadsheetTests
             sheet.SetCellContents("B1", 3.0);
 
             Assert.IsTrue(sheet.SetCellContents("A1", 3.0).SequenceEqual(new List<string>() { "A1" }));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(CircularException))]
+        public void CircularExceptionTest()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+            sheet.SetCellContents("A1", new Formula("B1"));
+            sheet.SetCellContents("B1", new Formula("C1"));
+            sheet.SetCellContents("C1", new Formula("A1"));
         }
 
         [TestMethod]

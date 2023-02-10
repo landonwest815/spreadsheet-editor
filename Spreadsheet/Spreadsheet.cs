@@ -229,12 +229,6 @@ namespace SS
                 cells[name].SetContents(text);
             }
 
-            if (text == "") // If the cell is being set to "", then it is considered an empty cell again and should not be in the dictionary
-            {  
-                cells.Remove(name);
-                return new HashSet<string>();
-            }
-
             //return DependentsSet(name);
             return DependentsSet(name);
         }
@@ -248,6 +242,8 @@ namespace SS
         /// <exception cref="ArgumentNullException"> throws if the formula expression is empty </exception>
         public override ISet<string> SetCellContents(string name, Formula formula)
         {
+            ISet<string> dependentsSet = new HashSet<string>();
+
             bool nameExists = NameExists(name); // Checks if the input name is valid; See method NameExists() for further documentation
 
             if (formula.ToString() == null) // Checks if the formula expression is null
@@ -263,7 +259,17 @@ namespace SS
 
             AddDepencencies(name, formula); // Adds a dependency between the name of the cell being adjusted and all the varibales within the formula expression
 
-            return DependentsSet(name);
+            try // Checks for circular exception
+            {
+                dependentsSet = DependentsSet(name);
+            }
+            catch (CircularException)
+            {
+                RemoveDependencies(name, formula);
+                return new HashSet<string>();
+            }
+
+            return dependentsSet;
         }
 
         /// <summary>
