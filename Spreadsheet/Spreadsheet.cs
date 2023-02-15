@@ -88,14 +88,21 @@ namespace SS
         private Dictionary<string, Cell> cells; // holds all non-empty cells
         private DependencyGraph dependencyGraph; // keeps track of dependencies across cells
 
+        // TODO: implement all constructors
         /// <summary>
         /// Constructor that initializes the above data
         /// </summary>
-        public Spreadsheet()
+        public Spreadsheet() : this(s => true, s => s, "default")
         {
             cells = new Dictionary<string, Cell>();
             dependencyGraph = new DependencyGraph();
-        } 
+        }
+          
+        public Spreadsheet(Func<string, bool> isValid, Func<string, string> normalize, string version) : base(isValid, normalize, version)
+        {
+            cells = new Dictionary<string, Cell>();
+            dependencyGraph = new DependencyGraph();
+        }
 
         /// <summary>
         /// This class creates cell objects that can either hold a number, text, or formula object.
@@ -482,28 +489,7 @@ namespace SS
         /// Version information
         /// </summary>
         public string Version { get; protected set; }
-
-        /// <summary>
-        /// Constructs an abstract spreadsheet by recording its variable validity test,
-        /// its normalization method, and its version information.  
-        /// </summary>
-        /// 
-        /// <remarks>
-        ///   The variable validity test is used throughout to determine whether a string that consists of 
-        ///   one or more letters followed by one or more digits is a valid cell name.  The variable
-        ///   equality test should be used throughout to determine whether two variables are equal.
-        /// </remarks>
-        /// 
-        /// <param name="isValid">   defines what valid variables look like for the application</param>
-        /// <param name="normalize"> defines a normalization procedure to be applied to all valid variable strings</param>
-        /// <param name="version">   defines the version of the spreadsheet (should it be saved)</param>
-        public AbstractSpreadsheet(Func<string, bool> isValid, Func<string, string> normalize, string version)
-        {
-            this.IsValid = isValid;
-            this.Normalize = normalize;
-            this.Version = version;
-        }
-
+          
         // TODO: implement this method
         /// <summary>
         ///   Look up the version information in the given file. If there are any problems opening, reading, 
