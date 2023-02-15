@@ -104,6 +104,11 @@ namespace SS
             dependencyGraph = new DependencyGraph();
         }
 
+        public Spreadsheet(string filepath, Func<string, bool> isValid, Func<string, string> normalize, string version) : base(isValid, normalize, version)
+        {
+            // implement
+        }
+
         /// <summary>
         /// This class creates cell objects that can either hold a number, text, or formula object.
         /// There are also getter and setters for various parts of the data
@@ -253,7 +258,7 @@ namespace SS
                 cells[name].SetContents(number);
             }
 
-            return new List<string>();
+            return NameWithDependents(name);
         }
 
         // TODO: return an IList
@@ -305,10 +310,10 @@ namespace SS
             if (text == "") // "" signifies an empty cell so it is removed
             {
                 cells.Remove(name);
-                return new List<string>();
+                return NameWithDependents(name);
             }
 
-            return new List<string>();
+            return NameWithDependents(name);
         }
 
         // TODO: return an IList
@@ -367,8 +372,8 @@ namespace SS
 
             try // Checks for circular exception
             {
-                ISet<string> dependentsSet = NameWithDependents(name);
-                return new List<string>();
+                IList<string> dependentsSet = NameWithDependents(name);
+                return dependentsSet;
             }
             catch (CircularException)
             {
@@ -463,7 +468,16 @@ namespace SS
         /// </returns>
         public override IList<String> SetContentsOfCell(String name, String content)
         {
-            return new List<string>();
+            IList<string> cellsToReevaluate = new List<string>();
+
+            if (Double.TryParse(content, out double value))
+                cellsToReevaluate = SetCellContents(name, value);
+            else if (content[0].ToString() == "=")
+                cellsToReevaluate = SetCellContents(name, new Formula(content));
+            else
+                cellsToReevaluate = SetCellContents(name, content);
+
+            return cellsToReevaluate;
         }
 
         // TODO: implement the four methods below
@@ -581,9 +595,9 @@ namespace SS
         /// </summary>
         /// <param name="name"> the cell that the dependents depend on </param>
         /// <returns> an Iset of type string with the cell name and its dependents </returns>
-        private ISet<string> NameWithDependents(string name)
+        private IList<string> NameWithDependents(string name)
         {
-            ISet<string> dependents = new HashSet<string> { name };
+            IList<string> dependents = new List<string> { name };
             foreach (var variable in GetCellsToRecalculate(name))
                 dependents.Add(variable);
             return dependents;
