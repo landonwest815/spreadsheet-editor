@@ -121,8 +121,8 @@ namespace SS
         private class Cell
         {
             private string name;
-            private Object contents;
-            private Object value;
+            private Object contents; // can be a double, formula, or string
+            private Object value; // can be a double or string
 
             /// <summary>
             /// Constructor for a cell holding a number
@@ -157,6 +157,7 @@ namespace SS
             {
                 name = variableName;
                 contents = expression;
+                // value is set during SetCellContents method call
             }
 
             /// <summary>
