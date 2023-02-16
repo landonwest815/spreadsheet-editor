@@ -503,6 +503,7 @@ namespace SS
             else
                 cellsToReevaluate = SetCellContents(name, content);
 
+            Changed = true;
             return cellsToReevaluate;
         }
 
