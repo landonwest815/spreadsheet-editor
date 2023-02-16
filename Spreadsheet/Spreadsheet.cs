@@ -87,6 +87,7 @@ namespace SS
     {
         private Dictionary<string, Cell> cells; // holds all non-empty cells
         private DependencyGraph dependencyGraph; // keeps track of dependencies across cells
+        string spreadsheetVersion;
 
         // TODO: implement all constructors
         /// <summary>
@@ -102,6 +103,10 @@ namespace SS
         {
             cells = new Dictionary<string, Cell>();
             dependencyGraph = new DependencyGraph();
+            spreadsheetVersion = version;
+            Normalize = normalize;
+            IsValid = isValid;
+            spreadsheetVersion = version;
         }
 
         public Spreadsheet(string filepath, Func<string, bool> isValid, Func<string, string> normalize, string version) : base(isValid, normalize, version)
@@ -117,16 +122,18 @@ namespace SS
         {
             private string name;
             private Object contents;
+            private Object value;
 
             /// <summary>
             /// Constructor for a cell holding a number
             /// </summary>
             /// <param name="variableName"> the name of the cell being initialized </param>
             /// <param name="number"> the number being held within the cell /param>
-            public Cell(string variableName, double number)
+            public Cell(string variableName, double number, double numberValue)
             {
                 name = variableName;
                 contents = number;
+                value = numberValue;
             }
 
             /// <summary>
@@ -134,10 +141,11 @@ namespace SS
             /// </summary>
             /// <param name="variableName"> name of the cell being initialized </param>
             /// <param name="text"> string of text held within the cell </param>
-            public Cell(string variableName, string text)
+            public Cell(string variableName, string text, string textValue)
             {
                 name = variableName;
                 contents = text;
+                value = textValue;
             }
 
             /// <summary>
@@ -176,6 +184,16 @@ namespace SS
             public string GetName()
             {
                 return name;
+            }
+
+            public void SetValue(Object calculatedValue)
+            {
+                value = calculatedValue;
+            }
+
+            public Object GetValue()
+            {
+                return value;
             }
         }
 
@@ -251,12 +269,15 @@ namespace SS
         protected override IList<string> SetCellContents(string name, double number)
         {
             if (!NameExists(name)) // Checks if the cell exists already
-                cells.Add(name, new Cell(name, number));
+                cells.Add(name, new Cell(name, number, number));
             else
             {
                 PreviousContentsContainedFormula(name); // This method checks if the contents being replaced was a formula and adjusts the dependencyGraph if so
                 cells[name].SetContents(number);
+                cells[name].SetValue(number);
             }
+
+            RecalculateCells(GetAllDependents(name));
 
             return NameWithDependents(name);
         }
@@ -300,11 +321,12 @@ namespace SS
             if (text == null) throw new ArgumentNullException(); // Error checker
 
             if (!NameExists(name)) // Checks if the cell exists already
-                cells.Add(name, new Cell(name, text));
+                cells.Add(name, new Cell(name, text, text));
             else
             {
                 PreviousContentsContainedFormula(name); // This method checks if the contents being replaced was a formula and adjusts the dependencyGraph if so
                 cells[name].SetContents(text);
+                cells[name].SetValue(text);
             }
 
             if (text == "") // "" signifies an empty cell so it is removed
@@ -312,6 +334,8 @@ namespace SS
                 cells.Remove(name);
                 return NameWithDependents(name);
             }
+
+            RecalculateCells(GetAllDependents(name));
 
             return NameWithDependents(name);
         }
@@ -373,6 +397,7 @@ namespace SS
             try // Checks for circular exception
             {
                 IList<string> dependentsSet = NameWithDependents(name);
+                RecalculateCells(dependentsSet);
                 return dependentsSet;
             }
             catch (CircularException)
@@ -468,11 +493,13 @@ namespace SS
         /// </returns>
         public override IList<String> SetContentsOfCell(String name, String content)
         {
+            string normalizedName = Normalize(name); // normalizes passed in cell name
+            if (IsValid(normalizedName)) throw new InvalidNameException(); // checks it for validity
             IList<string> cellsToReevaluate = new List<string>();
 
             if (Double.TryParse(content, out double value))
                 cellsToReevaluate = SetCellContents(name, value);
-            else if (content[0].ToString() == "=")
+            else if (content[0].ToString() == "=")                                 
                 cellsToReevaluate = SetCellContents(name, new Formula(content));
             else
                 cellsToReevaluate = SetCellContents(name, content);
@@ -572,10 +599,29 @@ namespace SS
         /// </returns>
         public override object GetCellValue(String name)
         {
-            return "do this";
+            return cells[name].GetValue();
         }
 
         // HELPER METHODS
+
+        private double CellValueLookup(String name)
+        {
+            if (Double.TryParse(cells[name].GetValue().ToString(), out double value))
+                return value;
+            else
+            {
+                throw new ArgumentException();
+            }
+        }
+
+        private void RecalculateCells(IList<string> cellsToRecalculate)
+        {
+            foreach (string cell in cellsToRecalculate)
+            {
+                Formula f = (Formula)cells[cell].GetContents();
+                cells[cell].SetValue(f.Evaluate(CellValueLookup));
+            }
+        }
 
         /// <summary>
         /// This helper method checks if the name of a cell is a valid name and exists within the dictionary
@@ -598,6 +644,14 @@ namespace SS
         private IList<string> NameWithDependents(string name)
         {
             IList<string> dependents = new List<string> { name };
+            foreach (var variable in GetAllDependents(name))
+                dependents.Add(variable);
+            return dependents;
+        }
+
+        private IList<string> GetAllDependents(string name)
+        {
+            IList<string> dependents = new List<string>();
             foreach (var variable in GetCellsToRecalculate(name))
                 dependents.Add(variable);
             return dependents;
