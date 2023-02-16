@@ -87,7 +87,6 @@ namespace SS
     {
         private Dictionary<string, Cell> cells; // holds all non-empty cells
         private DependencyGraph dependencyGraph; // keeps track of dependencies across cells
-        string spreadsheetVersion;
 
         // TODO: implement all constructors
         /// <summary>
@@ -103,10 +102,9 @@ namespace SS
         {
             cells = new Dictionary<string, Cell>();
             dependencyGraph = new DependencyGraph();
-            spreadsheetVersion = version;
             Normalize = normalize;
             IsValid = isValid;
-            spreadsheetVersion = version;
+            Version = version;
         }
 
         public Spreadsheet(string filepath, Func<string, bool> isValid, Func<string, string> normalize, string version) : base(isValid, normalize, version)
@@ -153,11 +151,11 @@ namespace SS
             /// </summary>
             /// <param name="variableName"> name of the cell being initialized </param>
             /// <param name="expression"> the formula expression held within the cell </param>
-            public Cell(string variableName, Formula expression)
+            public Cell(string variableName, Formula expression, Object formulaValue)
             {
                 name = variableName;
                 contents = expression;
-                // value is set during SetCellContents method call
+                value = formulaValue;
             }
 
             /// <summary>
@@ -269,7 +267,7 @@ namespace SS
         /// </returns>
         protected override IList<string> SetCellContents(string name, double number)
         {
-            if (!NameExists(name)) // Checks if the cell exists already
+            if (!cells.ContainsKey(name)) // Checks if the cell exists already
                 cells.Add(name, new Cell(name, number, number));
             else
             {
@@ -319,9 +317,7 @@ namespace SS
         /// </returns>
         protected override IList<string> SetCellContents(string name, string text)
         {
-            if (text == null) throw new ArgumentNullException(); // Error checker
-
-            if (!NameExists(name)) // Checks if the cell exists already
+            if (!cells.ContainsKey(name)) // Checks if the cell exists already
                 cells.Add(name, new Cell(name, text, text));
             else
             {
@@ -382,24 +378,23 @@ namespace SS
         ///   </para>
         /// </returns>
         protected override IList<string> SetCellContents(string name, Formula formula)
-        {
-            if (formula.ToString() == null) throw new ArgumentNullException(); // Error checker
-             
-            if (!NameExists(name))
-                cells.Add(name, new Cell(name, formula));
+        {             
+            if (!cells.ContainsKey(name))
+                cells.Add(name, new Cell(name, formula, formula.Evaluate(CellValueLookup)));
             else
             {
                 PreviousContentsContainedFormula(name); // This method checks if the contents being replaced was a formula and adjusts the dependencyGraph if so
                 cells[name].SetContents(formula);
+                cells[name].SetValue(formula.Evaluate(CellValueLookup));
             }
 
             AddDepencencies(name, formula); // Adds a dependency between the name of the cell being adjusted and all the varibales within the formula expression
 
             try // Checks for circular exception
             {
-                IList<string> dependentsSet = NameWithDependents(name);
+                IList<string> dependentsSet = GetAllDependents(name);
                 RecalculateCells(dependentsSet);
-                return dependentsSet;
+                return NameWithDependents(name);
             }
             catch (CircularException)
             {
@@ -495,6 +490,7 @@ namespace SS
         public override IList<String> SetContentsOfCell(String name, String content)
         {
             string normalizedName = Normalize(name); // normalizes passed in cell name
+            if (!Regex.IsMatch(name, @"^[a-zA-Z][0-9]*$") || name == null) throw new InvalidNameException();
             if (!IsValid(normalizedName)) throw new InvalidNameException(); // checks it for validity
             IList<string> cellsToReevaluate = new List<string>();
 
@@ -521,18 +517,18 @@ namespace SS
         /// Method used to determine whether a string that consists of one or more letters
         /// followed by one or more digits is a valid variable name.
         /// </summary>
-        public Func<string, bool> IsValid { get; protected set; }
+        public new Func<string, bool> IsValid { get; protected set; }
 
         /// <summary>
         /// Method used to convert a cell name to its standard form.  For example,
         /// Normalize might convert names to upper case.
         /// </summary>
-        public Func<string, string> Normalize { get; protected set; }
+        public new Func<string, string> Normalize { get; protected set; }
 
         /// <summary>
         /// Version information
         /// </summary>
-        public string Version { get; protected set; }
+        public new string Version { get; protected set; }
           
         // TODO: implement this method
         /// <summary>
@@ -605,6 +601,10 @@ namespace SS
             return cells[name].GetValue();
         }
 
+
+
+
+
         // HELPER METHODS
 
         private double CellValueLookup(String name)
@@ -624,19 +624,6 @@ namespace SS
                 Formula f = (Formula)cells[cell].GetContents();
                 cells[cell].SetValue(f.Evaluate(CellValueLookup));
             }
-        }
-
-        /// <summary>
-        /// This helper method checks if the name of a cell is a valid name and exists within the dictionary
-        /// </summary>
-        /// <param name="name"> the cell name being checked </param>
-        /// <returns> bool variable depending on the outcome </returns>
-        /// <exception cref="InvalidNameException"> throws if the name is not a valid cell name </exception>
-        private bool NameExists(string name)
-        {
-            if (!Regex.IsMatch(name, @"^[a-zA-Z_][a-zA-Z_0-9]*$") || name == null) throw new InvalidNameException();
-
-            return cells.ContainsKey(name);
         }
 
         /// <summary>
