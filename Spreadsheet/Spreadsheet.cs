@@ -332,7 +332,7 @@ namespace SS
             if (text == "") // "" signifies an empty cell so it is removed
             {
                 cells.Remove(name);
-                return NameWithDependents(name);
+                return new List<string>();
             }
 
             RecalculateCells(GetAllDependents(name));
@@ -494,13 +494,15 @@ namespace SS
         public override IList<String> SetContentsOfCell(String name, String content)
         {
             string normalizedName = Normalize(name); // normalizes passed in cell name
-            if (IsValid(normalizedName)) throw new InvalidNameException(); // checks it for validity
+            if (!IsValid(normalizedName)) throw new InvalidNameException(); // checks it for validity
             IList<string> cellsToReevaluate = new List<string>();
 
-            if (Double.TryParse(content, out double value))
+            if (content == "")
+                cellsToReevaluate = SetCellContents(name, content);
+            else if (Double.TryParse(content, out double value))
                 cellsToReevaluate = SetCellContents(name, value);
-            else if (content[0].ToString() == "=")                                 
-                cellsToReevaluate = SetCellContents(name, new Formula(content));
+            else if (content[0].ToString() == "=")
+                cellsToReevaluate = SetCellContents(name, new Formula(content.Remove(0, 1)));
             else
                 cellsToReevaluate = SetCellContents(name, content);
 
@@ -643,17 +645,16 @@ namespace SS
         /// <returns> an Iset of type string with the cell name and its dependents </returns>
         private IList<string> NameWithDependents(string name)
         {
-            IList<string> dependents = new List<string> { name };
-            foreach (var variable in GetAllDependents(name))
+            IList<string> dependents = new List<string>();
+            foreach (var variable in GetCellsToRecalculate(name))
                 dependents.Add(variable);
             return dependents;
         }
 
         private IList<string> GetAllDependents(string name)
         {
-            IList<string> dependents = new List<string>();
-            foreach (var variable in GetCellsToRecalculate(name))
-                dependents.Add(variable);
+            IList<string> dependents = NameWithDependents(name);
+            dependents.Remove(name);
             return dependents;
         }
 
