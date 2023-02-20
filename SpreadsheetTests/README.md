@@ -5,7 +5,7 @@ Date:       16-Feb-2023
 Course:     CS 3500, University of Utah, School of Computing
 GitHub ID:  landonwest815
 Repo:       https://github.com/uofu-cs3500-spring23/spreadsheet-landonwest815
-Date:       19-Feb-2023 9:30pm (when submission was completed) 
+Date:       20-Feb-2023 4:00am (when submission was completed) 
 Project:    SpreadsheetTests
 Copyright:  CS 3500 and Landon West - This work may not be copied for use in Academic Coursework.
 ```
