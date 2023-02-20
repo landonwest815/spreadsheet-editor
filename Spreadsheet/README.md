@@ -1,11 +1,11 @@
 ﻿```
 Author:     Landon West
 Partner:    None
-Date:       6-Feb-2023
+Date:       16-Feb-2023
 Course:     CS 3500, University of Utah, School of Computing
 GitHub ID:  landonwest815
 Repo:       https://github.com/uofu-cs3500-spring23/spreadsheet-landonwest815
-Date:       9-Feb-2023 10:40am (when submission was completed) 
+Date:       xx-Feb-2023 xx:xxam (when submission was completed) 
 Project:    Spreadsheet
 Copyright:  CS 3500 and Landon West - This work may not be copied for use in Academic Coursework.
 ```
@@ -16,25 +16,37 @@ Copyright:  CS 3500 and Landon West - This work may not be copied for use in Aca
 
 # Assignment Specific Topics
 
-    Software Practices:
-        - I have been using a lot more helper methods to help reduce copied code structure
-        - I have been simplifying my if statements and aligning them for easier readability
+    Examples of Good Software Practice section below
+
+# Examples of Good Software Practice
+    DRY:
+        I made use of the DRY process a lot in this assignment. I tried to structure my helper methods in a way that
+        helps the process make sense. I like to break everything into their separate functions and then connect them
+        all together by calling each methods as needed.
+
+    Well named, commented methods:
+        I made use of well named and commented methods very nicely in this assignment. Every method has a header comment
+        with details on what the method does and method specific topics. They all follow xml format and create a nice
+        structure throughtout the file. All methods are also named in a way that the function(s) are explicit.
+
+    Regression Testing:
+        The bulk of my tests are actually just reused from the previous assignment. These already reached close to 100%
+        Code Coverage. Thus, all I had to do was add additonal tests to get it back up to near 100%.
 
 # Consulted Peers:
 
-    I did not talk with anyone for this assignment. All my questions were answered through the links mentioned below.
+    I talked with my friend Luke from lab vaguely about contructors, but nothing specific. 
+    I did not talk with anyone else for this assignment. 
+    All my questions were answered through the links mentioned below.
     A lot of my questions were also answered by simply attending the lectures.
 
 # References:
 
-    Note: Not all of these links provided me with the information I was looking for, but these were all the visited websites regardless
-
-    1. How to compare Lists in Unit Testing - https://stackoverflow.com/questions/11055632/how-to-compare-lists-in-unit-testing
-    2. Count the items from a IEnumerable<T> without iterating? - https://stackoverflow.com/questions/168901/count-the-items-from-a-ienumerablet-without-iterating
-    3. How to print all elements of a list in C# - https://www.educative.io/answers/how-to-print-all-elements-of-a-list-in-c-sharp
-    4. HashSet conversion to List - https://stackoverflow.com/questions/1430987/hashset-conversion-to-list
-    5. How can I check if an object is of a certain type at runtime in C#? - https://stackoverflow.com/questions/3401447/how-can-i-check-if-an-object-is-of-a-certain-type-at-runtime-in-c
-    6. How to add item to the beginning of List<T>? - https://stackoverflow.com/questions/390491/how-to-add-item-to-the-beginning-of-listt
-    7. How do I parse a string with a decimal point to a double? - https://stackoverflow.com/questions/1354924/how-do-i-parse-a-string-with-a-decimal-point-to-a-double
-    8. Check whether two lists have the same items in C# - https://www.techiedelight.com/check-whether-two-lists-have-the-same-items-in-csharp/
-    9. if statement for throwing Exception? - https://stackoverflow.com/questions/6184691/if-statement-for-throwing-exception
+    1. How to iterate over a dictionary? - https://stackoverflow.com/questions/141088/how-to-iterate-over-a-dictionary
+    2. How do I read and parse an XML file in C#? - https://stackoverflow.com/questions/642293/how-do-i-read-and-parse-an-xml-file-in-c
+    3. Checking if a variable is of data type double - https://stackoverflow.com/questions/9823836/checking-if-a-variable-is-of-data-type-double
+    4. Fastest way to remove first char in a String - https://stackoverflow.com/questions/3222125/fastest-way-to-remove-first-char-in-a-string
+    5. Regex to determine if a string is a name of a range or a cell's address - https://stackoverflow.com/questions/40369371/regex-to-determine-if-a-string-is-a-name-of-a-range-or-a-cells-address
+    6. How to use Regular Expressions (Regex) in Microsoft Excel both in-cell and loops - https://stackoverflow.com/questions/22542834/how-to-use-regular-expressions-regex-in-microsoft-excel-both-in-cell-and-loops
+    7. Regex pattern from cell - https://learn.microsoft.com/en-us/answers/questions/456234/regex-pattern-from-cell
+    8. RegEx in Excel: using regular expressions in formulas - https://www.ablebits.com/office-addins-blog/excel-regex-formulas/

@@ -455,16 +455,34 @@ namespace SS
         }
 
         /// <summary>
-        /// This method retrieves all the direct dependents of a given cell
+        /// Returns an enumeration, without duplicates, of the names of all cells whose
+        /// values depend directly on the value of the named cell. 
         /// </summary>
-        /// <param name="name"> the given cell name </param>
-        /// <returns> the direct dependents of a given cell name </returns>
-        /// <exception cref="ArgumentNullException"> throws if the name given is null</exception>
-        /// <exception cref="InvalidNameException"> throws if the name given does not exist in the dictionary </exception>
+        /// 
+        /// <exception cref="InvalidNameException"> 
+        ///   If the name is invalid, throw an InvalidNameException
+        /// </exception>
+        /// 
+        /// <param name="name"></param>
+        /// <returns>
+        ///   Returns an enumeration, without duplicates, of the names of all cells that contain
+        ///   formulas containing name.
+        /// 
+        ///   <para>For example, suppose that: </para>
+        ///   <list type="bullet">
+        ///      <item>A1 contains 3</item>
+        ///      <item>B1 contains the formula A1 * A1</item>
+        ///      <item>C1 contains the formula B1 + A1</item>
+        ///      <item>D1 contains the formula B1 - C1</item>
+        ///   </list>
+        /// 
+        ///   <para>The direct dependents of A1 are B1 and C1</para>
+        /// 
+        /// </returns>
         protected override IEnumerable<string> GetDirectDependents(string name)
         {
-            if (name == null) throw new ArgumentNullException();
-            if (name == null || !cells.ContainsKey(name)) throw new InvalidNameException();
+            if (!IsValid(name))
+                throw new InvalidNameException();
 
             return dependencyGraph.GetDependees(name);
         }
@@ -675,6 +693,7 @@ namespace SS
                 writer.WriteEndElement(); // Ends the Spreadsheet block
                 writer.WriteEndDocument();
             }
+            Changed = false;
         }
 
         /// <summary>
