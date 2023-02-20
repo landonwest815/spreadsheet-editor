@@ -90,6 +90,7 @@ namespace SpreadsheetTests
         /// See Title
         /// </summary>
         [TestMethod]
+        [ExpectedException(typeof(DirectoryNotFoundException))]
         public void NonsensePathTest()
         {
             Spreadsheet sheet = new Spreadsheet();
