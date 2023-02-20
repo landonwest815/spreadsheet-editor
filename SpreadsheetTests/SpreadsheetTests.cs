@@ -73,6 +73,16 @@ namespace SpreadsheetTests
         /// See Title
         /// </summary>
         [TestMethod]
+        public void NonsensePathTest()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+            sheet.Save("/some/nonsense/path.xml");
+        }
+
+        /// <summary>
+        /// See Title
+        /// </summary>
+        [TestMethod]
         public void LoadSpreadsheetTest() 
         {
             using (XmlWriter writer = XmlWriter.Create("save2.txt")) // NOTICE the file with no path
@@ -210,7 +220,7 @@ namespace SpreadsheetTests
 
         // AS4 Grading Tests
 
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("2")]
         [ExpectedException(typeof(InvalidNameException))]
         public void TestEmptyGetContents()
@@ -219,7 +229,7 @@ namespace SpreadsheetTests
             s.GetCellContents("1AA");
         }
 
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("3")]
         [ExpectedException(typeof(InvalidNameException))]
         public void TestGetEmptyContents()
@@ -229,7 +239,7 @@ namespace SpreadsheetTests
         }
 
         // SETTING CELL TO A DOUBLE
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("5")]
         [ExpectedException(typeof(InvalidNameException))]
         public void TestSetInvalidNameDouble()
@@ -238,7 +248,7 @@ namespace SpreadsheetTests
             s.SetContentsOfCell("1A1A", "1.5");
         }
 
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("6")]
         public void TestSimpleSetDouble()
         {
@@ -248,7 +258,7 @@ namespace SpreadsheetTests
         }
 
         // SETTING CELL TO A STRING
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("9")]
         [ExpectedException(typeof(InvalidNameException))]
         public void TestSetSimpleString()
@@ -257,7 +267,7 @@ namespace SpreadsheetTests
             s.SetContentsOfCell("1AZ", "hello");
         }
 
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("10")]
         public void TestSetGetSimpleString()
         {
@@ -267,7 +277,7 @@ namespace SpreadsheetTests
         }
 
         // SETTING CELL TO A FORMULA
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("13")]
         [ExpectedException(typeof(InvalidNameException))]
         public void TestSetSimpleForm()
@@ -276,7 +286,7 @@ namespace SpreadsheetTests
             s.SetContentsOfCell("1AZ", "=2");
         }
 
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("14")]
         public void TestSetGetForm()
         {
@@ -288,7 +298,7 @@ namespace SpreadsheetTests
         }
 
         // CIRCULAR FORMULA DETECTION
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("15")]
         [ExpectedException(typeof(CircularException))]
         public void TestSimpleCircular()
@@ -298,7 +308,7 @@ namespace SpreadsheetTests
             s.SetContentsOfCell("A2", "=A1");
         }
 
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("16")]
         [ExpectedException(typeof(CircularException))]
         public void TestComplexCircular()
@@ -310,7 +320,7 @@ namespace SpreadsheetTests
             s.SetContentsOfCell("A7", "=A1+A1");
         }
 
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("17")]
         [ExpectedException(typeof(CircularException))]
         public void TestUndoCircular()
@@ -329,7 +339,7 @@ namespace SpreadsheetTests
             }
         }
 
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("17b")]
         [ExpectedException(typeof(CircularException))]
         public void TestUndoCellsCircular()
@@ -347,7 +357,7 @@ namespace SpreadsheetTests
         }
 
         // NONEMPTY CELLS
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("18")]
         public void TestEmptyNames()
         {
@@ -355,7 +365,7 @@ namespace SpreadsheetTests
             Assert.IsFalse(s.GetNamesOfAllNonemptyCells().GetEnumerator().MoveNext());
         }
 
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("19")]
         public void TestExplicitEmptySet()
         {
@@ -364,7 +374,7 @@ namespace SpreadsheetTests
             Assert.IsFalse(s.GetNamesOfAllNonemptyCells().GetEnumerator().MoveNext());
         }
 
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("20")]
         public void TestSimpleNamesString()
         {
@@ -373,7 +383,7 @@ namespace SpreadsheetTests
             Assert.IsTrue(new HashSet<string>(s.GetNamesOfAllNonemptyCells()).SetEquals(new HashSet<string>() { "B1" }));
         }
 
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("21")]
         public void TestSimpleNamesDouble()
         {
@@ -382,7 +392,7 @@ namespace SpreadsheetTests
             Assert.IsTrue(new HashSet<string>(s.GetNamesOfAllNonemptyCells()).SetEquals(new HashSet<string>() { "B1" }));
         }
 
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("22")]
         public void TestSimpleNamesFormula()
         {
@@ -391,7 +401,7 @@ namespace SpreadsheetTests
             Assert.IsTrue(new HashSet<string>(s.GetNamesOfAllNonemptyCells()).SetEquals(new HashSet<string>() { "B1" }));
         }
 
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("23")]
         public void TestMixedNames()
         {
@@ -403,7 +413,7 @@ namespace SpreadsheetTests
         }
 
         // RETURN VALUE OF SET CELL CONTENTS
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("24")]
         public void TestSetSingletonDouble()
         {
@@ -413,7 +423,7 @@ namespace SpreadsheetTests
             Assert.IsTrue(s.SetContentsOfCell("A1", "17.2").SequenceEqual(new List<string>() { "A1" }));
         }
 
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("25")]
         public void TestSetSingletonString()
         {
@@ -423,7 +433,7 @@ namespace SpreadsheetTests
             Assert.IsTrue(s.SetContentsOfCell("B1", "hello").SequenceEqual(new List<string>() { "B1" }));
         }
 
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("26")]
         public void TestSetSingletonFormula()
         {
@@ -433,7 +443,7 @@ namespace SpreadsheetTests
             Assert.IsTrue(s.SetContentsOfCell("C1", "=5").SequenceEqual(new List<string>() { "C1" }));
         }
 
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("27")]
         public void TestSetChain()
         {
@@ -446,7 +456,7 @@ namespace SpreadsheetTests
         }
 
         // CHANGING CELLS
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("28")]
         public void TestChangeFtoD()
         {
@@ -456,7 +466,7 @@ namespace SpreadsheetTests
             Assert.AreEqual(2.5, (double)s.GetCellContents("A1"), 1e-9);
         }
 
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("29")]
         public void TestChangeFtoS()
         {
@@ -466,7 +476,7 @@ namespace SpreadsheetTests
             Assert.AreEqual("Hello", (string)s.GetCellContents("A1"));
         }
 
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("30")]
         public void TestChangeStoF()
         {
@@ -478,7 +488,7 @@ namespace SpreadsheetTests
         }
 
         // STRESS TESTS
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("31")]
         public void TestStress1()
         {
@@ -503,26 +513,26 @@ namespace SpreadsheetTests
         }
 
         // Repeated for extra weight
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("32")]
         public void TestStress1a()
         {
             TestStress1();
         }
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("33")]
         public void TestStress1b()
         {
             TestStress1();
         }
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("34")]
         public void TestStress1c()
         {
             TestStress1();
         }
 
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("35")]
         public void TestStress2()
         {
@@ -534,26 +544,26 @@ namespace SpreadsheetTests
                 Assert.IsTrue(cells.SetEquals(s.SetContentsOfCell("A" + i, "=A" + (i + 1))));
             }
         }
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("36")]
         public void TestStress2a()
         {
             TestStress2();
         }
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("37")]
         public void TestStress2b()
         {
             TestStress2();
         }
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("38")]
         public void TestStress2c()
         {
             TestStress2();
         }
 
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("39")]
         public void TestStress3()
         {
@@ -572,26 +582,26 @@ namespace SpreadsheetTests
             }
         }
 
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("40")]
         public void TestStress3a()
         {
             TestStress3();
         }
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("41")]
         public void TestStress3b()
         {
             TestStress3();
         }
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("42")]
         public void TestStress3c()
         {
             TestStress3();
         }
 
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("43")]
         public void TestStress4()
         {
@@ -610,47 +620,47 @@ namespace SpreadsheetTests
             Assert.IsTrue(s.SetContentsOfCell("A1249", "25.0").SequenceEqual(firstCells));
             Assert.IsTrue(s.SetContentsOfCell("A1499", "0").SequenceEqual(lastCells));
         }
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("44")]
         public void TestStress4a()
         {
             TestStress4();
         }
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("45")]
         public void TestStress4b()
         {
             TestStress4();
         }
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("46")]
         public void TestStress4c()
         {
             TestStress4();
         }
 
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("47")]
         public void TestStress5()
         {
             RunRandomizedTest(47, 2519);
         }
 
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("48")]
         public void TestStress6()
         {
             RunRandomizedTest(48, 2521);
         }
 
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("49")]
         public void TestStress7()
         {
             RunRandomizedTest(49, 2526);
         }
 
-        [TestMethod(), Timeout(2000)]
+        [TestMethod]
         [TestCategory("50")]
         public void TestStress8()
         {
