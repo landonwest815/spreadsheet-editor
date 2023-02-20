@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Xml;
 using System.Xml.Linq;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -86,18 +87,28 @@ namespace SS
     public class Spreadsheet : AbstractSpreadsheet
     {
         private Dictionary<string, Cell> cells; // holds all non-empty cells
-        private DependencyGraph dependencyGraph; // keeps track of dependencies across cells
+        private DependencyGraph dependencyGraph; // keeps track of dependencies across cells in the above dictionary
 
-        // TODO: implement all constructors
         /// <summary>
-        /// Constructor that initializes the above data
+        /// Zero-parameter Contructor
+        /// Version is set to "default"
+        /// Validizer and Normalizer are non-altering delegates using lambda functionality
         /// </summary>
         public Spreadsheet() : this(s => true, s => s, "default")
         {
             cells = new Dictionary<string, Cell>();
             dependencyGraph = new DependencyGraph();
         }
-          
+
+        /// <summary>
+        /// 3-parameter Constructor that can:
+        ///     - Pass in a Validize delegate
+        ///     - Pass in a Normalize delegate
+        ///     - Pass in versioning information
+        /// </summary>
+        /// <param name="isValid"> validization delegate </param>
+        /// <param name="normalize"> normalization delegate </param>
+        /// <param name="version"> information about the version of spreadsheet </param>
         public Spreadsheet(Func<string, bool> isValid, Func<string, string> normalize, string version) : base(isValid, normalize, version)
         {
             cells = new Dictionary<string, Cell>();
@@ -107,9 +118,50 @@ namespace SS
             Version = version;
         }
 
+        /// <summary>
+        /// 4-parameter Constructor that has identical functionality to the 3-parameter Constructor except:
+        ///     - a filepath is passed in and read
+        ///     - the spreadsheet is filled out with the cells that were read
+        /// </summary>
+        /// <param name="filepath"> filepath to read from </param>
+        /// <param name="isValid"> validization delegate</param>
+        /// <param name="normalize"> normalization delegate </param>
+        /// <param name="version"> information about the version of spreadsheet </param>
         public Spreadsheet(string filepath, Func<string, bool> isValid, Func<string, string> normalize, string version) : base(isValid, normalize, version)
         {
-            // implement
+            // initializes necessary structures and delegates
+            cells = new Dictionary<string, Cell>();
+            dependencyGraph = new DependencyGraph();
+            Normalize = normalize;
+            IsValid = isValid;
+            Version = version;
+             
+            // helper string for reading the file below
+            string currentCell;
+
+            // Create an XmlReader inside this block, and automatically Dispose() it at the end.
+            using (XmlReader reader = XmlReader.Create(filepath))
+            {
+                while (reader.Read())
+                {
+                    if (reader.Name == "cell")
+                    {
+                        reader.Read(); //
+                        reader.Read(); // these 2 lines navigate to the name of the current cell
+
+                        currentCell = reader.Value; // capture the name of the cell
+
+                        reader.Read(); //
+                        reader.Read(); // these 3 lines navigate to the value of the current cell
+                        reader.Read(); //
+
+                        SetContentsOfCell(currentCell, reader.Value); // set the contents
+
+                        reader.Read(); // these 2 lines read through the end of the cell and sets up the next cell to be read
+                        reader.Read(); //
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -185,11 +237,19 @@ namespace SS
                 return name;
             }
 
+            /// <summary>
+            /// Setter method for the value of the cell
+            /// </summary>
+            /// <param name="calculatedValue"> calculated value to set as the value </param>
             public void SetValue(Object calculatedValue)
             {
                 value = calculatedValue;
             }
 
+            /// <summary>
+            /// Getter method for the value of the cell
+            /// </summary>
+            /// <returns> the value of the cell </returns>
             public Object GetValue()
             {
                 return value;
@@ -231,7 +291,6 @@ namespace SS
             return cells.Keys;
         }
 
-        // TODO: return an IList
         /// <summary>
         ///  Set the contents of the named cell to the given number.  
         /// </summary>
@@ -278,10 +337,9 @@ namespace SS
 
             RecalculateCells(GetAllDependents(name));
 
-            return NameWithDependents(name);
+            return GetAllDependentsWithName(name);
         }
 
-        // TODO: return an IList
         /// <summary>
         /// The contents of the named cell becomes the text.  
         /// </summary>
@@ -326,18 +384,11 @@ namespace SS
                 cells[name].SetValue(text);
             }
 
-            if (text == "") // "" signifies an empty cell so it is removed
-            {
-                cells.Remove(name);
-                return new List<string>();
-            }
-
             RecalculateCells(GetAllDependents(name));
 
-            return NameWithDependents(name);
+            return GetAllDependentsWithName(name);
         }
 
-        // TODO: return an IList
         /// <summary>
         /// Set the contents of the named cell to the formula.  
         /// </summary>
@@ -394,7 +445,7 @@ namespace SS
             {
                 IList<string> dependentsSet = GetAllDependents(name);
                 RecalculateCells(dependentsSet);
-                return NameWithDependents(name);
+                return GetAllDependentsWithName(name);
             }
             catch (CircularException)
             {
@@ -418,7 +469,6 @@ namespace SS
             return dependencyGraph.GetDependees(name);
         }
 
-        // TODO: implement the method
         /// <summary>
         ///   <para>Sets the contents of the named cell to the appropriate value. </para>
         ///   <para>
@@ -489,25 +539,27 @@ namespace SS
         /// </returns>
         public override IList<String> SetContentsOfCell(String name, String content)
         {
-            string normalizedName = Normalize(name); // normalizes passed in cell name
+            // Processes the information to be passed into the cell content setter methods
+            string normalizedName = Normalize(name);
             if (!Regex.IsMatch(name, @"^[a-zA-Z][0-9]*$") || name == null) throw new InvalidNameException();
-            if (!IsValid(normalizedName)) throw new InvalidNameException(); // checks it for validity
+            if (!IsValid(normalizedName)) throw new InvalidNameException();
             IList<string> cellsToReevaluate = new List<string>();
 
-            if (content == "")
-                cellsToReevaluate = SetCellContents(name, content);
+            if (content == "") { // If the content is "" then the cell should be considered empty and removed from the dictionary 
+                cellsToReevaluate = new List<string>();
+                cells.Remove(normalizedName);
+            }
             else if (Double.TryParse(content, out double value))
-                cellsToReevaluate = SetCellContents(name, value);
+                cellsToReevaluate = SetCellContents(normalizedName, value);
             else if (content[0].ToString() == "=")
-                cellsToReevaluate = SetCellContents(name, new Formula(content.Remove(0, 1)));
+                cellsToReevaluate = SetCellContents(normalizedName, new Formula(content.Remove(0, 1)));
             else
-                cellsToReevaluate = SetCellContents(name, content);
-
+                cellsToReevaluate = SetCellContents(normalizedName, content);
+             
             Changed = true;
             return cellsToReevaluate;
         }
 
-        // TODO: implement the four methods below
         /// <summary>
         /// True if this spreadsheet has been modified since it was created or saved                  
         /// (whichever happened most recently); false otherwise.
@@ -521,8 +573,8 @@ namespace SS
         public new Func<string, bool> IsValid { get; protected set; }
 
         /// <summary>
-        /// Method used to convert a cell name to its standard form.  For example,
-        /// Normalize might convert names to upper case.
+        /// Method used to convert a cell name to its standard form.
+        /// For example... Normalize might convert names to upper case.
         /// </summary>
         public new Func<string, string> Normalize { get; protected set; }
 
@@ -531,7 +583,6 @@ namespace SS
         /// </summary>
         public new string Version { get; protected set; }
           
-        // TODO: implement this method
         /// <summary>
         ///   Look up the version information in the given file. If there are any problems opening, reading, 
         ///   or closing the file, the method should throw a SpreadsheetReadWriteException with an explanatory message.
@@ -552,10 +603,19 @@ namespace SS
         /// <returns>Returns the version information of the spreadsheet saved in the named file.</returns>
         public override string GetSavedVersion(String filename)
         {
-            return "do this";
+            // Create an XmlReader inside this block, and automatically Dispose() it at the end.
+            using (XmlReader reader = XmlReader.Create(filename))
+            {
+                while (reader.Read())
+                {
+                    if (reader.Name == "spreadsheet")
+                        return reader["version"];
+                }
+            }
+
+            throw new SpreadsheetReadWriteException("no version information could be found");
         }
 
-        // TODO: implement this method
         /// <summary>
         /// Writes the contents of this spreadsheet to the named file using an XML format.
         /// The XML elements should be structured as follows:
@@ -579,10 +639,44 @@ namespace SS
         /// </summary>
         public override void Save(String filename)
         {
+            using (XmlWriter writer = XmlWriter.Create(filename))
+            {
+                writer.WriteStartDocument();
+                writer.WriteStartElement("spreadsheet");
 
+                // This adds an attribute to the Spreadsheet element
+                writer.WriteAttributeString("version", Version);
+
+                writer.WriteStartElement("cells");
+
+                // write the cells themselves
+                foreach (KeyValuePair<string, Cell> entry in cells)
+                {
+                    writer.WriteStartElement("cell");
+                    // We use a shortcut to write an element with a single string
+                    writer.WriteElementString("name", entry.Value.GetName());
+
+                    if (entry.Value.GetContents().GetType() == typeof(double) || entry.Value.GetContents().GetType() == typeof(string))
+                    {
+                        writer.WriteElementString("contents", entry.Value.GetContents().ToString());
+                    }
+                    else if (entry.Value.GetContents().GetType() == typeof(Formula))
+                    {
+                        writer.WriteElementString("contents", "=" + entry.Value.GetContents().ToString());
+                    }
+                    else
+                    {
+                        throw new SpreadsheetReadWriteException("contents type of " + entry.Value.GetName() + " is invalid");
+                    }
+                    writer.WriteEndElement(); // Ends the Cell block
+                }
+                    
+                writer.WriteEndElement(); // Ends the Cells block
+                writer.WriteEndElement(); // Ends the Spreadsheet block
+                writer.WriteEndDocument();
+            }
         }
 
-        // TODO: implement this method
         /// <summary>
         /// If name is invalid, throws an InvalidNameException.
         /// </summary>
@@ -602,12 +696,15 @@ namespace SS
             return cells[name].GetValue();
         }
 
-
-
-
-
         // HELPER METHODS
 
+        /// <summary>
+        /// Lookup method for the value of a cell
+        /// Gets passed in to Formula's Evaluate function
+        /// </summary>
+        /// <param name="name"> name of the cell to lookup value from </param>
+        /// <returns> the value of a cell </returns>
+        /// <exception cref="ArgumentException"> throws if the value of a cell does not parse to a double type </exception>
         private double CellValueLookup(String name)
         {
             if (Double.TryParse(cells[name].GetValue().ToString(), out double value))
@@ -618,6 +715,10 @@ namespace SS
             }
         }
 
+        /// <summary>
+        /// Recalculates all cells that depend on a cell that was just changed using the content setter methods
+        /// </summary>
+        /// <param name="cellsToRecalculate"> IList of the cells to recalculate </param>
         private void RecalculateCells(IList<string> cellsToRecalculate)
         {
             foreach (string cell in cellsToRecalculate)
@@ -632,7 +733,7 @@ namespace SS
         /// </summary>
         /// <param name="name"> the cell that the dependents depend on </param>
         /// <returns> an Iset of type string with the cell name and its dependents </returns>
-        private IList<string> NameWithDependents(string name)
+        private IList<string> GetAllDependentsWithName(string name)
         {
             IList<string> dependents = new List<string>();
             foreach (var variable in GetCellsToRecalculate(name))
@@ -640,9 +741,15 @@ namespace SS
             return dependents;
         }
 
+        /// <summary>
+        /// Gets all the dependents of a cell
+        /// Does not include the input name
+        /// </summary>
+        /// <param name="name"> the cell to get the dependents of </param>
+        /// <returns> the dependents of a cell </returns>
         private IList<string> GetAllDependents(string name)
         {
-            IList<string> dependents = NameWithDependents(name);
+            IList<string> dependents = GetAllDependentsWithName(name);
             dependents.Remove(name);
             return dependents;
         }

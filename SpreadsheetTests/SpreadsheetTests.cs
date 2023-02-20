@@ -1,12 +1,62 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SpreadsheetUtilities;
 using SS;
+using System.Xml;
 
 namespace SpreadsheetTests
 {
     [TestClass]
     public class SpreadsheetTests
     {
+
+        // READ & WRITE TESTS
+        [TestMethod]
+        public void SaveSpreadsheetTest()
+        {
+            Spreadsheet sheet = new Spreadsheet();
+            sheet.SetContentsOfCell("A1", "5.0");
+            sheet.Save("save.txt");
+            Assert.AreEqual("default", sheet.GetSavedVersion("save.txt"));
+        }
+
+        [TestMethod]
+        public void LoadSpreadsheetTest() 
+        {
+            using (XmlWriter writer = XmlWriter.Create("save2.txt")) // NOTICE the file with no path
+            {
+                writer.WriteStartDocument();
+                writer.WriteStartElement("spreadsheet");
+                writer.WriteAttributeString("version", "");
+
+                writer.WriteStartElement("cells");
+
+                writer.WriteStartElement("cell");
+                writer.WriteElementString("name", "A1");
+                writer.WriteElementString("contents", "hello");
+                writer.WriteEndElement();
+
+                writer.WriteStartElement("cell");
+                writer.WriteElementString("name", "B1");
+                writer.WriteElementString("contents", "5.0");
+                writer.WriteEndElement();
+
+                writer.WriteStartElement("cell");
+                writer.WriteElementString("name", "C1");
+                writer.WriteElementString("contents", "=5*20");
+                writer.WriteEndElement();
+
+                writer.WriteEndElement();
+
+                writer.WriteEndElement();
+                writer.WriteEndDocument();
+            }
+
+            AbstractSpreadsheet ss = new Spreadsheet("save2.txt", s => true, s => s, "");
+
+            Console.WriteLine(ss.GetCellValue("A1"));
+            Console.WriteLine(ss.GetCellValue("B1"));
+            Console.WriteLine(ss.GetCellValue("C1"));
+        }
 
         [TestMethod]
         public void SimpleEvaluateTest()
