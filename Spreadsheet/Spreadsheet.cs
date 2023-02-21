@@ -588,7 +588,7 @@ namespace SS
         {
             // Processes the information to be passed into the cell content setter methods
             string normalizedName = Normalize(name);
-            if (!Regex.IsMatch(name, @"^[a-zA-Z][0-9]+$") || name == null) throw new InvalidNameException();
+            if (!Regex.IsMatch(name, @"^[a-zA-Z]+[0-9]+$") || name == null) throw new InvalidNameException();
             if (!IsValid(normalizedName)) throw new InvalidNameException();
             IList<string> cellsToReevaluate = new List<string>();
 
