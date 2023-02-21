@@ -301,6 +301,9 @@ namespace SS
         /// </returns>
         public override object GetCellContents(string name)
         {
+            if (!ValidRegexPattern(name))
+                throw new InvalidNameException();
+
             // checks to make sure the name given exists in the dictionary
             if (cells.ContainsKey(Normalize(name))) return cells[Normalize(name)].GetContents();
             else                                    return "";
@@ -588,7 +591,7 @@ namespace SS
         {
             // Processes the information to be passed into the cell content setter methods
             string normalizedName = Normalize(name);
-            if (!Regex.IsMatch(name, @"^[a-zA-Z]+[0-9]+$") || name == null) throw new InvalidNameException();
+            if (!ValidRegexPattern(name) || name == null) throw new InvalidNameException();
             if (!IsValid(normalizedName)) throw new InvalidNameException();
             IList<string> cellsToReevaluate = new List<string>();
 
@@ -598,7 +601,7 @@ namespace SS
                 cellsToReevaluate = SetCellContents(normalizedName, new Formula(string.Concat(content.Where(c => !Char.IsWhiteSpace(c))).Remove(0, 1), Normalize, IsValid));
             else
                 cellsToReevaluate = SetCellContents(normalizedName, content);
-             
+          
             Changed = true;
             return cellsToReevaluate;
         }
@@ -740,10 +743,17 @@ namespace SS
         /// </returns>
         public override object GetCellValue(String name)
         {
+            if (!cells.ContainsKey(name))
+                return "";
             return cells[name].GetValue();
         }
 
         // HELPER METHODS
+
+        private bool ValidRegexPattern(string name)
+        {
+            return Regex.IsMatch(name, @"^[a-zA-Z]+[0-9]+$");
+        }
 
         /// <summary>
         /// Lookup method for the value of a cell

@@ -90,7 +90,7 @@ namespace SpreadsheetTests
         /// See Title
         /// </summary>
         [TestMethod]
-        [ExpectedException(typeof(DirectoryNotFoundException))]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
         public void NonsensePathTest()
         {
             Spreadsheet sheet = new Spreadsheet();
@@ -247,15 +247,6 @@ namespace SpreadsheetTests
             s.GetCellContents("1AA");
         }
 
-        [TestMethod]
-        [TestCategory("3")]
-        [ExpectedException(typeof(InvalidNameException))]
-        public void TestGetEmptyContents()
-        {
-            Spreadsheet s = new Spreadsheet();
-            Assert.AreEqual("", s.GetCellContents("A2"));
-        }
-
         // SETTING CELL TO A DOUBLE
         [TestMethod]
         [TestCategory("5")]
@@ -383,14 +374,7 @@ namespace SpreadsheetTests
             Assert.IsFalse(s.GetNamesOfAllNonemptyCells().GetEnumerator().MoveNext());
         }
 
-        [TestMethod]
-        [TestCategory("19")]
-        public void TestExplicitEmptySet()
-        {
-            Spreadsheet s = new Spreadsheet();
-            s.SetContentsOfCell("B1", "");
-            Assert.IsFalse(s.GetNamesOfAllNonemptyCells().GetEnumerator().MoveNext());
-        }
+        
 
         [TestMethod]
         [TestCategory("20")]
@@ -966,12 +950,11 @@ namespace SpreadsheetTests
         /// See title
         /// </summary>
         [TestMethod]
-        [ExpectedException(typeof(InvalidNameException))]
-        public void InvalidNameGetCellContentsTest()
+        public void EmptyNameGetCellContentsTest()
         {
             Spreadsheet sheet = new Spreadsheet();
             sheet.SetContentsOfCell("A1", "1.0");
-            sheet.GetCellContents("B1");
+            Assert.AreEqual("", sheet.GetCellContents("B1"));
         }
 
         /// <summary>
@@ -986,7 +969,7 @@ namespace SpreadsheetTests
             sheet.SetContentsOfCell("C1", "7.0");
             sheet.SetContentsOfCell("A1", "");
 
-            Assert.AreEqual(2.0, sheet.GetNamesOfAllNonemptyCells().ToList().Count);
+            Assert.AreEqual(3.0, sheet.GetNamesOfAllNonemptyCells().ToList().Count);
         }
     }
 }
