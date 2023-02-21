@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -150,31 +151,46 @@ namespace SS
             Version = version;
              
             // helper string for reading the file below
-            string currentCell;
+            List<string> names = new List<string>();
+            List<string> contents = new List<string>();
+            bool isNameOpenTag = true;
+            bool isContentsOpenTag = true;
 
-            // Create an XmlReader inside this block, and automatically Dispose() it at the end.
-            using (XmlReader reader = XmlReader.Create(filepath))
+            try
             {
-                while (reader.Read())
+                // Create an XmlReader inside this block, and automatically Dispose() it at the end.
+                using (XmlReader reader = XmlReader.Create(filepath))
                 {
-                    if (reader.Name == "cell")
+                    try
                     {
-                        reader.Read(); //
-                        reader.Read(); // these 2 lines navigate to the name of the current cell
+                        if (GetSavedVersion(filepath) != version)
+                            throw new SpreadsheetReadWriteException("invalid versioning");
+                        while (reader.Read())
+                        {
+                            if (reader.Name == "name")
+                            {
+                                reader.Read();
+                                if (isNameOpenTag)
+                                    names.Add(reader.Value);
+                                isNameOpenTag = !isNameOpenTag;
+                            }
+                            if (reader.Name == "contents")
+                            {
+                                reader.Read();
+                                if (isContentsOpenTag)
+                                    contents.Add(reader.Value);
+                                isContentsOpenTag= !isContentsOpenTag;
+                            }
+                        }
 
-                        currentCell = reader.Value; // capture the name of the cell
-
-                        reader.Read(); //
-                        reader.Read(); // these 3 lines navigate to the value of the current cell
-                        reader.Read(); //
-
-                        SetContentsOfCell(currentCell, reader.Value); // set the contents
-
-                        reader.Read(); // these 2 lines read through the end of the cell and sets up the next cell to be read
-                        reader.Read(); //
-                    }
+                        for (int i = 0; i < names.Count; i++)
+                        {
+                            SetContentsOfCell(names[i], contents[i]);
+                        }
+                    } catch (XmlException) { throw new SpreadsheetReadWriteException("invalid xml file encountered"); }
                 }
             }
+            catch (DirectoryNotFoundException) { throw new SpreadsheetReadWriteException("missing file encountered"); }
         }
 
         /// <summary>
@@ -578,7 +594,7 @@ namespace SS
 
             if (Double.TryParse(content, out double value))
                 cellsToReevaluate = SetCellContents(normalizedName, value);
-            else if (content[0].ToString() == "=")
+            else if (content.Length > 0 && content[0].ToString() == "=")
                 cellsToReevaluate = SetCellContents(normalizedName, new Formula(string.Concat(content.Where(c => !Char.IsWhiteSpace(c))).Remove(0, 1), Normalize, IsValid));
             else
                 cellsToReevaluate = SetCellContents(normalizedName, content);
@@ -666,42 +682,45 @@ namespace SS
         /// </summary>
         public override void Save(String filename)
         {
-            using (XmlWriter writer = XmlWriter.Create(filename))
+            try
             {
-                writer.WriteStartDocument();
-                writer.WriteStartElement("spreadsheet");
-
-                // This adds an attribute to the Spreadsheet element
-                writer.WriteAttributeString("version", Version);
-
-                writer.WriteStartElement("cells");
-
-                // write the cells themselves
-                foreach (KeyValuePair<string, Cell> entry in cells)
+                using (XmlWriter writer = XmlWriter.Create(filename))
                 {
-                    writer.WriteStartElement("cell");
-                    // We use a shortcut to write an element with a single string
-                    writer.WriteElementString("name", entry.Value.GetName());
+                    writer.WriteStartDocument();
+                    writer.WriteStartElement("spreadsheet");
 
-                    if (entry.Value.GetContents().GetType() == typeof(double) || entry.Value.GetContents().GetType() == typeof(string))
+                    // This adds an attribute to the Spreadsheet element
+                    writer.WriteAttributeString("version", Version);
+
+                    writer.WriteStartElement("cells");
+
+                    // write the cells themselves
+                    foreach (KeyValuePair<string, Cell> entry in cells)
                     {
-                        writer.WriteElementString("contents", entry.Value.GetContents().ToString());
+                        writer.WriteStartElement("cell");
+                        // We use a shortcut to write an element with a single string
+                        writer.WriteElementString("name", entry.Value.GetName());
+
+                        if (entry.Value.GetContents().GetType() == typeof(double) || entry.Value.GetContents().GetType() == typeof(string))
+                        {
+                            writer.WriteElementString("contents", entry.Value.GetContents().ToString());
+                        }
+                        else if (entry.Value.GetContents().GetType() == typeof(Formula))
+                        {
+                            writer.WriteElementString("contents", "=" + entry.Value.GetContents().ToString());
+                        }
+                        else
+                        {
+                            throw new SpreadsheetReadWriteException("contents type of " + entry.Value.GetName() + " is invalid");
+                        }
+                        writer.WriteEndElement(); // Ends the Cell block
                     }
-                    else if (entry.Value.GetContents().GetType() == typeof(Formula))
-                    {
-                        writer.WriteElementString("contents", "=" + entry.Value.GetContents().ToString());
-                    }
-                    else
-                    {
-                        throw new SpreadsheetReadWriteException("contents type of " + entry.Value.GetName() + " is invalid");
-                    }
-                    writer.WriteEndElement(); // Ends the Cell block
+
+                    writer.WriteEndElement(); // Ends the Cells block
+                    writer.WriteEndElement(); // Ends the Spreadsheet block
+                    writer.WriteEndDocument();
                 }
-                    
-                writer.WriteEndElement(); // Ends the Cells block
-                writer.WriteEndElement(); // Ends the Spreadsheet block
-                writer.WriteEndDocument();
-            }
+            } catch (DirectoryNotFoundException) { throw new SpreadsheetReadWriteException("tried saving to a missing directory"); }
             Changed = false;
         }
 
@@ -721,7 +740,6 @@ namespace SS
         /// </returns>
         public override object GetCellValue(String name)
         {
-            Console.WriteLine(cells[name]);
             return cells[name].GetValue();
         }
 
