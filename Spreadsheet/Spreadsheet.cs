@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -285,8 +286,8 @@ namespace SS
         public override object GetCellContents(string name)
         {
             // checks to make sure the name given exists in the dictionary
-            if (cells.ContainsKey(name)) return cells[name].GetContents();
-            else                         throw new InvalidNameException();
+            if (cells.ContainsKey(Normalize(name))) return cells[Normalize(name)].GetContents();
+            else                                    return "";
         }
 
         /// <summary>
@@ -571,18 +572,14 @@ namespace SS
         {
             // Processes the information to be passed into the cell content setter methods
             string normalizedName = Normalize(name);
-            if (!Regex.IsMatch(name, @"^[a-zA-Z][0-9]*$") || name == null) throw new InvalidNameException();
+            if (!Regex.IsMatch(name, @"^[a-zA-Z][0-9]+$") || name == null) throw new InvalidNameException();
             if (!IsValid(normalizedName)) throw new InvalidNameException();
             IList<string> cellsToReevaluate = new List<string>();
 
-            if (content == "") { // If the content is "" then the cell should be considered empty and removed from the dictionary 
-                cellsToReevaluate = new List<string>();
-                cells.Remove(normalizedName);
-            }
-            else if (Double.TryParse(content, out double value))
+            if (Double.TryParse(content, out double value))
                 cellsToReevaluate = SetCellContents(normalizedName, value);
             else if (content[0].ToString() == "=")
-                cellsToReevaluate = SetCellContents(normalizedName, new Formula(content.Remove(0, 1)));
+                cellsToReevaluate = SetCellContents(normalizedName, new Formula(string.Concat(content.Where(c => !Char.IsWhiteSpace(c))).Remove(0, 1), Normalize, IsValid));
             else
                 cellsToReevaluate = SetCellContents(normalizedName, content);
              
@@ -724,6 +721,7 @@ namespace SS
         /// </returns>
         public override object GetCellValue(String name)
         {
+            Console.WriteLine(cells[name]);
             return cells[name].GetValue();
         }
 
