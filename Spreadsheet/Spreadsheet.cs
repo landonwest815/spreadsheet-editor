@@ -86,7 +86,7 @@ namespace SS
     ///      of course, can depend on the values of variables.  The value of a variable is the 
     ///      value of the spreadsheet cell it names (if that cell's value is a double) or 
     ///      is undefined (otherwise).
-    ///   </item>
+    ///   </item> 
     /// 
     /// </list>
     /// 
