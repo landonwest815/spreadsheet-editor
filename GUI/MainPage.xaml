@@ -33,9 +33,8 @@
                     HorizontalOptions="FillAndExpand"
                     HorizontalScrollBarVisibility="Always"
                     HeightRequest="500">
-                <HorizontalStackLayout>
+                <HorizontalStackLayout x:Name="Grid">
                     <VerticalStackLayout x:Name="LeftLabels"  ></VerticalStackLayout>
-                    <VerticalStackLayout x:Name="Grid"        ></VerticalStackLayout>
                 </HorizontalStackLayout>
             </ScrollView>
         </VerticalStackLayout>

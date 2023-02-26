@@ -1,11 +1,12 @@
 ﻿using Microsoft.Maui.Controls.Shapes;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace GUI
 {
     public partial class MainPage : ContentPage
     {
-        private string topLabels = "ABCDE";
+        private string topLabels = "ABCDEFGH";
         private string leftLabels = "12345";
 
         /// <summary>
@@ -22,7 +23,9 @@ namespace GUI
         /// <summary>
         ///   List of Entries to show how to "move around" via enter key
         /// </summary>
-        private MyEntry[] EntryColumn = new MyEntry[3];
+        private MyEntry[] EntryColumn = new MyEntry[5];
+
+        private Dictionary<string, List<MyEntry>> Entries = new Dictionary<string, List<MyEntry>>();
 
         /// <summary>
         ///    Definition of what information (method signature) must be sent
@@ -34,7 +37,8 @@ namespace GUI
 
         public class MyEntry : Entry
         {
-            //JIM: better?--> int row = 0;
+            int row = 0;
+            char column;
 
             /// <summary>
             ///   Function provided by "outside world" to be called whenever
@@ -49,8 +53,9 @@ namespace GUI
             /// <param name="changeAction"> outside action that should be invoked after this cell is modified </param>
             public MyEntry(int row, ActionOnCompleted changeAction) : base()
             {
-                //JIM: better?-->        this.row = row;
-                this.StyleId = $"{row}";
+                this.row = row;
+                this.HeightRequest = 40;
+                this.WidthRequest = 75;
 
                 // Action to take when the user presses enter on this cell
                 this.Completed += CellChangedValue;
@@ -68,6 +73,11 @@ namespace GUI
                 this.Text = "";
             }
 
+            public void SetColumn(char cellColumn)
+            {
+                this.column = cellColumn;
+            }
+
             /// <summary>
             ///   Action to take when the value of this entry widget is changed
             ///   and the Enter Key pressed.
@@ -79,8 +89,7 @@ namespace GUI
                 Unfocus();
 
                 // Inform the outside world that we have changed
-                onChange('A', Convert.ToInt32(this.StyleId));
-                //Jim Better? --> onChange( 'A', row );
+                onChange(column, row);
             }
 
         }
@@ -88,6 +97,22 @@ namespace GUI
         public MainPage()
         {
             InitializeComponent();
+
+            // I will need to use these later for the Enter Key functionality
+            for (int i = 0; i < topLabels.Length; i++)
+            {
+                Entries.Add(topLabels[i].ToString(), new List<MyEntry>());
+                VerticalStackLayout column = new VerticalStackLayout() { StyleId = topLabels[i].ToString() };
+                Grid.Add(column);
+
+                for (int j = 0; j < leftLabels.Length; j++)
+                {
+                    Entries[topLabels[i].ToString()].Add(new MyEntry(j, handleCellChanged));
+                    column.Add(Entries[topLabels[i].ToString()][j]);
+                    Entries[topLabels[i].ToString()][j].SetColumn(topLabels[i]);
+                    ClearAll += Entries[topLabels[i].ToString()][j].ClearAndUnfocus;
+                }
+            }
 
             // MAKE THE BACKGROUND A GOOD COLOR
             Entire.BackgroundColor = Color.FromRgb(28, 28, 28);
@@ -128,6 +153,7 @@ namespace GUI
                         {
                             Text = $"{topLabels[i]}",
                             TextColor = Color.FromRgb(28, 28, 28),
+                            FontAttributes = FontAttributes.Bold,
                             BackgroundColor = Color.FromRgb(212, 212, 210),
                             FontSize = 15,
                             HorizontalTextAlignment = TextAlignment.Center,
@@ -169,7 +195,7 @@ namespace GUI
 
         private void FileMenuNew(object sender, EventArgs e)
         {
-           
+
         }
 
         private void FileMenuOpenAsync(object sender, EventArgs e)
@@ -177,7 +203,38 @@ namespace GUI
 
         }
 
-        
+        /// <summary>
+        ///   This method will be called by the individual Entry elements when Enter
+        ///   is pressed in them.
+        ///   
+        ///   The idea is to move to the next cell in the list.
+        /// </summary>
+        /// <param name="col"> e.g., The 'A' in A5 </param>
+        /// <param name="row"> e.g., The  5  in A5 </param>
+        void handleCellChanged(char col, int row)
+        {
+            if (row == leftLabels.Length - 1)
+            {
+                Entries[col.ToString()][0].Focus();
+            }
+            else
+            {
+                Entries[col.ToString()][row + 1].Focus();
+            }
+        }
+
+        /// <summary>
+        ///   Shows how the single "event" method ClearAll can apply to many listeners.
+        /// </summary>
+        /// <param name="sender"> ignored </param>
+        /// <param name="e"> ignored </param>
+        void ClearButtonClicked(object sender, EventArgs e)
+        {
+            ClearAll();
+            EntryColumn[0].Focus();
+        }
 
     }
+
+    
 }
