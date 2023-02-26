@@ -18,9 +18,16 @@
             <Style TargetType="Entry">
                 <Setter Property="WidthRequest" Value="75" />
                 <Setter Property="HeightRequest" Value="40" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="FontSize" Value="15" />
+                <Setter Property="VerticalTextAlignment"   Value="Center" />
+                <Setter Property="HorizontalTextAlignment" Value="Center" />
             </Style>
             <Style TargetType="Button">
                 <Setter Property="BackgroundColor" Value="#505050" />
+                <Setter Property="FontAttributes" Value="Bold" />
+            </Style>
+            <Style TargetType="Label">
                 <Setter Property="FontAttributes" Value="Bold" />
             </Style>
             <ResourceDictionary.MergedDictionaries>

@@ -12,11 +12,8 @@ namespace GUI
     {
         private string allTopLabels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         private string initialTopLabels = "A";
-        private int numOfTopLabels = 0;
-        private string allLeftLabels = "123456789";
-        private string initialLeftLabels = "1";
-        private int numOfLeftLabels = 0;
-        private List<VerticalStackLayout> columns = new List<VerticalStackLayout>();
+        private int numOfTopLabels;
+        private int numOfLeftLabels = 1;
 
         /// <summary>
         ///   Definition of the method signature that must be true for clear methods
@@ -30,6 +27,8 @@ namespace GUI
         private event Clear ClearAll;
 
         private Dictionary<string, List<MyEntry>> Entries = new Dictionary<string, List<MyEntry>>();
+
+        private List<VerticalStackLayout> Columns = new List<VerticalStackLayout>();
 
         /// <summary>
         ///    Definition of what information (method signature) must be sent
@@ -71,6 +70,12 @@ namespace GUI
                 // SIZING
                 this.HeightRequest = 40;
                 this.WidthRequest = 75;
+                // TEXT
+                this.FontAttributes = FontAttributes.Bold;
+                this.FontSize = 15;
+                // ALIGNMENT
+                this.HorizontalTextAlignment = TextAlignment.End;
+                this.VerticalTextAlignment = TextAlignment.Center;
 
                 // Action to take when the user presses enter on this cell
                 this.Completed += CellChangedValue;
@@ -122,9 +127,8 @@ namespace GUI
         {
             InitializeComponent();
 
-            // GET THE NUMBER OF TOP/LEFT LABELS
+            // GET THE NUMBER OF TOP LABELS
             numOfTopLabels = initialTopLabels.Length;
-            numOfLeftLabels = initialLeftLabels.Length;
 
             AddInitialEntriesToGrid(numOfTopLabels, numOfLeftLabels);
 
@@ -154,7 +158,7 @@ namespace GUI
 
             // ADD A NEW COLUMN TO THE COLUMNS LIST
             VerticalStackLayout column = new VerticalStackLayout();
-            columns.Add(column);
+            Columns.Add(column);
 
             // ADD THE COLUMN TO THE GRID
             Grid.Add(column);
@@ -211,7 +215,7 @@ namespace GUI
                 // ADD ENTRY
                 Entries[allTopLabels[i].ToString()].Add(new MyEntry(numOfLeftLabels, handleCellChanged, changeDisplayedInfo));
                 // ADD ENTRY TO ROW
-                columns[i].Add(Entries[allTopLabels[i].ToString()][numOfLeftLabels]);
+                Columns[i].Add(Entries[allTopLabels[i].ToString()][numOfLeftLabels]);
                 // SET NEW ENTRY COLUMN VARIABLE
                 Entries[allTopLabels[i].ToString()][numOfLeftLabels].SetColumn(allTopLabels[i]);
                 // ADD NEW ENTRY TO CLEAR ALL METHOD
@@ -234,18 +238,15 @@ namespace GUI
                 Content =
                     new Label
                     {
-                        Text = $"{allLeftLabels[numOfLeftLabels]}",
+                        Text = $"{++numOfLeftLabels}",
                         FontAttributes = FontAttributes.Bold,
                         BackgroundColor = Color.FromRgb(255, 149, 0),
                         FontSize = 15,
                         HorizontalTextAlignment = TextAlignment.Center,
                         VerticalTextAlignment = TextAlignment.Center
                     }
-            }
+                }
             );
-
-            // INCREMENT THE NUMBER OF LEFT LABELS
-            numOfLeftLabels++;
         }
 
         /// <summary>
@@ -294,7 +295,7 @@ namespace GUI
                 Entries.Add(initialTopLabels[i].ToString(), new List<MyEntry>());
                 // ADD A NEW COLUMN TO THE COLUMNS LIST
                 VerticalStackLayout column = new VerticalStackLayout();
-                columns.Add(column);
+                Columns.Add(column);
                 // ADD THE NEW COLUMN TO THE SPREADSHEET LAYOUT
                 Grid.Add(column);
 
@@ -379,7 +380,7 @@ namespace GUI
         private void AddInitialLeftLabels(int numOfRows)
         {
             // ADD ALL LEFT LABELS (1 2 3 4 5...)
-            for (int i = 0; i < initialLeftLabels.Length; i++)
+            for (int i = 0; i < numOfLeftLabels; i++)
             {
                 LeftLabels.Add(
                 new Border
@@ -399,7 +400,7 @@ namespace GUI
                         new Label
                         {
                             // TEXT
-                            Text = $"{initialLeftLabels[i]}",
+                            Text = $"{i+1}",
                             FontAttributes = FontAttributes.Bold,
                             FontSize = 15,
                             HorizontalTextAlignment = TextAlignment.Center,
