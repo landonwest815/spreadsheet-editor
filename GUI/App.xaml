@@ -9,6 +9,12 @@
                 <Setter Property="Padding" Value="15" />
                 <Setter Property="CornerRadius" Value="3" />
             </Style>
+            <Style TargetType="HorizontalStackLayout">
+                <Setter Property="BackgroundColor" Value="#1C1C1C" />
+            </Style>
+            <Style TargetType="VerticalStackLayout">
+                <Setter Property="BackgroundColor" Value="#1C1C1C" />
+            </Style>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
