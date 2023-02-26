@@ -1,4 +1,8 @@
-﻿using Microsoft.Maui.Controls.Shapes;
+﻿using Microsoft.Maui.Controls;
+using Microsoft.Maui.Controls.Compatibility;
+using Microsoft.Maui.Controls.Internals;
+using Microsoft.Maui.Controls.Shapes;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
@@ -7,9 +11,12 @@ namespace GUI
     public partial class MainPage : ContentPage
     {
         private string allTopLabels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        private string topLabels = "ABCDEFGH";
+        private string initialTopLabels = "A";
         private int numOfTopLabels = 0;
-        private string leftLabels = "12345";
+        private string allLeftLabels = "123456789";
+        private string initialLeftLabels = "1";
+        private int numOfLeftLabels = 0;
+        private List<VerticalStackLayout> columns = new List<VerticalStackLayout>();
 
         /// <summary>
         ///   Definition of the method signature that must be true for clear methods
@@ -21,11 +28,6 @@ namespace GUI
         ///   When ClearAll(); is called, every "attached" method is called.
         /// </summary>
         private event Clear ClearAll;
-
-        /// <summary>
-        ///   List of Entries to show how to "move around" via enter key
-        /// </summary>
-        private MyEntry[] EntryColumn = new MyEntry[5];
 
         private Dictionary<string, List<MyEntry>> Entries = new Dictionary<string, List<MyEntry>>();
 
@@ -41,6 +43,7 @@ namespace GUI
 
         public class MyEntry : Entry
         {
+            // ROW & COLUMN VARIABLES
             int row = 0;
             char column;
 
@@ -49,6 +52,11 @@ namespace GUI
             ///   this entry is modified
             /// </summary>
             private ActionOnCompleted onChange;
+
+            /// <summary>
+            ///   Function provided by "outside world" to be called whenever
+            ///   this entry is focused
+            /// </summary>
             private ActionOnFocused onFocus;
 
             /// <summary>
@@ -58,16 +66,20 @@ namespace GUI
             /// <param name="changeAction"> outside action that should be invoked after this cell is modified </param>
             public MyEntry(int row, ActionOnCompleted changeAction, ActionOnFocused focusAction) : base()
             {
+                // SET THE ROW
                 this.row = row;
+                // SIZING
                 this.HeightRequest = 40;
                 this.WidthRequest = 75;
 
                 // Action to take when the user presses enter on this cell
                 this.Completed += CellChangedValue;
+                // Action to take when the use clicks on this cell
                 this.Focused += IsFocus;
 
                 // "remember" outside worlds request about what to do when we change.
                 onChange = changeAction;
+                // "remember" outside worlds request about what to do when we focus.
                 onFocus = focusAction;
             }
 
@@ -101,163 +113,28 @@ namespace GUI
 
             private void IsFocus(object sender, EventArgs e)
             {
+                // Inform the outside world that we have focused
                 onFocus(column, row + 1);
             }
-
         }
 
         public MainPage()
         {
             InitializeComponent();
 
-            void changeDisplayedInfo(char col, int row)
-            {
-                selectedCellValue.Text = col.ToString();
-                selectedCellContents.Text = row.ToString();
-            }
+            // GET THE NUMBER OF TOP/LEFT LABELS
+            numOfTopLabels = initialTopLabels.Length;
+            numOfLeftLabels = initialLeftLabels.Length;
 
-            
+            AddInitialEntriesToGrid(numOfTopLabels, numOfLeftLabels);
 
-            // I will need to use these later for the Enter Key functionality
-            for (int i = 0; i < topLabels.Length; i++)
-            {
-                Entries.Add(topLabels[i].ToString(), new List<MyEntry>());
-                VerticalStackLayout column = new VerticalStackLayout();
-                Grid.Add(column);
+            AddInitialTopLabels(numOfTopLabels);
 
-                for (int j = 0; j < leftLabels.Length; j++)
-                {
-                    Entries[topLabels[i].ToString()].Add(new MyEntry(j, handleCellChanged, changeDisplayedInfo));
-                    column.Add(Entries[topLabels[i].ToString()][j]);
-                    Entries[topLabels[i].ToString()][j].SetColumn(topLabels[i]);
-                    ClearAll += Entries[topLabels[i].ToString()][j].ClearAndUnfocus;
-                }
-            }
+            AddNewColumnButton();
 
-            // MAKE THE BACKGROUND A GOOD COLOR
-            Entire.BackgroundColor = Color.FromRgb(28, 28, 28);
+            AddInitialLeftLabels(numOfLeftLabels);
 
-            // ADD ALL TOP LABELS (A B C D E...)
-            for (int i = 0; i < topLabels.Length; i++)
-            {
-                TopLabels.Add(
-                new Border
-                {
-                    Stroke = Color.FromRgb(212, 212, 210),
-                    StrokeThickness = 0,
-                    HeightRequest = 40,
-                    WidthRequest = 75,
-                    HorizontalOptions = LayoutOptions.Center,
-                    StrokeShape = new RoundRectangle
-                    {
-                        CornerRadius = new CornerRadius(5, 5, 5, 5)
-                    },
-                    Content =
-                        new Label
-                        {
-                            Text = $"{topLabels[i]}",
-                            TextColor = Color.FromRgb(28, 28, 28),
-                            FontAttributes = FontAttributes.Bold,
-                            BackgroundColor = Color.FromRgb(212, 212, 210),
-                            FontSize = 15,
-                            HorizontalTextAlignment = TextAlignment.Center,
-                            VerticalTextAlignment = TextAlignment.Center
-                        }
-                }
-                );
-            }
-
-            numOfTopLabels = topLabels.Length;
-
-            Button addColumn = new Button()
-            {
-                HeightRequest = 30,
-                WidthRequest = 75,
-                BorderWidth = 0,
-                Text = "+",
-                VerticalOptions = LayoutOptions.Start,
-                HorizontalOptions = LayoutOptions.Center,
-                FontSize = 25,
-                FontAttributes = FontAttributes.Bold,
-                BackgroundColor = Color.FromRgb(28, 28, 28),
-            };
-
-            addColumn.Clicked += AddColumnClicked;
-
-            TopLabels.Add(addColumn);
-            
-
-            // ADD ALL LEFT LABELS (1 2 3 4 5...)
-            for (int i = 0; i < leftLabels.Length; i++)
-            {
-                LeftLabels.Add(
-                new Border
-                {
-                    Stroke = Color.FromRgb(255, 149, 0),
-                    StrokeThickness = 0,
-                    HeightRequest = 40,
-                    WidthRequest = 75,
-                    HorizontalOptions = LayoutOptions.Center,
-                    StrokeShape = new RoundRectangle
-                    {
-                        CornerRadius = new CornerRadius(5, 5, 5, 5)
-                    },
-                    Content =
-                        new Label
-                        {
-                            Text = $"{leftLabels[i]}",
-                            FontAttributes = FontAttributes.Bold,
-                            BackgroundColor = Color.FromRgb(255, 149, 0),
-                            FontSize = 15,
-                            HorizontalTextAlignment = TextAlignment.Center,
-                            VerticalTextAlignment = TextAlignment.Center
-                        }
-                }
-                );
-            }
-
-            void AddColumnClicked(object sender, EventArgs e)
-            {
-                Entries.Add(allTopLabels[numOfTopLabels].ToString(), new List<MyEntry>());
-                VerticalStackLayout column = new VerticalStackLayout();
-                Grid.Add(column);
-
-                for (int j = 0; j < leftLabels.Length; j++)
-                {
-                    Entries[allTopLabels[numOfTopLabels].ToString()].Add(new MyEntry(j, handleCellChanged, changeDisplayedInfo));
-                    column.Add(Entries[allTopLabels[numOfTopLabels].ToString()][j]);
-                    Entries[allTopLabels[numOfTopLabels].ToString()][j].SetColumn(allTopLabels[numOfTopLabels]);
-                    ClearAll += Entries[allTopLabels[numOfTopLabels].ToString()][j].ClearAndUnfocus;
-                }
-
-                TopLabels.Insert(TopLabels.Count - 1,
-                new Border
-                {
-                    Stroke = Color.FromRgb(212, 212, 210),
-                    StrokeThickness = 0,
-                    HeightRequest = 40,
-                    WidthRequest = 75,
-                    HorizontalOptions = LayoutOptions.Center,
-                    StrokeShape = new RoundRectangle
-                    {
-                        CornerRadius = new CornerRadius(5, 5, 5, 5)
-                    },
-                    Content =
-                        new Label
-                        {
-                            Text = $"{allTopLabels[numOfTopLabels]}",
-                            TextColor = Color.FromRgb(28, 28, 28),
-                            FontAttributes = FontAttributes.Bold,
-                            BackgroundColor = Color.FromRgb(212, 212, 210),
-                            FontSize = 15,
-                            HorizontalTextAlignment = TextAlignment.Center,
-                            VerticalTextAlignment = TextAlignment.Center
-                        }
-                }
-                );
-
-                numOfTopLabels++;
-            }
+            AddNewRowButton(); 
         }
 
         private void FileMenuNew(object sender, EventArgs e)
@@ -270,7 +147,106 @@ namespace GUI
 
         }
 
+        private void AddColumnClicked(object sender, EventArgs e)
+        {
+            // ADD A LIST TO THE ENTRIES DICTIONARY FOR THE NEW COLUMN
+            Entries.Add(allTopLabels[numOfTopLabels].ToString(), new List<MyEntry>());
 
+            // ADD A NEW COLUMN TO THE COLUMNS LIST
+            VerticalStackLayout column = new VerticalStackLayout();
+            columns.Add(column);
+
+            // ADD THE COLUMN TO THE GRID
+            Grid.Add(column);
+
+            // LOOP THROUGH THE ROWS AND ADD ENTRIES
+            for (int j = 0; j < numOfLeftLabels; j++)
+            {
+                // ADD ENTRY
+                Entries[allTopLabels[numOfTopLabels].ToString()].Add(new MyEntry(j, handleCellChanged, changeDisplayedInfo));
+                // ADD ENTRY TO COLUMN
+                column.Add(Entries[allTopLabels[numOfTopLabels].ToString()][j]);
+                // SET THE COLUMN VARIABLE
+                Entries[allTopLabels[numOfTopLabels].ToString()][j].SetColumn(allTopLabels[numOfTopLabels]);
+                // ADD THE ENTRY TO THE CLEAR ALL METHOD
+                ClearAll += Entries[allTopLabels[numOfTopLabels].ToString()][j].ClearAndUnfocus;
+            }
+
+            // INSERT THE NEXT LABEL BEFORE THE ADD COLUMN BUTTON
+            TopLabels.Insert(TopLabels.Count - 1,
+            new Border
+            {
+                Stroke = Color.FromRgb(212, 212, 210),
+                StrokeThickness = 0,
+                HeightRequest = 40,
+                WidthRequest = 75,
+                HorizontalOptions = LayoutOptions.Center,
+                StrokeShape = new RoundRectangle
+                {
+                    CornerRadius = new CornerRadius(5, 5, 5, 5)
+                },
+                Content =
+                    new Label
+                    {
+                        Text = $"{allTopLabels[numOfTopLabels]}",
+                        TextColor = Color.FromRgb(28, 28, 28),
+                        FontAttributes = FontAttributes.Bold,
+                        BackgroundColor = Color.FromRgb(212, 212, 210),
+                        FontSize = 15,
+                        HorizontalTextAlignment = TextAlignment.Center,
+                        VerticalTextAlignment = TextAlignment.Center
+                    }
+            }
+            );
+
+            // INCREMENT THE NUMBER OF TOP LABELS
+            numOfTopLabels++;
+        }
+
+        private void AddRowClicked(object sender, EventArgs e)
+        {
+            // LOOP THROUGH THE COLUMNS AND ADD AN ADDITIONAL ENTRY AT THE BOTTOM OF EACH
+            for (int i = 0; i < numOfTopLabels; i++)
+            {
+                // ADD ENTRY
+                Entries[allTopLabels[i].ToString()].Add(new MyEntry(numOfLeftLabels, handleCellChanged, changeDisplayedInfo));
+                // ADD ENTRY TO ROW
+                columns[i].Add(Entries[allTopLabels[i].ToString()][numOfLeftLabels]);
+                // SET NEW ENTRY COLUMN VARIABLE
+                Entries[allTopLabels[i].ToString()][numOfLeftLabels].SetColumn(allTopLabels[i]);
+                // ADD NEW ENTRY TO CLEAR ALL METHOD
+                ClearAll += Entries[allTopLabels[i].ToString()][numOfLeftLabels].ClearAndUnfocus;
+            }
+
+            // INSERT THE NEXT LABEL BEFORE THE ADD ROW BUTTON
+            LeftLabels.Insert(LeftLabels.Count - 1,
+            new Border
+            {
+                Stroke = Color.FromRgb(255, 149, 0),
+                StrokeThickness = 0,
+                HeightRequest = 40,
+                WidthRequest = 75,
+                HorizontalOptions = LayoutOptions.Center,
+                StrokeShape = new RoundRectangle
+                {
+                    CornerRadius = new CornerRadius(5, 5, 5, 5)
+                },
+                Content =
+                    new Label
+                    {
+                        Text = $"{allLeftLabels[numOfLeftLabels]}",
+                        FontAttributes = FontAttributes.Bold,
+                        BackgroundColor = Color.FromRgb(255, 149, 0),
+                        FontSize = 15,
+                        HorizontalTextAlignment = TextAlignment.Center,
+                        VerticalTextAlignment = TextAlignment.Center
+                    }
+            }
+            );
+
+            // INCREMENT THE NUMBER OF LEFT LABELS
+            numOfLeftLabels++;
+        }
 
         /// <summary>
         ///   This method will be called by the individual Entry elements when Enter
@@ -280,9 +256,9 @@ namespace GUI
         /// </summary>
         /// <param name="col"> e.g., The 'A' in A5 </param>
         /// <param name="row"> e.g., The  5  in A5 </param>
-        void handleCellChanged(char col, int row)
+        private void handleCellChanged(char col, int row)
         {
-            if (row == leftLabels.Length - 1)
+            if (row == numOfLeftLabels - 1)
             {
                 Entries[col.ToString()][0].Focus();
             }
@@ -292,20 +268,175 @@ namespace GUI
             }
         }
 
+        private void changeDisplayedInfo(char col, int row)
+        {
+            selectedCellValue.Text = col.ToString();
+            selectedCellContents.Text = row.ToString();
+        }
+
         /// <summary>
         ///   Shows how the single "event" method ClearAll can apply to many listeners.
         /// </summary>
         /// <param name="sender"> ignored </param>
         /// <param name="e"> ignored </param>
-        void ClearButtonClicked(object sender, EventArgs e)
+        private void ClearButtonClicked(object sender, EventArgs e)
         {
             ClearAll();
-            Entries[topLabels[0].ToString()][0].Focus();
+            Entries[initialTopLabels[0].ToString()][0].Focus();
         }
 
-        
+        private void AddInitialEntriesToGrid(int numOfColumns, int numOfRows)
+        {
+            // LOOP THROUGH THE COLUMNS & ADD ENTRIES
+            for (int i = 0; i < numOfColumns; i++)
+            {
+                // ADD A NEW LIST TO THE ENTRIES DICTIONARY
+                Entries.Add(initialTopLabels[i].ToString(), new List<MyEntry>());
+                // ADD A NEW COLUMN TO THE COLUMNS LIST
+                VerticalStackLayout column = new VerticalStackLayout();
+                columns.Add(column);
+                // ADD THE NEW COLUMN TO THE SPREADSHEET LAYOUT
+                Grid.Add(column);
 
-    }
+                // LOOP THROUGH THE ROWS & ADD ENTRIES
+                for (int j = 0; j < numOfRows; j++)
+                {
+                    // ADD THE ENTRIES TO THE RELATIVE LIST IN THE ENTRIES DICTIONARY
+                    Entries[initialTopLabels[i].ToString()].Add(new MyEntry(j, handleCellChanged, changeDisplayedInfo));
+                    // ADD THE CURRENT ENTRY TO THE SPREADSHEET
+                    column.Add(Entries[initialTopLabels[i].ToString()][j]);
+                    // SET THE COLUMN VARIABLE OF THE CURRENT ENTRY
+                    Entries[initialTopLabels[i].ToString()][j].SetColumn(initialTopLabels[i]);
+                    // ADD THE CURRENT ENTRY TO THE CLEAR ALL METHOD
+                    ClearAll += Entries[initialTopLabels[i].ToString()][j].ClearAndUnfocus;
+                }
+            }
+        }
 
-    
+        private void AddInitialTopLabels(int numOfColumns)
+        {
+            // ADD ALL TOP LABELS (A B C D E...)
+            for (int i = 0; i < numOfColumns; i++)
+            {
+                TopLabels.Add(
+                new Border
+                {
+                    // ORANGE BORDER
+                    Stroke = Color.FromRgb(212, 212, 210),
+                    StrokeThickness = 0,
+                    // SIZING
+                    HeightRequest = 40,
+                    WidthRequest = 75,
+                    // SPACING
+                    HorizontalOptions = LayoutOptions.Center,
+                    // ROUND CORNERS
+                    StrokeShape = new RoundRectangle{ CornerRadius = new CornerRadius(5, 5, 5, 5) },
+                    // LABEL
+                    Content =
+                        new Label
+                        {
+                            // TEXT
+                            Text = $"{initialTopLabels[i]}",
+                            TextColor = Color.FromRgb(28, 28, 28),
+                            FontAttributes = FontAttributes.Bold,
+                            FontSize = 15,
+                            HorizontalTextAlignment = TextAlignment.Center,
+                            VerticalTextAlignment = TextAlignment.Center,
+                            // ORANGE BACKGROUND
+                            BackgroundColor = Color.FromRgb(212, 212, 210)
+                        }
+                    }
+                );
+            }
+        }
+
+        private void AddNewColumnButton()
+        {
+            // CREATE BUTTON
+            Button addColumn = new Button()
+            {
+                // SIZING
+                HeightRequest = 30,
+                WidthRequest = 75,
+                BorderWidth = 0,
+                // TEXT
+                Text = "+",
+                VerticalOptions = LayoutOptions.Start,
+                HorizontalOptions = LayoutOptions.Center,
+                FontSize = 25,
+                FontAttributes = FontAttributes.Bold,
+                // BLEND IN BACKGROUND
+                BackgroundColor = Color.FromRgb(28, 28, 28),
+            };
+
+            // ADD FUNCTION TO THE CLICKED EVENT
+            addColumn.Clicked += AddColumnClicked;
+
+            // ADD BUTTON TO THE SPREADSHEET
+            TopLabels.Add(addColumn);
+        }
+
+        private void AddInitialLeftLabels(int numOfRows)
+        {
+            // ADD ALL LEFT LABELS (1 2 3 4 5...)
+            for (int i = 0; i < initialLeftLabels.Length; i++)
+            {
+                LeftLabels.Add(
+                new Border
+                {
+                    // ORANGE BORDER
+                    Stroke = Color.FromRgb(255, 149, 0),
+                    StrokeThickness = 0,
+                    // SIZING
+                    HeightRequest = 40,
+                    WidthRequest = 75,
+                    // SPACING
+                    HorizontalOptions = LayoutOptions.Center,
+                    // ROUND CORNERS
+                    StrokeShape = new RoundRectangle { CornerRadius = new CornerRadius(5, 5, 5, 5) },
+                    // LABEL
+                    Content =
+                        new Label
+                        {
+                            // TEXT
+                            Text = $"{initialLeftLabels[i]}",
+                            FontAttributes = FontAttributes.Bold,
+                            FontSize = 15,
+                            HorizontalTextAlignment = TextAlignment.Center,
+                            VerticalTextAlignment = TextAlignment.Center,
+                            // GRAY BACKGROUND
+                            BackgroundColor = Color.FromRgb(255, 149, 0)
+                        }
+                    }
+                );
+            }
+        }
+
+        private void AddNewRowButton()
+        {
+            // CREATE BUTTON
+            Button addRow = new Button()
+            {
+                // SIZING
+                HeightRequest = 30,
+                WidthRequest = 75,
+                BorderWidth = 0,
+                // TEXT
+                Text = "+",
+                VerticalOptions = LayoutOptions.Start,
+                HorizontalOptions = LayoutOptions.Center,
+                FontSize = 25,
+                FontAttributes = FontAttributes.Bold,
+                // BACKGROUND SAME COLOR AS WINDOW BACKGROUND
+                BackgroundColor = Color.FromRgb(28, 28, 28),
+            };
+
+            // ADD FUNCTION FOR THE CLICKED EVENT
+            addRow.Clicked += AddRowClicked;
+
+            // ADD BUTTON TO THE SPREADSHEET
+            LeftLabels.Add(addRow);
+        }
+
+    } 
 }

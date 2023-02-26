@@ -12,7 +12,7 @@
     </ContentPage.MenuBarItems>
 
     <ScrollView>
-        <VerticalStackLayout x:Name="Entire">
+        <VerticalStackLayout x:Name="Entire" >
 
             <!-- A Place to put the currently selected cell "namd" and "value" -->
             <Border
@@ -48,7 +48,7 @@
                     HeightRequest="500">
                 <HorizontalStackLayout x:Name="Grid">
                     <Label WidthRequest="40" />
-                    <VerticalStackLayout x:Name="LeftLabels"  ></VerticalStackLayout>
+                    <VerticalStackLayout x:Name="LeftLabels"  />
                 </HorizontalStackLayout>
             </ScrollView>
         </VerticalStackLayout>
