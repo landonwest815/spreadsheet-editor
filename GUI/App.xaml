@@ -19,6 +19,10 @@
                 <Setter Property="WidthRequest" Value="75" />
                 <Setter Property="HeightRequest" Value="40" />
             </Style>
+            <Style TargetType="Button">
+                <Setter Property="BackgroundColor" Value="#505050" />
+                <Setter Property="FontAttributes" Value="Bold" />
+            </Style>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
