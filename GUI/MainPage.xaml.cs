@@ -14,6 +14,7 @@ namespace GUI
         private const string initialTopLabels = "ABCDEFGHIJKL";
         private int numOfTopLabels;
         private int numOfLeftLabels = 25;
+        private string currentlySelectedCell = "";
 
         /// <summary>
         ///   Definition of the method signature that must be true for clear methods
@@ -229,7 +230,7 @@ namespace GUI
             for (int j = 0; j < numOfLeftLabels; j++)
             {
                 // ADD ENTRY
-                Entries[allTopLabels[numOfTopLabels].ToString()].Add(new MyEntry(j, handleCellChanged, changeDisplayedInfo));
+                Entries[allTopLabels[numOfTopLabels].ToString()].Add(new MyEntry(j, handleCellChanged, cellClickedOn));
                 // ADD ENTRY TO COLUMN
                 column.Add(Entries[allTopLabels[numOfTopLabels].ToString()][j]);
                 // SET THE COLUMN VARIABLE
@@ -252,7 +253,7 @@ namespace GUI
             for (int i = 0; i < numOfTopLabels; i++)
             {
                 // ADD ENTRY
-                Entries[allTopLabels[i].ToString()].Add(new MyEntry(numOfLeftLabels, handleCellChanged, changeDisplayedInfo));
+                Entries[allTopLabels[i].ToString()].Add(new MyEntry(numOfLeftLabels, handleCellChanged, cellClickedOn));
                 // ADD ENTRY TO ROW
                 Columns[i].Add(Entries[allTopLabels[i].ToString()][numOfLeftLabels]);
                 // SET NEW ENTRY COLUMN VARIABLE
@@ -285,11 +286,12 @@ namespace GUI
             }
         }
 
-        private void changeDisplayedInfo(char col, int row)
+        private void cellClickedOn(char col, int row)
         {
             selectedCellValue.Text = col.ToString();
             selectedCellContents.Text = row.ToString();
-            selectedCellName.Text = "" + col.ToString().ToUpper() + row;
+            currentlySelectedCell = "" + col.ToString().ToUpper() + row;
+            selectedCellName.Text = currentlySelectedCell;
         }
 
         /// <summary>
@@ -320,7 +322,7 @@ namespace GUI
                 for (int j = 0; j < numOfRows; j++)
                 {
                     // ADD THE ENTRIES TO THE RELATIVE LIST IN THE ENTRIES DICTIONARY
-                    Entries[initialTopLabels[i].ToString()].Add(new MyEntry(j, handleCellChanged, changeDisplayedInfo));
+                    Entries[initialTopLabels[i].ToString()].Add(new MyEntry(j, handleCellChanged, cellClickedOn));
                     // ADD THE CURRENT ENTRY TO THE SPREADSHEET
                     column.Add(Entries[initialTopLabels[i].ToString()][j]);
                     // SET THE COLUMN VARIABLE OF THE CURRENT ENTRY
