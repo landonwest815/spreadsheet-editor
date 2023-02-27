@@ -19,16 +19,30 @@
             StrokeThickness="0"
             HeightRequest="40">
                 <HorizontalStackLayout>
-                    <Label Text="" WidthRequest="115" />
-                    <Label x:Name="selectedCellValueLabel" Text="Value" WidthRequest="75" 
-                           FontAttributes="Bold" VerticalTextAlignment="Center" HorizontalTextAlignment="End" />
-                    <Label x:Name="selectedCellValue" Text="" WidthRequest="75" 
-                           VerticalTextAlignment="Center" HorizontalTextAlignment="Center" />
-                    <Label Text="" WidthRequest="30" />
-                    <Label x:Name="selectedCellContentsLabel" Text="Contents" WidthRequest="75" 
-                           FontAttributes="Bold" VerticalTextAlignment="Center" HorizontalTextAlignment="End" />
-                    <Label x:Name="selectedCellContents" Text="" WidthRequest="75" 
-                           VerticalTextAlignment="Center" HorizontalTextAlignment="Center" />
+                    <Label Text="" WidthRequest="152.5" />
+                    <Label x:Name="selectedCellNameLabel" Text="Cell" WidthRequest="75" VerticalOptions="End"
+                           FontAttributes="Bold" VerticalTextAlignment="End" HorizontalTextAlignment="Center" />
+                    <Label Text="" WidthRequest="37.5" />
+                    <Label x:Name="selectedCellValueLabel" Text="Value" WidthRequest="75" VerticalOptions="End"
+                           FontAttributes="Bold" VerticalTextAlignment="End" HorizontalTextAlignment="Center" />
+                    <Label Text="" WidthRequest="37.5" />
+                    <Label x:Name="selectedCellContentsLabel" Text="Contents" WidthRequest="75" VerticalOptions="End"
+                           FontAttributes="Bold" VerticalTextAlignment="End" HorizontalTextAlignment="Center" />
+                </HorizontalStackLayout>
+            </Border>
+            <Border
+            StrokeThickness="0"
+            HeightRequest="60">
+                <HorizontalStackLayout>
+                    <Label Text="" WidthRequest="152.5" />
+                    <Entry x:Name="selectedCellName" Text="" WidthRequest="75" VerticalOptions="Start" IsReadOnly="True"
+                           VerticalTextAlignment="Center" HorizontalTextAlignment="Center" Background="#1C1C1C" />
+                    <Label Text="" WidthRequest="37.5" />
+                    <Entry x:Name="selectedCellValue" Text="" WidthRequest="75" VerticalOptions="Start" IsReadOnly="True"
+                           VerticalTextAlignment="Center" HorizontalTextAlignment="Center" Background="#1C1C1C" />
+                    <Label Text="" WidthRequest="37.5" />
+                    <Entry x:Name="selectedCellContents" Text="" WidthRequest="75" VerticalOptions="Start"
+                           VerticalTextAlignment="Center" HorizontalTextAlignment="Center" Background="#1C1C1C" />
                 </HorizontalStackLayout>
             </Border>
 
@@ -45,7 +59,7 @@
                     Orientation="Both"
                     HorizontalOptions="FillAndExpand"
                     HorizontalScrollBarVisibility="Always"
-                    HeightRequest="500">
+                    HeightRequest="750">
                 <HorizontalStackLayout x:Name="Grid">
                     <Label WidthRequest="40" />
                     <VerticalStackLayout x:Name="LeftLabels"  />

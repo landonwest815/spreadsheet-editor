@@ -11,9 +11,9 @@ namespace GUI
     public partial class MainPage : ContentPage
     {
         private const string allTopLabels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        private const string initialTopLabels = "ABCDEF";
+        private const string initialTopLabels = "ABCDEFGHIJKL";
         private int numOfTopLabels;
-        private int numOfLeftLabels = 5;
+        private int numOfLeftLabels = 25;
 
         /// <summary>
         ///   Definition of the method signature that must be true for clear methods
@@ -201,7 +201,6 @@ namespace GUI
             AddInitialLeftLabels(numOfLeftLabels);
 
             CreateNewRowButton();
-
         }
 
         private void FileMenuNew(object sender, EventArgs e)
@@ -290,6 +289,7 @@ namespace GUI
         {
             selectedCellValue.Text = col.ToString();
             selectedCellContents.Text = row.ToString();
+            selectedCellName.Text = "" + col.ToString().ToUpper() + row;
         }
 
         /// <summary>
@@ -400,6 +400,5 @@ namespace GUI
             // ADD BUTTON TO THE SPREADSHEET
             LeftLabels.Add(addRow);
         }
-
     } 
 }
