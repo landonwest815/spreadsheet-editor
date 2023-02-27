@@ -10,10 +10,10 @@ namespace GUI
 {
     public partial class MainPage : ContentPage
     {
-        private string allTopLabels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        private string initialTopLabels = "A";
+        private const string allTopLabels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        private const string initialTopLabels = "ABCDEF";
         private int numOfTopLabels;
-        private int numOfLeftLabels = 1;
+        private int numOfLeftLabels = 5;
 
         /// <summary>
         ///   Definition of the method signature that must be true for clear methods
@@ -123,6 +123,68 @@ namespace GUI
             }
         }
 
+        public class ColumnLabel : Border
+        {
+            public ColumnLabel(char label) : base()
+            {
+                // ORANGE BORDER
+                this.Stroke = Color.FromRgb(212, 212, 210);
+                this.StrokeThickness = 0;
+                // SIZING
+                this.HeightRequest = 40;
+                this.WidthRequest = 75;
+                // SPACING
+                this.HorizontalOptions = LayoutOptions.Center;
+                // ROUND CORNERS
+                this.StrokeShape = new RoundRectangle { CornerRadius = new CornerRadius(5, 5, 5, 5) };
+                    // LABEL
+                    Content =
+                        new Label
+                        {
+                            // TEXT
+                            Text = $"{label}",
+                            TextColor = Color.FromRgb(28, 28, 28),
+                            FontAttributes = FontAttributes.Bold,
+                            FontSize = 15,
+                            HorizontalTextAlignment = TextAlignment.Center,
+                            VerticalTextAlignment = TextAlignment.Center,
+                            // ORANGE BACKGROUND
+                            BackgroundColor = Color.FromRgb(212, 212, 210)
+                        };
+            }
+        }
+
+        public class RowLabel : Border
+        {
+            public RowLabel(int row) : base() 
+            {
+                // ORANGE BORDER
+                this.Stroke = Color.FromRgb(255, 149, 0);
+                this.StrokeThickness = 0;
+                // SIZING
+                this.HeightRequest = 40;
+                this.WidthRequest = 75;
+                // SPACING
+                this.HorizontalOptions = LayoutOptions.Center;
+                // ROUND CORNERS
+                this.StrokeShape = new RoundRectangle { CornerRadius = new CornerRadius(5, 5, 5, 5) };
+                // LABEL
+                Content =
+                    new Label
+                    {
+                        // TEXT
+                        Text = $"{row + 1}",
+                        FontAttributes = FontAttributes.Bold,
+                        FontSize = 15,
+                        HorizontalTextAlignment = TextAlignment.Center,
+                        VerticalTextAlignment = TextAlignment.Center,
+                        // GRAY BACKGROUND
+                        BackgroundColor = Color.FromRgb(255, 149, 0)
+                    };
+               
+            }
+        }
+
         public MainPage()
         {
             InitializeComponent();
@@ -134,11 +196,12 @@ namespace GUI
 
             AddInitialTopLabels(numOfTopLabels);
 
-            AddNewColumnButton();
+            CreateNewColumnButton();
 
             AddInitialLeftLabels(numOfLeftLabels);
 
-            AddNewRowButton(); 
+            CreateNewRowButton();
+
         }
 
         private void FileMenuNew(object sender, EventArgs e)
@@ -176,32 +239,9 @@ namespace GUI
                 ClearAll += Entries[allTopLabels[numOfTopLabels].ToString()][j].ClearAndUnfocus;
             }
 
+            //$"{allTopLabels[numOfTopLabels]}"
             // INSERT THE NEXT LABEL BEFORE THE ADD COLUMN BUTTON
-            TopLabels.Insert(TopLabels.Count - 1,
-            new Border
-            {
-                Stroke = Color.FromRgb(212, 212, 210),
-                StrokeThickness = 0,
-                HeightRequest = 40,
-                WidthRequest = 75,
-                HorizontalOptions = LayoutOptions.Center,
-                StrokeShape = new RoundRectangle
-                {
-                    CornerRadius = new CornerRadius(5, 5, 5, 5)
-                },
-                Content =
-                    new Label
-                    {
-                        Text = $"{allTopLabels[numOfTopLabels]}",
-                        TextColor = Color.FromRgb(28, 28, 28),
-                        FontAttributes = FontAttributes.Bold,
-                        BackgroundColor = Color.FromRgb(212, 212, 210),
-                        FontSize = 15,
-                        HorizontalTextAlignment = TextAlignment.Center,
-                        VerticalTextAlignment = TextAlignment.Center
-                    }
-            }
-            );
+            TopLabels.Insert(TopLabels.Count - 1, new ColumnLabel(allTopLabels[numOfTopLabels]));
 
             // INCREMENT THE NUMBER OF TOP LABELS
             numOfTopLabels++;
@@ -223,30 +263,7 @@ namespace GUI
             }
 
             // INSERT THE NEXT LABEL BEFORE THE ADD ROW BUTTON
-            LeftLabels.Insert(LeftLabels.Count - 1,
-            new Border
-            {
-                Stroke = Color.FromRgb(255, 149, 0),
-                StrokeThickness = 0,
-                HeightRequest = 40,
-                WidthRequest = 75,
-                HorizontalOptions = LayoutOptions.Center,
-                StrokeShape = new RoundRectangle
-                {
-                    CornerRadius = new CornerRadius(5, 5, 5, 5)
-                },
-                Content =
-                    new Label
-                    {
-                        Text = $"{++numOfLeftLabels}",
-                        FontAttributes = FontAttributes.Bold,
-                        BackgroundColor = Color.FromRgb(255, 149, 0),
-                        FontSize = 15,
-                        HorizontalTextAlignment = TextAlignment.Center,
-                        VerticalTextAlignment = TextAlignment.Center
-                    }
-                }
-            );
+            LeftLabels.Insert(LeftLabels.Count - 1, new RowLabel(numOfLeftLabels++));
         }
 
         /// <summary>
@@ -319,39 +336,11 @@ namespace GUI
             // ADD ALL TOP LABELS (A B C D E...)
             for (int i = 0; i < numOfColumns; i++)
             {
-                TopLabels.Add(
-                new Border
-                {
-                    // ORANGE BORDER
-                    Stroke = Color.FromRgb(212, 212, 210),
-                    StrokeThickness = 0,
-                    // SIZING
-                    HeightRequest = 40,
-                    WidthRequest = 75,
-                    // SPACING
-                    HorizontalOptions = LayoutOptions.Center,
-                    // ROUND CORNERS
-                    StrokeShape = new RoundRectangle{ CornerRadius = new CornerRadius(5, 5, 5, 5) },
-                    // LABEL
-                    Content =
-                        new Label
-                        {
-                            // TEXT
-                            Text = $"{initialTopLabels[i]}",
-                            TextColor = Color.FromRgb(28, 28, 28),
-                            FontAttributes = FontAttributes.Bold,
-                            FontSize = 15,
-                            HorizontalTextAlignment = TextAlignment.Center,
-                            VerticalTextAlignment = TextAlignment.Center,
-                            // ORANGE BACKGROUND
-                            BackgroundColor = Color.FromRgb(212, 212, 210)
-                        }
-                    }
-                );
+                TopLabels.Add(new ColumnLabel(initialTopLabels[i]));
             }
         }
 
-        private void AddNewColumnButton()
+        private void CreateNewColumnButton()
         {
             // CREATE BUTTON
             Button addColumn = new Button()
@@ -382,38 +371,11 @@ namespace GUI
             // ADD ALL LEFT LABELS (1 2 3 4 5...)
             for (int i = 0; i < numOfLeftLabels; i++)
             {
-                LeftLabels.Add(
-                new Border
-                {
-                    // ORANGE BORDER
-                    Stroke = Color.FromRgb(255, 149, 0),
-                    StrokeThickness = 0,
-                    // SIZING
-                    HeightRequest = 40,
-                    WidthRequest = 75,
-                    // SPACING
-                    HorizontalOptions = LayoutOptions.Center,
-                    // ROUND CORNERS
-                    StrokeShape = new RoundRectangle { CornerRadius = new CornerRadius(5, 5, 5, 5) },
-                    // LABEL
-                    Content =
-                        new Label
-                        {
-                            // TEXT
-                            Text = $"{i+1}",
-                            FontAttributes = FontAttributes.Bold,
-                            FontSize = 15,
-                            HorizontalTextAlignment = TextAlignment.Center,
-                            VerticalTextAlignment = TextAlignment.Center,
-                            // GRAY BACKGROUND
-                            BackgroundColor = Color.FromRgb(255, 149, 0)
-                        }
-                    }
-                );
+                LeftLabels.Add(new RowLabel(i));
             }
         }
 
-        private void AddNewRowButton()
+        private void CreateNewRowButton()
         {
             // CREATE BUTTON
             Button addRow = new Button()

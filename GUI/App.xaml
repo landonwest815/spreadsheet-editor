@@ -21,7 +21,6 @@
                 <Setter Property="FontAttributes" Value="Bold" />
                 <Setter Property="FontSize" Value="15" />
                 <Setter Property="VerticalTextAlignment"   Value="Center" />
-                <Setter Property="HorizontalTextAlignment" Value="Center" />
             </Style>
             <Style TargetType="Button">
                 <Setter Property="BackgroundColor" Value="#505050" />
