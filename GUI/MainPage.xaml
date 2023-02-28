@@ -50,7 +50,7 @@
             
             <HorizontalStackLayout x:Name="TopLabels">
                 <Label WidthRequest="40" />
-                <Button WidthRequest="75" HeightRequest="40" Text="RESET" Clicked="ClearButtonClicked" BackgroundColor="#505050" />
+                <Button WidthRequest="75" HeightRequest="40" Text="RESET" Clicked="ClearButtonClicked" BackgroundColor="#1C1C1C" />
             </HorizontalStackLayout>
 
             <!-- the Grid of Spreadsheet GUI Cells -->

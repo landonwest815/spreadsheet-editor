@@ -5,6 +5,8 @@ using Microsoft.Maui.Controls.Shapes;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using SS;
+using System.Runtime.Serialization;
 
 namespace GUI
 {
@@ -14,7 +16,7 @@ namespace GUI
         private const string initialTopLabels = "ABCDEFGHIJKL";
         private int numOfTopLabels;
         private int numOfLeftLabels = 25;
-        private string currentlySelectedCell = "";
+        private AbstractSpreadsheet spreadsheet = new Spreadsheet();
 
         /// <summary>
         ///   Definition of the method signature that must be true for clear methods
@@ -41,11 +43,14 @@ namespace GUI
 
         public delegate void ActionOnFocused(char col, int row);
 
+        public delegate void ActionOnUnfocused(char col, int row);
+
         public class MyEntry : Entry
         {
             // ROW & COLUMN VARIABLES
             int row = 0;
             char column;
+            bool containsFormula = false;
 
             /// <summary>
             ///   Function provided by "outside world" to be called whenever
@@ -59,12 +64,14 @@ namespace GUI
             /// </summary>
             private ActionOnFocused onFocus;
 
+            private ActionOnUnfocused onUnfocus;
+
             /// <summary>
             ///   build an Entry element with the row "remembered"
             /// </summary>
             /// <param name="row"> unique identifier for this item </param>
             /// <param name="changeAction"> outside action that should be invoked after this cell is modified </param>
-            public MyEntry(int row, ActionOnCompleted changeAction, ActionOnFocused focusAction) : base()
+            public MyEntry(int row, ActionOnCompleted changeAction, ActionOnFocused focusAction, ActionOnUnfocused unfocusAction) : base()
             {
                 // SET THE ROW
                 this.row = row;
@@ -83,10 +90,14 @@ namespace GUI
                 // Action to take when the use clicks on this cell
                 this.Focused += IsFocus;
 
+                this.Unfocused += CellChangedFocus;
+
                 // "remember" outside worlds request about what to do when we change.
                 onChange = changeAction;
                 // "remember" outside worlds request about what to do when we focus.
                 onFocus = focusAction;
+
+                onUnfocus = unfocusAction;
             }
 
             /// <summary>
@@ -103,6 +114,19 @@ namespace GUI
                 this.column = cellColumn;
             }
 
+            public void SetContainsFormula(bool containsFormula)
+            {
+                if (containsFormula)
+                    this.containsFormula = true;
+                else
+                    this.containsFormula = false;
+            }
+
+            public bool GetContainsFormula()
+            {
+                return this.containsFormula;
+            }
+
             /// <summary>
             ///   Action to take when the value of this entry widget is changed
             ///   and the Enter Key pressed.
@@ -117,11 +141,17 @@ namespace GUI
                 onChange(column, row);
             }
 
+            private void CellChangedFocus(object sender, EventArgs e)
+            {
+                onUnfocus(column, row);
+            }
+
             private void IsFocus(object sender, EventArgs e)
             {
                 // Inform the outside world that we have focused
                 onFocus(column, row + 1);
             }
+
         }
 
         public class ColumnLabel : Border
@@ -230,7 +260,7 @@ namespace GUI
             for (int j = 0; j < numOfLeftLabels; j++)
             {
                 // ADD ENTRY
-                Entries[allTopLabels[numOfTopLabels].ToString()].Add(new MyEntry(j, handleCellChanged, cellClickedOn));
+                Entries[allTopLabels[numOfTopLabels].ToString()].Add(new MyEntry(j, handleCellChanged, cellClickedOn, cellUnfocused));
                 // ADD ENTRY TO COLUMN
                 column.Add(Entries[allTopLabels[numOfTopLabels].ToString()][j]);
                 // SET THE COLUMN VARIABLE
@@ -253,7 +283,7 @@ namespace GUI
             for (int i = 0; i < numOfTopLabels; i++)
             {
                 // ADD ENTRY
-                Entries[allTopLabels[i].ToString()].Add(new MyEntry(numOfLeftLabels, handleCellChanged, cellClickedOn));
+                Entries[allTopLabels[i].ToString()].Add(new MyEntry(numOfLeftLabels, handleCellChanged, cellClickedOn, cellUnfocused));
                 // ADD ENTRY TO ROW
                 Columns[i].Add(Entries[allTopLabels[i].ToString()][numOfLeftLabels]);
                 // SET NEW ENTRY COLUMN VARIABLE
@@ -276,22 +306,54 @@ namespace GUI
         /// <param name="row"> e.g., The  5  in A5 </param>
         private void handleCellChanged(char col, int row)
         {
-            if (row == numOfLeftLabels - 1)
+            // SET CONTENTS OF EDITED CELL
+            if (Entries[col.ToString()][row].Text != null)
+                spreadsheet.SetContentsOfCell("" + col.ToString().ToUpper() + (row + 1), Entries[col.ToString()][row].Text);
+
+            if (Entries[col.ToString()][row].Text != "" && Entries[col.ToString()][row].Text != null)
             {
-                Entries[col.ToString()][0].Focus();
-            }
+                if (Entries[col.ToString()][row].Text[0] == '=')
+                    Entries[col.ToString()][row].SetContainsFormula(true);
+                else
+                    Entries[col.ToString()][row].SetContainsFormula(false);
+            } 
             else
             {
-                Entries[col.ToString()][row + 1].Focus();
+                Entries[col.ToString()][row].SetContainsFormula(false);
             }
+
+            // SET ENTRY TEXT AS THE VALUE
+            Entries[col.ToString()][row].Text = spreadsheet.GetCellValue("" + col.ToString().ToUpper() + (row + 1)).ToString();
+
+                // MOVE CURSOR TO CELL BENEATH (OR TOP)
+                if (row == numOfLeftLabels - 1)
+                    Entries[col.ToString()][0].Focus();
+                else
+                    Entries[col.ToString()][row + 1].Focus();
+            
         }
 
         private void cellClickedOn(char col, int row)
         {
-            selectedCellValue.Text = col.ToString();
-            selectedCellContents.Text = row.ToString();
-            currentlySelectedCell = "" + col.ToString().ToUpper() + row;
-            selectedCellName.Text = currentlySelectedCell;
+            // SET DISPLAYED CONTENTS
+            if (Entries[col.ToString()][row - 1].GetContainsFormula() == true)
+            {
+                selectedCellContents.Text = "=" + spreadsheet.GetCellContents("" + col.ToString().ToUpper() + (row)).ToString();
+                Entries[col.ToString()][row - 1].Text = selectedCellContents.Text;
+            }
+            else
+                selectedCellContents.Text = spreadsheet.GetCellContents("" + col.ToString().ToUpper() + (row)).ToString();
+
+            // SET DISPLAYED VALUE
+            selectedCellValue.Text = spreadsheet.GetCellValue("" + col.ToString().ToUpper() + (row)).ToString();
+
+            // SET DISPLAYED CELL NAME
+            selectedCellName.Text = "" + col.ToString().ToUpper() + row;
+        }
+
+        private void cellUnfocused(char col, int row)
+        {
+            Entries[col.ToString()][row].Text = spreadsheet.GetCellValue("" + col.ToString().ToUpper() + (row + 1)).ToString();
         }
 
         /// <summary>
@@ -322,7 +384,7 @@ namespace GUI
                 for (int j = 0; j < numOfRows; j++)
                 {
                     // ADD THE ENTRIES TO THE RELATIVE LIST IN THE ENTRIES DICTIONARY
-                    Entries[initialTopLabels[i].ToString()].Add(new MyEntry(j, handleCellChanged, cellClickedOn));
+                    Entries[initialTopLabels[i].ToString()].Add(new MyEntry(j, handleCellChanged, cellClickedOn, cellUnfocused));
                     // ADD THE CURRENT ENTRY TO THE SPREADSHEET
                     column.Add(Entries[initialTopLabels[i].ToString()][j]);
                     // SET THE COLUMN VARIABLE OF THE CURRENT ENTRY
@@ -359,6 +421,7 @@ namespace GUI
                 FontAttributes = FontAttributes.Bold,
                 // BLEND IN BACKGROUND
                 BackgroundColor = Color.FromRgb(28, 28, 28),
+                TextColor = Color.FromRgb(212, 212, 210)
             };
 
             // ADD FUNCTION TO THE CLICKED EVENT
@@ -394,6 +457,7 @@ namespace GUI
                 FontAttributes = FontAttributes.Bold,
                 // BACKGROUND SAME COLOR AS WINDOW BACKGROUND
                 BackgroundColor = Color.FromRgb(28, 28, 28),
+                TextColor = Color.FromRgb(255, 149, 0)
             };
 
             // ADD FUNCTION FOR THE CLICKED EVENT

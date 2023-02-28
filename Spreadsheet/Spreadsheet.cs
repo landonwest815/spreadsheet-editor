@@ -235,7 +235,7 @@ namespace SS
             public Cell(string variableName, Formula expression, Object formulaValue)
             {
                 name = variableName;
-                contents = expression;
+                contents = expression.ToString();
                 value = formulaValue;
             }
 
@@ -780,7 +780,7 @@ namespace SS
         {
             foreach (string cell in cellsToRecalculate)
             {
-                Formula f = (Formula)cells[cell].GetContents();
+                Formula f = new Formula(cells[cell].GetContents().ToString());
                 cells[cell].SetValue(f.Evaluate(CellValueLookup));
             }
         }
