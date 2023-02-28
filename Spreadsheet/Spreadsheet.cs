@@ -235,7 +235,7 @@ namespace SS
             public Cell(string variableName, Formula expression, Object formulaValue)
             {
                 name = variableName;
-                contents = expression.ToString();
+                contents = expression;
                 value = formulaValue;
             }
 

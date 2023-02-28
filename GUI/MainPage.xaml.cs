@@ -16,7 +16,7 @@ namespace GUI
         private const string initialTopLabels = "ABCDEFGHIJKL";
         private int numOfTopLabels;
         private int numOfLeftLabels = 25;
-        private AbstractSpreadsheet spreadsheet = new Spreadsheet();
+        private AbstractSpreadsheet spreadsheet = new Spreadsheet(s => true, s => s.ToUpper(), "six");
 
         /// <summary>
         ///   Definition of the method signature that must be true for clear methods
@@ -236,12 +236,47 @@ namespace GUI
 
         private void FileMenuNew(object sender, EventArgs e)
         {
+            if (spreadsheet.Changed == true)
+            {
+                messageBoard.Text = "There are unsaved changes";
+                actionButton.Text = "CONTINUE";
+                actionButton.StyleId = "newfile";
+                actionButton.IsVisible = true;
+            }
+            else
+            {
+                spreadsheet = new Spreadsheet(s => true, s => s.ToUpper(), "six");
+                messageBoard.Text = "New spreadsheet file has been created";
+                ClearAll();
+            }
+        }
 
+        private void FileMenuSave(object sender, EventArgs e)
+        {
+            messageBoard.Text = "";
+            messageBoard.Placeholder = "ENTER A FILEPATH";
+            messageBoard.IsReadOnly = false;
+            actionButton.Text = "SAVE";
+            actionButton.IsVisible = true;
         }
 
         private void FileMenuOpenAsync(object sender, EventArgs e)
         {
-
+            if (spreadsheet.Changed == true)
+            {
+                messageBoard.Text = "There are unsaved changes";
+                actionButton.Text = "CONTINUE";
+                actionButton.StyleId = "openfile";
+                actionButton.IsVisible = true;
+            }
+            else
+            {
+                messageBoard.Text = "";
+                messageBoard.Placeholder = "ENTER A FILEPATH";
+                messageBoard.IsReadOnly = false;
+                actionButton.Text = "OPEN";
+                actionButton.IsVisible = true;
+            }
         }
 
         private void AddColumnClicked(object sender, EventArgs e)
@@ -335,6 +370,12 @@ namespace GUI
 
         private void cellClickedOn(char col, int row)
         {
+            // SET MESSAGE BOARD
+            messageBoard.Text = "";
+            messageBoard.Placeholder = "";
+            messageBoard.IsReadOnly = true;
+            actionButton.IsVisible = false;
+
             // SET DISPLAYED CONTENTS
             if (Entries[col.ToString()][row - 1].GetContainsFormula() == true)
             {
@@ -367,6 +408,73 @@ namespace GUI
             Entries[initialTopLabels[0].ToString()][0].Focus();
         }
 
+        private void ActionButtonClicked(object sender, EventArgs e)
+        {
+            if (actionButton.Text == "SAVE")
+            {
+                try
+                {
+                    spreadsheet.Save(messageBoard.Text);
+                    messageBoard.Text = "Successfully saved spreadsheet";
+                    messageBoard.IsReadOnly = true;
+                    actionButton.IsVisible = false;
+                } 
+                catch (SpreadsheetReadWriteException)
+                {
+                    messageBoard.Text = "INVALID FILEPATH";
+                    messageBoard.IsReadOnly = true;
+                    actionButton.IsVisible = false;
+                } 
+                catch(UnauthorizedAccessException)
+                {
+                    messageBoard.Text = "INVALID FILEPATH";
+                    messageBoard.IsReadOnly = true;
+                    actionButton.IsVisible = false;
+                }
+            }
+            else if (actionButton.StyleId == "newfile")
+            {
+                spreadsheet = new Spreadsheet(s => true, s => s.ToUpper(), "six");
+                actionButton.IsVisible = false;
+                messageBoard.Text = "New spreadsheet file has been created";
+                actionButton.StyleId = "";
+                ClearAll();
+            }
+            else if (actionButton.StyleId == "openfile")
+            {
+                messageBoard.Text = "";
+                messageBoard.Placeholder = "ENTER A FILEPATH";
+                messageBoard.IsReadOnly = false;
+                actionButton.Text = "OPEN";
+                actionButton.IsVisible = true;
+                actionButton.StyleId = "";
+            }
+            else if (actionButton.Text == "OPEN")
+            {
+                OpenFilePath(messageBoard.Text);
+            }
+        }
+
+        private void OpenFilePath(string filePath)
+        {
+            try
+            {
+                spreadsheet = new Spreadsheet(filePath, s => true, s => s.ToUpper(), "six");
+                foreach (string cell in spreadsheet.GetNamesOfAllNonemptyCells())
+                {
+                    Entries[cell[0].ToString()][int.Parse(cell[1].ToString()) - 1].Text = spreadsheet.GetCellValue(cell).ToString();
+                }
+                messageBoard.Text = "Successfully opened spreadsheet";
+                messageBoard.IsReadOnly = true;
+                actionButton.IsVisible = false;
+            }
+            catch (SpreadsheetReadWriteException)
+            {
+                messageBoard.Text = "INVALID FILEPATH";
+                messageBoard.IsReadOnly = true;
+                actionButton.IsVisible = false;
+            }
+        }
         private void AddInitialEntriesToGrid(int numOfColumns, int numOfRows)
         {
             // LOOP THROUGH THE COLUMNS & ADD ENTRIES

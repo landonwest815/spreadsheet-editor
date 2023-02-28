@@ -7,6 +7,7 @@
     <ContentPage.MenuBarItems>
         <MenuBarItem Text="File">
             <MenuFlyoutItem Text="New" Clicked="FileMenuNew" />
+            <MenuFlyoutItem Text="Save" Clicked="FileMenuSave" />
             <MenuFlyoutItem Text="Open" Clicked="FileMenuOpenAsync" />
         </MenuBarItem>
     </ContentPage.MenuBarItems>
@@ -21,13 +22,16 @@
                 <HorizontalStackLayout>
                     <Label Text="" WidthRequest="152.5" />
                     <Label x:Name="selectedCellNameLabel" Text="CELL" WidthRequest="75" VerticalOptions="End"
-                           FontAttributes="Bold" VerticalTextAlignment="End" HorizontalTextAlignment="Center" />
+                           FontAttributes="Bold" VerticalTextAlignment="End" HorizontalTextAlignment="Start" />
                     <Label Text="" WidthRequest="37.5" />
                     <Label x:Name="selectedCellValueLabel" Text="VALUE" WidthRequest="75" VerticalOptions="End"
-                           FontAttributes="Bold" VerticalTextAlignment="End" HorizontalTextAlignment="Center" />
+                           FontAttributes="Bold" VerticalTextAlignment="End" HorizontalTextAlignment="Start" />
                     <Label Text="" WidthRequest="37.5" />
                     <Label x:Name="selectedCellContentsLabel" Text="CONTENTS" WidthRequest="75" VerticalOptions="End"
-                           FontAttributes="Bold" VerticalTextAlignment="End" HorizontalTextAlignment="Center" />
+                           FontAttributes="Bold" VerticalTextAlignment="End" HorizontalTextAlignment="Start" />
+                    <Label Text="" WidthRequest="56.25" />
+                    <Label x:Name="messageBoardLabel" Text="MESSAGE BOARD" WidthRequest="375" VerticalOptions="End"
+                           FontAttributes="Bold" VerticalTextAlignment="End" HorizontalTextAlignment="Start" />
                 </HorizontalStackLayout>
             </Border>
             <Border
@@ -43,6 +47,13 @@
                     <Label Text="" WidthRequest="37.5" />
                     <Entry x:Name="selectedCellContents" Text="" WidthRequest="75" VerticalOptions="Start"
                            VerticalTextAlignment="Center" HorizontalTextAlignment="Center" Background="#1C1C1C" />
+                    <Label Text="" WidthRequest="56.25" />
+                    <Entry x:Name="messageBoard" Text="" WidthRequest ="375" VerticalOptions="Start" IsReadOnly="True"
+                           VerticalTextAlignment="Center" HorizontalTextAlignment="Center" Background="#1C1C1C"
+                           IsSpellCheckEnabled="false" />
+                    <Label Text="" WidthRequest="18.75" />
+                    <Button x:Name="actionButton" HeightRequest="40" Text="DO SOMETHING" BackgroundColor="#FF9500"
+                            VerticalOptions="Start" IsVisible="false" Clicked="ActionButtonClicked" />
                 </HorizontalStackLayout>
             </Border>
 
@@ -50,7 +61,7 @@
             
             <HorizontalStackLayout x:Name="TopLabels">
                 <Label WidthRequest="40" />
-                <Button WidthRequest="75" HeightRequest="40" Text="RESET" Clicked="ClearButtonClicked" BackgroundColor="#1C1C1C" />
+                <Button WidthRequest="75" HeightRequest="40" Text="CLEAR" Clicked="ClearButtonClicked" BackgroundColor="#1C1C1C" />
             </HorizontalStackLayout>
 
             <!-- the Grid of Spreadsheet GUI Cells -->
