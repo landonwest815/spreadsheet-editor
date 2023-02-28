@@ -479,6 +479,12 @@ namespace GUI
                 messageBoard.IsReadOnly = true;
                 actionButton.IsVisible = false;
             }
+            catch (FileNotFoundException)
+            {
+                messageBoard.Text = "FILEPATH DOES NOT EXIST";
+                messageBoard.IsReadOnly = true;
+                actionButton.IsVisible = false;
+            }
         }
         private void AddInitialEntriesToGrid(int numOfColumns, int numOfRows)
         {
@@ -580,4 +586,3 @@ namespace GUI
             LeftLabels.Add(addRow);
         }
     } 
-}
