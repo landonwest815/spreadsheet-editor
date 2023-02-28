@@ -360,12 +360,17 @@ namespace GUI
             // SET ENTRY TEXT AS THE VALUE
             Entries[col.ToString()][row].Text = spreadsheet.GetCellValue("" + col.ToString().ToUpper() + (row + 1)).ToString();
 
-                // MOVE CURSOR TO CELL BENEATH (OR TOP)
-                if (row == numOfLeftLabels - 1)
-                    Entries[col.ToString()][0].Focus();
-                else
-                    Entries[col.ToString()][row + 1].Focus();
-            
+            // UPDATE ALL ENTRIES
+            foreach (string cell in spreadsheet.GetNamesOfAllNonemptyCells())
+            {
+                Entries[cell[0].ToString()][int.Parse(cell[1].ToString()) - 1].Text = spreadsheet.GetCellValue(cell).ToString();
+            }
+
+            // MOVE CURSOR TO CELL BENEATH (OR TOP)
+            if (row == numOfLeftLabels - 1)
+                Entries[col.ToString()][0].Focus();
+            else
+                Entries[col.ToString()][row + 1].Focus();
         }
 
         private void cellClickedOn(char col, int row)
