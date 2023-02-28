@@ -586,3 +586,4 @@ namespace GUI
             LeftLabels.Add(addRow);
         }
     } 
+}
