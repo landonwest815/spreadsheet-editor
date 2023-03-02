@@ -36,9 +36,6 @@
                     <Label Text="" WidthRequest="37.5" />
                     <Label x:Name="selectedCellContentsLabel" Text="CONTENTS" WidthRequest="75" VerticalOptions="End"
                            FontAttributes="Bold" VerticalTextAlignment="End" HorizontalTextAlignment="Start" />
-                    <Label Text="" WidthRequest="56.25" />
-                    <Label x:Name="messageBoardLabel" Text="MESSAGE BOARD" WidthRequest="375" VerticalOptions="End"
-                           FontAttributes="Bold" VerticalTextAlignment="End" HorizontalTextAlignment="Start" />
                 </HorizontalStackLayout>
             </Border>
             <Border
@@ -54,7 +51,6 @@
                     <Label Text="" WidthRequest="37.5" />
                     <Entry x:Name="selectedCellContents" Text="" WidthRequest="75" VerticalOptions="Start"
                            VerticalTextAlignment="Center" HorizontalTextAlignment="Center" Background="#1C1C1C" />
-                    <Label Text="" WidthRequest="37.5" />
                 </HorizontalStackLayout>
             </Border>
 

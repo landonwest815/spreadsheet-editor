@@ -421,11 +421,13 @@ namespace GUI
         /// </summary>
         /// <param name="col"> e.g., The 'A' in A5 </param>
         /// <param name="row"> e.g., The  5  in A5 </param>
-        private void handleCellChanged(char col, int row)
+        private async void handleCellChanged(char col, int row)
         {
+            IList<string> toRecalculate = new List<string>();
+
             // SET CONTENTS OF EDITED CELL
             if (Entries[col.ToString()][row].Text != null)
-                spreadsheet.SetContentsOfCell("" + col.ToString().ToUpper() + (row + 1), Entries[col.ToString()][row].Text);
+                toRecalculate = spreadsheet.SetContentsOfCell("" + col.ToString().ToUpper() + (row + 1), Entries[col.ToString()][row].Text);
 
             if (Entries[col.ToString()][row].Text != "" && Entries[col.ToString()][row].Text != null)
             {
@@ -440,13 +442,42 @@ namespace GUI
             }
 
             // SET ENTRY TEXT AS THE VALUE
-            Entries[col.ToString()][row].Text = spreadsheet.GetCellValue("" + col.ToString().ToUpper() + (row + 1)).ToString();
+
+            if (Entries[col.ToString()][row].Text != "" && Entries[col.ToString()][row].Text != null)
+            {
+                if (double.TryParse(spreadsheet.GetCellValue("" + col.ToString().ToUpper() + (row + 1)).ToString(), out double value))
+                {
+                    Entries[col.ToString()][row].Text = value.ToString();
+                    Entries[col.ToString()][row].TextColor = Color.FromArgb("#ffffff");
+                }
+                else
+                {
+                    await DisplayAlert("", "Formula Error was detected.", "Ok");
+                    return;
+                }
+            }
+            else
+            {
+                Entries[col.ToString()][row].Text = "";
+            }
 
             // UPDATE ALL ENTRIES
-            foreach (string cell in spreadsheet.GetNamesOfAllNonemptyCells())
+            if (Entries[col.ToString()][row].Text != "") {
+                foreach (string cell in toRecalculate)
+                {
+                    Entries[cell[0].ToString()][int.Parse(cell[1].ToString()) - 1].Text = spreadsheet.GetCellValue(cell).ToString();
+                    Entries[cell[0].ToString()][int.Parse(cell[1].ToString()) - 1].TextColor = Color.FromArgb("#ffffff");
+                }
+            } 
+            else
             {
-                Entries[cell[0].ToString()][int.Parse(cell[1].ToString()) - 1].Text = spreadsheet.GetCellValue(cell).ToString();
+                for (int i = 1; i < toRecalculate.Count; i++)
+                {
+                    Entries[toRecalculate[i][0].ToString()][int.Parse(toRecalculate[i][1].ToString()) - 1].Text = "=" + spreadsheet.GetCellContents(toRecalculate[i]).ToString();
+                    Entries[toRecalculate[i][0].ToString()][int.Parse(toRecalculate[i][1].ToString()) - 1].TextColor = Color.FromArgb("#ff0000");
+                }
             }
+            
 
             // MOVE CURSOR TO CELL BENEATH (OR TOP)
             if (row == numOfLeftLabels - 1)
@@ -467,7 +498,12 @@ namespace GUI
                 selectedCellContents.Text = spreadsheet.GetCellContents("" + col.ToString().ToUpper() + (row)).ToString();
 
             // SET DISPLAYED VALUE
-            selectedCellValue.Text = spreadsheet.GetCellValue("" + col.ToString().ToUpper() + (row)).ToString();
+            Type type = spreadsheet.GetCellValue("" + col.ToString().ToUpper() + (row)).GetType();
+
+            if (type.Equals(typeof(SpreadsheetUtilities.FormulaError)))
+                selectedCellValue.Text = "";
+            else
+                selectedCellValue.Text = spreadsheet.GetCellValue("" + col.ToString().ToUpper() + (row)).ToString();
 
             // SET DISPLAYED CELL NAME
             selectedCellName.Text = "" + col.ToString().ToUpper() + row;
@@ -475,7 +511,12 @@ namespace GUI
 
         private void cellUnfocused(char col, int row)
         {
-            Entries[col.ToString()][row].Text = spreadsheet.GetCellValue("" + col.ToString().ToUpper() + (row + 1)).ToString();
+            Type type = spreadsheet.GetCellValue("" + col.ToString().ToUpper() + (row + 1)).GetType();
+
+            if (type.Equals(typeof(SpreadsheetUtilities.FormulaError)))
+                Entries[col.ToString()][row].Text = "=" + spreadsheet.GetCellContents("" + col.ToString().ToUpper() + (row + 1)).ToString();
+            else
+                Entries[col.ToString()][row].Text = spreadsheet.GetCellValue("" + col.ToString().ToUpper() + (row + 1)).ToString();  
         }
 
         /// <summary>
