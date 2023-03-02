@@ -54,13 +54,7 @@
                     <Label Text="" WidthRequest="37.5" />
                     <Entry x:Name="selectedCellContents" Text="" WidthRequest="75" VerticalOptions="Start"
                            VerticalTextAlignment="Center" HorizontalTextAlignment="Center" Background="#1C1C1C" />
-                    <Label Text="" WidthRequest="56.25" />
-                    <Entry x:Name="messageBoard" Text="" WidthRequest ="375" VerticalOptions="Start" IsReadOnly="True"
-                           VerticalTextAlignment="Center" HorizontalTextAlignment="Center" Background="#1C1C1C"
-                           IsSpellCheckEnabled="false" />
-                    <Label Text="" WidthRequest="18.75" />
-                    <Button x:Name="actionButton" HeightRequest="40" Text="DO SOMETHING" BackgroundColor="#FF9500"
-                            VerticalOptions="Start" IsVisible="false" Clicked="ActionButtonClicked" />
+                    <Label Text="" WidthRequest="37.5" />
                 </HorizontalStackLayout>
             </Border>
 

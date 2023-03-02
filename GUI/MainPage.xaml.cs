@@ -7,6 +7,10 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using SS;
 using System.Runtime.Serialization;
+using System;
+using System.ComponentModel;
+using System.Threading.Tasks;
+using SpreadsheetUtilities;
 
 namespace GUI
 {
@@ -61,6 +65,8 @@ namespace GUI
         public delegate void ActionOnFocused(char col, int row);
 
         public delegate void ActionOnUnfocused(char col, int row);
+
+        public delegate void OnDisplayWarning();
 
         public class MyEntry : Entry
         {
@@ -238,6 +244,8 @@ namespace GUI
         {
             InitializeComponent();
 
+            ClearAll += CreateNewSpreadsheet;
+
             // GET THE NUMBER OF TOP LABELS
             numOfTopLabels = initialTopLabels.Length;
 
@@ -252,49 +260,103 @@ namespace GUI
             CreateNewRowButton();
         }
 
+        private void CreateNewSpreadsheet()
+        {
+            spreadsheet = new Spreadsheet(s => true, s => s.ToUpper(), "six");
+        }
+
         private void FileMenuNew(object sender, EventArgs e)
         {
             if (spreadsheet.Changed == true)
-            {
-                messageBoard.Text = "There are unsaved changes";
-                actionButton.Text = "CONTINUE";
-                actionButton.StyleId = "newfile";
-                actionButton.IsVisible = true;
-            }
+                DataLoss(newFile);
             else
-            {
-                spreadsheet = new Spreadsheet(s => true, s => s.ToUpper(), "six");
-                messageBoard.Text = "New spreadsheet file has been created";
-                ClearAll();
-            }
+                newFile();
         }
 
-        private void FileMenuSave(object sender, EventArgs e)
+        private async void newFile()
         {
-            messageBoard.Text = "";
-            messageBoard.Placeholder = "ENTER A FILEPATH";
-            messageBoard.IsReadOnly = false;
-            actionButton.Text = "SAVE";
-            actionButton.IsVisible = true;
+            Entries["A"][0].Focus();
+            ClearAll();
+            CreateNewSpreadsheet();
+            await DisplayAlert("", "A new spreadsheet has been created.", "Ok");
+        }
+
+        private async void FileMenuSave(object sender, EventArgs e)
+        {
+            string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+
+            string fileName = await DisplayPromptAsync("Save Spreadsheet", "Name of file:", "Save");
+
+            if (fileName != null)
+            {
+                try
+                {
+                    spreadsheet.Save(path + "\\" + fileName + ".sprd");
+                    await DisplayAlert("", "Successfully saved '" + fileName + "' to the Desktop", "Ok");
+                }
+                catch (Exception)
+                {
+                    await DisplayAlert("", "Failed to save '" + fileName + "' to the Desktop", "Ok");
+                }
+            }
         }
 
         private void FileMenuOpenAsync(object sender, EventArgs e)
         {
             if (spreadsheet.Changed == true)
-            {
-                messageBoard.Text = "There are unsaved changes";
-                actionButton.Text = "CONTINUE";
-                actionButton.StyleId = "openfile";
-                actionButton.IsVisible = true;
-            }
+                DataLoss(openFile);
             else
+                openFile();
+        }
+
+        private async void openFile()
+        {
+            FileResult? fileResult = await FilePicker.Default.PickAsync();
+            if (fileResult != null)
             {
-                messageBoard.Text = "";
-                messageBoard.Placeholder = "ENTER A FILEPATH";
-                messageBoard.IsReadOnly = false;
-                actionButton.Text = "OPEN";
-                actionButton.IsVisible = true;
+                ClearAll();
+                OpenFilePath(fileResult);
             }
+        }
+
+        private async void OpenFilePath(FileResult filePath)
+        {
+            try
+            {
+                spreadsheet = new Spreadsheet(filePath.FullPath, s => true, s => s.ToUpper(), "six");
+                foreach (string cell in spreadsheet.GetNamesOfAllNonemptyCells())
+                {
+                    try
+                    {
+                        Formula formula = (Formula)spreadsheet.GetCellContents(cell);
+                        Entries[cell[0].ToString()][int.Parse(cell[1].ToString()) - 1].SetContainsFormula(true);
+                        Entries[cell[0].ToString()][int.Parse(cell[1].ToString()) - 1].Text = spreadsheet.GetCellValue(cell).ToString();
+                    }
+                    catch (InvalidCastException)
+                    {
+                        Entries[cell[0].ToString()][int.Parse(cell[1].ToString()) - 1].Text = spreadsheet.GetCellValue(cell).ToString();
+                    }
+                }
+                await DisplayAlert("", "Successfully opened '" + filePath.FileName + "'", "Ok");
+            }
+            catch (SpreadsheetReadWriteException)
+            {
+                await DisplayAlert("", "Invalid Filepath", "Ok");
+            }
+            catch (FileNotFoundException)
+            {
+                await DisplayAlert("", "File does not exist", "Ok");
+            }
+        }
+
+        private async void DataLoss(OnDisplayWarning afterWarning)
+        {
+            OnDisplayWarning action = afterWarning;
+
+            bool overwrite = await DisplayAlert("Warning", "There are unsaved Changes. \n Do you want to contiue?", "Yes", "No");
+
+            if (overwrite)
+                afterWarning();
         }
 
         private void AddColumnClicked(object sender, EventArgs e)
@@ -395,12 +457,6 @@ namespace GUI
 
         private void cellClickedOn(char col, int row)
         {
-            // SET MESSAGE BOARD
-            messageBoard.Text = "";
-            messageBoard.Placeholder = "";
-            messageBoard.IsReadOnly = true;
-            actionButton.IsVisible = false;
-
             // SET DISPLAYED CONTENTS
             if (Entries[col.ToString()][row - 1].GetContainsFormula() == true)
             {
@@ -431,80 +487,6 @@ namespace GUI
         {
             ClearAll();
             Entries[initialTopLabels[0].ToString()][0].Focus();
-        }
-
-        private void ActionButtonClicked(object sender, EventArgs e)
-        {
-            if (actionButton.Text == "SAVE")
-            {
-                try
-                {
-                    spreadsheet.Save(messageBoard.Text);
-                    messageBoard.Text = "Successfully saved spreadsheet";
-                    messageBoard.IsReadOnly = true;
-                    actionButton.IsVisible = false;
-                } 
-                catch (SpreadsheetReadWriteException)
-                {
-                    messageBoard.Text = "INVALID FILEPATH";
-                    messageBoard.IsReadOnly = true;
-                    actionButton.IsVisible = false;
-                } 
-                catch(UnauthorizedAccessException)
-                {
-                    messageBoard.Text = "INVALID FILEPATH";
-                    messageBoard.IsReadOnly = true;
-                    actionButton.IsVisible = false;
-                }
-            }
-            else if (actionButton.StyleId == "newfile")
-            {
-                spreadsheet = new Spreadsheet(s => true, s => s.ToUpper(), "six");
-                actionButton.IsVisible = false;
-                messageBoard.Text = "New spreadsheet file has been created";
-                actionButton.StyleId = "";
-                ClearAll();
-            }
-            else if (actionButton.StyleId == "openfile")
-            {
-                messageBoard.Text = "";
-                messageBoard.Placeholder = "ENTER A FILEPATH";
-                messageBoard.IsReadOnly = false;
-                actionButton.Text = "OPEN";
-                actionButton.IsVisible = true;
-                actionButton.StyleId = "";
-            }
-            else if (actionButton.Text == "OPEN")
-            {
-                OpenFilePath(messageBoard.Text);
-            }
-        }
-
-        private void OpenFilePath(string filePath)
-        {
-            try
-            {
-                spreadsheet = new Spreadsheet(filePath, s => true, s => s.ToUpper(), "six");
-                foreach (string cell in spreadsheet.GetNamesOfAllNonemptyCells())
-                {
-                    Entries[cell[0].ToString()][int.Parse(cell[1].ToString()) - 1].Text = spreadsheet.GetCellValue(cell).ToString();
-                }
-                messageBoard.Text = "Successfully opened spreadsheet";
-                messageBoard.IsReadOnly = true;
-                actionButton.IsVisible = false;
-            }
-            catch (SpreadsheetReadWriteException)
-            {
-                messageBoard.Text = "INVALID FILEPATH";
-                messageBoard.IsReadOnly = true;
-                actionButton.IsVisible = false;
-            }
-            catch (FileNotFoundException)
-            {
-                messageBoard.Text = "FILEPATH DOES NOT EXIST";
-                messageBoard.IsReadOnly = true;
-                actionButton.IsVisible = false;
-            }
         }
 
         private void AddInitialEntriesToGrid(int numOfColumns, int numOfRows)
@@ -616,7 +598,6 @@ namespace GUI
             }
 
             addRow.TextColor = Color.FromArgb("#A7361C");
-            actionButton.BackgroundColor = Color.FromArgb("#A7361C");
             GUIColorTheme = "#A7361C";
         }
 
@@ -628,7 +609,6 @@ namespace GUI
             }
 
             addRow.TextColor = Color.FromArgb("#d1603d");
-            actionButton.BackgroundColor = Color.FromArgb("#d1603d");
             GUIColorTheme = "#d1603d";
         }
 
@@ -640,7 +620,6 @@ namespace GUI
             }
 
             addRow.TextColor = Color.FromArgb("#377868");
-            actionButton.BackgroundColor = Color.FromArgb("#377868");
             GUIColorTheme = "#377868";
 
         }
@@ -653,7 +632,6 @@ namespace GUI
             }
 
             addRow.TextColor = Color.FromArgb("#436d8f");
-            actionButton.BackgroundColor = Color.FromArgb("#436d8f");
             GUIColorTheme = "#436d8f";
         }
 
@@ -665,7 +643,6 @@ namespace GUI
             }
 
             addRow.TextColor = Color.FromArgb("#745987");
-            actionButton.BackgroundColor = Color.FromArgb("#745987");
             GUIColorTheme = "#745987";
         }
     } 
