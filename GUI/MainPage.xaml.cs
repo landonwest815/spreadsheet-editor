@@ -10,6 +10,19 @@ using System.Runtime.Serialization;
 
 namespace GUI
 {
+    /// <summary>
+    /// Author:    Landon West
+    /// Partner:   None
+    /// Date:      24-Feb-2023
+    /// Course:    CS 3500, University of Utah, School of Computing
+    /// Copyright: CS 3500 and Landon West - This work may not 
+    ///            be copied for use in Academic Coursework.
+    ///
+    /// I, Landon West, certify that I wrote this code from scratch and
+    /// did not copy it in part or whole from another source.  All 
+    /// references used in the completion of the assignments are cited 
+    /// in my README file.
+    /// </summary>
     public partial class MainPage : ContentPage
     {
         private const string allTopLabels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -32,6 +45,10 @@ namespace GUI
         private Dictionary<string, List<MyEntry>> Entries = new Dictionary<string, List<MyEntry>>();
 
         private List<VerticalStackLayout> Columns = new List<VerticalStackLayout>();
+
+        private Button addRow;
+
+        private string GUIColorTheme = "#d1603d";
 
         /// <summary>
         ///    Definition of what information (method signature) must be sent
@@ -190,7 +207,7 @@ namespace GUI
             public RowLabel(int row) : base() 
             {
                 // ORANGE BORDER
-                this.Stroke = Color.FromRgb(255, 149, 0);
+                this.Stroke = Color.FromArgb("#d1603d");
                 this.StrokeThickness = 0;
                 // SIZING
                 this.HeightRequest = 40;
@@ -210,8 +227,9 @@ namespace GUI
                         HorizontalTextAlignment = TextAlignment.Center,
                         VerticalTextAlignment = TextAlignment.Center,
                         // GRAY BACKGROUND
-                        BackgroundColor = Color.FromRgb(255, 149, 0)
-                    };
+                        BackgroundColor = Color.FromArgb("#d1603d")
+
+            };
                
             }
         }
@@ -328,7 +346,9 @@ namespace GUI
             }
 
             // INSERT THE NEXT LABEL BEFORE THE ADD ROW BUTTON
-            LeftLabels.Insert(LeftLabels.Count - 1, new RowLabel(numOfLeftLabels++));
+            RowLabel newLabel = new RowLabel(numOfLeftLabels++);
+            newLabel.Content.BackgroundColor = Color.FromRgba(GUIColorTheme);
+            LeftLabels.Add(newLabel);
         }
 
         /// <summary>
@@ -486,6 +506,7 @@ namespace GUI
                 actionButton.IsVisible = false;
             }
         }
+
         private void AddInitialEntriesToGrid(int numOfColumns, int numOfRows)
         {
             // LOOP THROUGH THE COLUMNS & ADD ENTRIES
@@ -562,7 +583,7 @@ namespace GUI
         private void CreateNewRowButton()
         {
             // CREATE BUTTON
-            Button addRow = new Button()
+            addRow = new Button()
             {
                 // SIZING
                 HeightRequest = 30,
@@ -583,7 +604,69 @@ namespace GUI
             addRow.Clicked += AddRowClicked;
 
             // ADD BUTTON TO THE SPREADSHEET
-            LeftLabels.Add(addRow);
+            LeftSide.Add(addRow);
+        }
+
+        // COLOR CHANGING METHODS
+        private void ChangeColorToRed(object sender, EventArgs e)
+        {
+            foreach (RowLabel label in LeftLabels)
+            {
+                label.Content.BackgroundColor = Color.FromArgb("#A7361C");
+            }
+
+            addRow.TextColor = Color.FromArgb("#A7361C");
+            actionButton.BackgroundColor = Color.FromArgb("#A7361C");
+            GUIColorTheme = "#A7361C";
+        }
+
+        private void ChangeColorToOrange(object sender, EventArgs e)
+        {
+            foreach (RowLabel label in LeftLabels)
+            {
+                label.Content.BackgroundColor = Color.FromArgb("#d1603d");
+            }
+
+            addRow.TextColor = Color.FromArgb("#d1603d");
+            actionButton.BackgroundColor = Color.FromArgb("#d1603d");
+            GUIColorTheme = "#d1603d";
+        }
+
+        private void ChangeColorToGreen(object sender, EventArgs e)
+        {
+            foreach (RowLabel label in LeftLabels)
+            {
+                label.Content.BackgroundColor = Color.FromArgb("#377868");
+            }
+
+            addRow.TextColor = Color.FromArgb("#377868");
+            actionButton.BackgroundColor = Color.FromArgb("#377868");
+            GUIColorTheme = "#377868";
+
+        }
+
+        private void ChangeColorToBlue(object sender, EventArgs e)
+        {
+            foreach (RowLabel label in LeftLabels)
+            {
+                label.Content.BackgroundColor = Color.FromArgb("#436d8f");
+            }
+
+            addRow.TextColor = Color.FromArgb("#436d8f");
+            actionButton.BackgroundColor = Color.FromArgb("#436d8f");
+            GUIColorTheme = "#436d8f";
+        }
+
+        private void ChangeColorToPurple(object sender, EventArgs e)
+        {
+            foreach (RowLabel label in LeftLabels)
+            {
+                label.Content.BackgroundColor = Color.FromArgb("#745987");
+            }
+
+            addRow.TextColor = Color.FromArgb("#745987");
+            actionButton.BackgroundColor = Color.FromArgb("#745987");
+            GUIColorTheme = "#745987";
         }
     } 
 }

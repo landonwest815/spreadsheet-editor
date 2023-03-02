@@ -10,6 +10,13 @@
             <MenuFlyoutItem Text="Save" Clicked="FileMenuSave" />
             <MenuFlyoutItem Text="Open" Clicked="FileMenuOpenAsync" />
         </MenuBarItem>
+        <MenuBarItem Text="Color">
+            <MenuFlyoutItem Text="Red"    Clicked="ChangeColorToRed"    />
+            <MenuFlyoutItem Text="Orange" Clicked="ChangeColorToOrange" />
+            <MenuFlyoutItem Text="Green"  Clicked="ChangeColorToGreen"  />
+            <MenuFlyoutItem Text="Blue"   Clicked="ChangeColorToBlue"   />
+            <MenuFlyoutItem Text="Purple" Clicked="ChangeColorToPurple" />
+        </MenuBarItem>
     </ContentPage.MenuBarItems>
 
     <ScrollView BackgroundColor="#1C1C1C" >
@@ -74,7 +81,9 @@
                     BackgroundColor="#1C1C1C">
                 <HorizontalStackLayout x:Name="Grid">
                     <Label WidthRequest="40" />
-                    <VerticalStackLayout x:Name="LeftLabels"  />
+                    <VerticalStackLayout x:Name="LeftSide">
+                        <VerticalStackLayout x:Name="LeftLabels"  />
+                    </VerticalStackLayout>
                 </HorizontalStackLayout>
             </ScrollView>
         </VerticalStackLayout>
