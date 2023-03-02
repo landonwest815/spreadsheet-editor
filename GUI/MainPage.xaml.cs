@@ -415,6 +415,11 @@ namespace GUI
             }
         }
 
+        private void FileMenuSaveAs(object sender, EventArgs e)
+        {
+
+        }
+
         /// <summary>
         ///     Event called when the open file drop down option is clicked.
         ///     If there is unsaved data -> call the DataLoss method before invoking openFile
@@ -479,6 +484,16 @@ namespace GUI
             {
                 await DisplayAlert("", "File does not exist", "Ok");
             }
+        }
+
+        private void FileMenuExit(object sender, EventArgs e)
+        {
+            DataLoss(exitProgram);
+        }
+
+        private void exitProgram()
+        {
+            Application.Current?.CloseWindow(Application.Current.MainPage.Window);
         }
 
         /// <summary>
@@ -568,6 +583,7 @@ namespace GUI
 
             // SET CONTENTS OF EDITED CELL
             if (Entries[col.ToString()][row].Text != null)
+            {
                 try
                 {
                     toRecalculate = spreadsheet.SetContentsOfCell("" + col.ToString().ToUpper() + (row + 1), Entries[col.ToString()][row].Text);
@@ -580,6 +596,7 @@ namespace GUI
                     await DisplayAlert("Error", "Circular Dependencies are not allowed", "Ok");
                     return;
                 }
+            }
 
             if (Entries[col.ToString()][row].Text != "" && Entries[col.ToString()][row].Text != null)
             {
@@ -841,5 +858,61 @@ namespace GUI
             addRow.TextColor = Color.FromArgb("#745987");
             GUIColorTheme = "#745987";
         }
+
+        // HELP MENU METHODS
+
+        private async void HelpMenuText(object sender, EventArgs e)
+        {
+            await DisplayAlert("Text Inputs", "Simply enter any text into a cell, " +
+                "and its Contents and Value will be set to that text. Input text " +
+                "can be any combination of letters or numbers as long as it doesn't " +
+                "start with an '='", "Ok");
+        }
+
+        private async void HelpMenuNumber(object sender, EventArgs e)
+        {
+            await DisplayAlert("Number Inputs", "Simply enter any number (whole or decimal) " +
+                "into a cell, and its Contents and Value will be set to that input. " +
+                "Input numbers can be any combination of numbers. (However, large enough " +
+                "numbers will cause problems)", "Ok");
+        }
+
+        private async void HelpMenuFormula(object sender, EventArgs e)
+        {
+            await DisplayAlert("Formula Inputs", "To enter a Formula, start the expression " +
+                "with an '=' sign and continue with an arithmetic sequence of cell names. " +
+                "Examples can include the following: \n \t '=A1+B1' '=G1' '=3*F2' \n Formulas " +
+                "that create a circular dependency are not allowed. Formulas that result in a " +
+                "Formula Error will not change anything and will be highlighted red. Fixing the " +
+                "formula will result in a correct cell.", "Ok");
+        }
+
+        private async void HelpMenuSaving(object sender, EventArgs e)
+        {
+            await DisplayAlert("Saving Spreadsheets", "To save your spreadsheet, select 'Save' " +
+                "under the File Menu. The program will then prompt you to enter a name for your " +
+                "spreadsheet. Do not provide a path or extension. Your spreadsheet will be saved " +
+                "to your Desktop folder by default with the extension '.sprd'. If you wish to " +
+                "move this from your Desktop, you may do so after it has been saved.", "Ok");
+        }
+
+        private async void HelpMenuOpening(object sender, EventArgs e)
+        {
+            await DisplayAlert("Opening Spreadsheets", "To open an existing spreadsheet, " +
+                "select 'Open' under the File Menu. The program will then allow you to select " +
+                "a file from your file system. If there were unsaved changes within your current " +
+                "spreadsheet you will be notified. If a valid file is selected it will then be " +
+                "opened into the spreadsheet editor.", "Ok");
+        }
+
+        private async void HelpMenuExiting(object sender, EventArgs e)
+        {
+            await DisplayAlert("Exiting Spreadsheets", "Due to the limitations of the program " +
+                "this spreadsheet editor is built on you will not be notified of unsaved changes " +
+                "when exiting the program via the 'x button'. Instead, if you select 'Exit' under " +
+                "the File Menu you will be notified. Also be aware that due to the limitiations of " +
+                "the program the exit process is lengthy.", "Ok");
+        }
+
     } 
 }

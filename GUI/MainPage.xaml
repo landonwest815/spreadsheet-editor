@@ -2,13 +2,15 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="GUI.MainPage"
-             Title="Spreadsheet">
+             Title="">
 
     <ContentPage.MenuBarItems>
         <MenuBarItem Text="File">
             <MenuFlyoutItem Text="New" Clicked="FileMenuNew" />
             <MenuFlyoutItem Text="Save" Clicked="FileMenuSave" />
+            <MenuFlyoutItem Text="Save As" Clicked="FileMenuSaveAs" />
             <MenuFlyoutItem Text="Open" Clicked="FileMenuOpenAsync" />
+            <MenuFlyoutItem Text="Exit" Clicked="FileMenuExit" />
         </MenuBarItem>
         <MenuBarItem Text="Color">
             <MenuFlyoutItem Text="Red"    Clicked="ChangeColorToRed"    />
@@ -16,6 +18,14 @@
             <MenuFlyoutItem Text="Green"  Clicked="ChangeColorToGreen"  />
             <MenuFlyoutItem Text="Blue"   Clicked="ChangeColorToBlue"   />
             <MenuFlyoutItem Text="Purple" Clicked="ChangeColorToPurple" />
+        </MenuBarItem>
+        <MenuBarItem Text="Help">
+            <MenuFlyoutItem Text="Text Inputs"          Clicked="HelpMenuText"    />
+            <MenuFlyoutItem Text="Number Inputs"        Clicked="HelpMenuNumber"  />
+            <MenuFlyoutItem Text="Formula Inputs"       Clicked="HelpMenuFormula" />
+            <MenuFlyoutItem Text="Saving Spreadsheets"  Clicked="HelpMenuSaving"  />
+            <MenuFlyoutItem Text="Opening Spreadsheets" Clicked="HelpMenuOpening" />
+            <MenuFlyoutItem Text="Exiting Spreadsheets" Clicked="HelpMenuExiting" />
         </MenuBarItem>
     </ContentPage.MenuBarItems>
 
