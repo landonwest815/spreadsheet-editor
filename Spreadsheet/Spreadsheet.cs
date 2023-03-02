@@ -597,6 +597,9 @@ namespace SS
 
             if (Double.TryParse(content, out double value))
                 cellsToReevaluate = SetCellContents(normalizedName, value);
+            else if (content == "") {
+                cells.Remove(name);
+            }
             else if (content.Length > 0 && content[0].ToString() == "=")
                 cellsToReevaluate = SetCellContents(normalizedName, new Formula(string.Concat(content.Where(c => !Char.IsWhiteSpace(c))).Remove(0, 1), Normalize, IsValid));
             else
