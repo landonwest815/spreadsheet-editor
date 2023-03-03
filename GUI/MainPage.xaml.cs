@@ -38,21 +38,6 @@ namespace GUI
         private int numOfLeftLabels = 15;
         private EnhancedSpreadsheet spreadsheet = new EnhancedSpreadsheet(s => true, s => s.ToUpper(), "six");
 
-
-
-        private string FindNextColumn(string col)
-        {
-            if (col.Last() != 'Z')
-            {
-                col.TrimEnd();
-                
-            }
-            return "sure";
-        }
-
-
-
-
         /// <summary>
         ///   Definition of the method signature that must be true for clear methods
         /// </summary>
@@ -668,6 +653,10 @@ namespace GUI
             RowLabel newLabel = new RowLabel(numOfLeftLabels++);
             newLabel.Content.BackgroundColor = Color.FromRgba(GUIColorTheme);
             LeftLabels.Add(newLabel);
+
+            // CAN'T GO PAST Z
+            if (numOfTopLabels == 26)
+                addRow.IsVisible = false;
         }
 
         private void pressedEnter(char col, int row)
