@@ -34,7 +34,7 @@ namespace GUI
         private const string initialTopLabels = "ABCDEFGHIJKL";
         private int numOfTopLabels;
         private int numOfLeftLabels = 25;
-        private AbstractSpreadsheet spreadsheet = new Spreadsheet(s => true, s => s.ToUpper(), "six");
+        private EnhancedSpreadsheet spreadsheet = new EnhancedSpreadsheet(s => true, s => s.ToUpper(), "six");
 
         /// <summary>
         ///   Definition of the method signature that must be true for clear methods
@@ -62,6 +62,8 @@ namespace GUI
         /// </summary>
         private Button addRow;
 
+        private ContentsEntry contentsWidget;
+
         /// <summary>
         ///     Initial color theme of the spreadsheet is set to Orange
         ///     Can be changed through the color menu to the right of the file menu
@@ -75,6 +77,8 @@ namespace GUI
         /// <param name="col"> col (char) in grid, e.g., A5 </param>
         /// <param name="row"> row (int) in grid,  e.g., A5 </param>
         public delegate void ActionOnCompleted(char col, int row);
+
+        public delegate void ActionOnContentsWidgetCompleted(char col, int row, bool fromContentsWidget);
 
         /// <summary>
         ///     Definition of what information (method signature) must be sent
@@ -96,6 +100,41 @@ namespace GUI
         ///     Delegate for when a display warning should be shown to the user
         /// </summary>
         public delegate void OnDisplayWarning();
+
+        public class EnhancedSpreadsheet : Spreadsheet
+        {
+            // data
+            string savePath = "";
+            string saveName = "";
+
+            public EnhancedSpreadsheet(string filepath, Func<string, bool> isValid, Func<string, string> normalize, string version) : base(filepath, isValid, normalize, version)
+            {
+            }
+
+            public EnhancedSpreadsheet(Func<string, bool> isValid, Func<string, string> normalize, string version) : base(isValid, normalize, version)
+            {
+            }
+
+            public void SetSavePath(string path)
+            {
+                savePath = path;
+            }
+
+            public string GetSavePath()
+            {
+                return savePath;
+            }
+            public void SetSaveName(string name)
+            {
+                saveName = name;
+            }
+
+            public string GetSaveName()
+            {
+                return saveName;
+            }
+
+        }
 
         /// <summary>
         ///     Extension of the Entry class that allows the majority of the spreadsheet
@@ -253,6 +292,35 @@ namespace GUI
             }
         }
 
+        public class ContentsEntry : Entry
+        {
+            // data
+            char currentColumn;
+            int currentRow;
+
+            private ActionOnContentsWidgetCompleted onChangeContents;
+
+            public ContentsEntry(ActionOnContentsWidgetCompleted changeAction) : base()
+            {
+                this.Completed += CellChangedValue;
+                onChangeContents = changeAction;
+            }
+
+            private void CellChangedValue(object sender, EventArgs e)
+            {
+                Unfocus();
+
+                // Inform the outside world that we have changed
+                onChangeContents(currentColumn, currentRow - 1, true);
+            }
+
+            public void SetColumnAndRow(char col, int row)
+            {
+                currentColumn = col;
+                currentRow = row;
+            }
+        }
+
         /// <summary>
         ///     Extension of the Label class that specifies graphical settings for all
         ///     column labels e.g. A, B, C...
@@ -272,7 +340,7 @@ namespace GUI
                 this.WidthRequest = 75;
                 this.HorizontalOptions = LayoutOptions.Center;
                 this.StrokeShape = new RoundRectangle { CornerRadius = new CornerRadius(5, 5, 5, 5) };
-                    
+
                 // graphical settings for label
                 Content =
                     new Label
@@ -298,7 +366,7 @@ namespace GUI
             ///     Constructor that only takes in the name of the row label (char)
             /// </summary>
             /// <param name="name"> the name of the row label </param>
-            public RowLabel(int row) : base() 
+            public RowLabel(int row) : base()
             {
                 // graphical settings for the border
                 this.Stroke = Color.FromArgb("#d1603d");
@@ -307,7 +375,7 @@ namespace GUI
                 this.WidthRequest = 75;
                 this.HorizontalOptions = LayoutOptions.Center;
                 this.StrokeShape = new RoundRectangle { CornerRadius = new CornerRadius(5, 5, 5, 5) };
-                
+
                 // graphical settings for the label
                 Content =
                     new Label
@@ -319,7 +387,7 @@ namespace GUI
                         VerticalTextAlignment = TextAlignment.Center,
                         BackgroundColor = Color.FromArgb("#d1603d")
                     };
-               
+
             }
         }
 
@@ -350,6 +418,8 @@ namespace GUI
 
             // set the button for additional rows functionality
             CreateNewRowButton();
+
+            AddContentsWidget();
         }
 
         /// <summary>
@@ -358,7 +428,7 @@ namespace GUI
         /// </summary>
         private void CreateNewSpreadsheet()
         {
-            spreadsheet = new Spreadsheet(s => true, s => s.ToUpper(), "six");
+            spreadsheet = new EnhancedSpreadsheet(s => true, s => s.ToUpper(), "six");
         }
 
         /// <summary>
@@ -393,7 +463,15 @@ namespace GUI
         /// </summary>
         /// <param name="sender"> ignored </param>
         /// <param name="e">ignored </param>
-        private async void FileMenuSave(object sender, EventArgs e)
+        private void FileMenuSave(object sender, EventArgs e)
+        {
+            if (spreadsheet.GetSavePath() != "")
+                saveFile(spreadsheet.GetSavePath(), spreadsheet.GetSaveName());
+            else
+                FileMenuSaveAs(null, null); // both params can be ignored
+        }
+
+        private async void FileMenuSaveAs(object sender, EventArgs e)
         {
             // default path to save to
             string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
@@ -403,21 +481,24 @@ namespace GUI
 
             if (fileName != null)
             {
-                try
-                {
-                    spreadsheet.Save(path + "\\" + fileName + ".sprd");
-                    await DisplayAlert("", "Successfully saved '" + fileName + "' to the Desktop", "Ok");
-                }
-                catch (Exception)
-                {
-                    await DisplayAlert("", "Failed to save '" + fileName + "' to the Desktop", "Ok");
-                }
+                string filePath = path + "\\" + fileName + ".sprd";
+                saveFile(filePath, fileName);
             }
         }
 
-        private void FileMenuSaveAs(object sender, EventArgs e)
+        private async void saveFile(string path, string name)
         {
-
+            try
+            {
+                spreadsheet.Save(path);
+                await DisplayAlert("", "Successfully saved '" + name + "' to the Desktop", "Ok");
+                spreadsheet.SetSavePath(path);
+                spreadsheet.SetSaveName(name);
+            }
+            catch (Exception)
+            {
+                await DisplayAlert("", "Failed to save '" + name + "' to the Desktop", "Ok");
+            }
         }
 
         /// <summary>
@@ -458,8 +539,8 @@ namespace GUI
             try
             {
                 // set the existing spreadsheet to the opened spreadsheet
-                spreadsheet = new Spreadsheet(filePath.FullPath, s => true, s => s.ToUpper(), "six");
-                
+                spreadsheet = new EnhancedSpreadsheet(filePath.FullPath, s => true, s => s.ToUpper(), "six");
+
                 // load all of the entries
                 foreach (string cell in spreadsheet.GetNamesOfAllNonemptyCells())
                 {
@@ -531,7 +612,7 @@ namespace GUI
             for (int j = 0; j < numOfLeftLabels; j++)
             {
                 // ADD ENTRY
-                Entries[allTopLabels[numOfTopLabels].ToString()].Add(new MyEntry(j, handleCellChanged, cellClickedOn, cellUnfocused));
+                Entries[allTopLabels[numOfTopLabels].ToString()].Add(new MyEntry(j, pressedEnter, cellClickedOn, cellUnfocused));
                 // ADD ENTRY TO COLUMN
                 column.Add(Entries[allTopLabels[numOfTopLabels].ToString()][j]);
                 // SET THE COLUMN VARIABLE
@@ -554,7 +635,7 @@ namespace GUI
             for (int i = 0; i < numOfTopLabels; i++)
             {
                 // ADD ENTRY
-                Entries[allTopLabels[i].ToString()].Add(new MyEntry(numOfLeftLabels, handleCellChanged, cellClickedOn, cellUnfocused));
+                Entries[allTopLabels[i].ToString()].Add(new MyEntry(numOfLeftLabels, pressedEnter, cellClickedOn, cellUnfocused));
                 // ADD ENTRY TO ROW
                 Columns[i].Add(Entries[allTopLabels[i].ToString()][numOfLeftLabels]);
                 // SET NEW ENTRY COLUMN VARIABLE
@@ -569,6 +650,15 @@ namespace GUI
             LeftLabels.Add(newLabel);
         }
 
+        private void pressedEnter(char col, int row)
+        {
+            // MOVE CURSOR TO CELL BENEATH (OR TOP)
+            if (row == numOfLeftLabels - 1)
+                Entries[col.ToString()][0].Focus();
+            else
+                Entries[col.ToString()][row + 1].Focus();
+        }
+
         /// <summary>
         ///   This method will be called by the individual Entry elements when Enter
         ///   is pressed in them.
@@ -577,9 +667,15 @@ namespace GUI
         /// </summary>
         /// <param name="col"> e.g., The 'A' in A5 </param>
         /// <param name="row"> e.g., The  5  in A5 </param>
-        private async void handleCellChanged(char col, int row)
+        private async void handleCellChanged(char col, int row, bool fromContentsWidget)
         {
             IList<string> toRecalculate = new List<string>();
+
+            if (fromContentsWidget)
+            {
+                Entries[col.ToString()][row].Text = contentsWidget.Text;
+
+            }
 
             // SET CONTENTS OF EDITED CELL
             if (Entries[col.ToString()][row].Text != null)
@@ -604,7 +700,7 @@ namespace GUI
                     Entries[col.ToString()][row].SetContainsFormula(true);
                 else
                     Entries[col.ToString()][row].SetContainsFormula(false);
-            } 
+            }
             else
             {
                 Entries[col.ToString()][row].SetContainsFormula(false);
@@ -638,7 +734,7 @@ namespace GUI
                     Entries[cell[0].ToString()][int.Parse(cell[1].ToString()) - 1].Text = spreadsheet.GetCellValue(cell).ToString();
                     Entries[cell[0].ToString()][int.Parse(cell[1].ToString()) - 1].TextColor = Color.FromArgb("#ffffff");
                 }
-            } 
+            }
             else
             {
                 for (int i = 1; i < toRecalculate.Count; i++)
@@ -646,13 +742,7 @@ namespace GUI
                     Entries[toRecalculate[i][0].ToString()][int.Parse(toRecalculate[i][1].ToString()) - 1].Text = "=" + spreadsheet.GetCellContents(toRecalculate[i]).ToString();
                     Entries[toRecalculate[i][0].ToString()][int.Parse(toRecalculate[i][1].ToString()) - 1].TextColor = Color.FromArgb("#ff0000");
                 }
-            } 
-
-            // MOVE CURSOR TO CELL BENEATH (OR TOP)
-            if (row == numOfLeftLabels - 1)
-                Entries[col.ToString()][0].Focus();
-            else
-                Entries[col.ToString()][row + 1].Focus();
+            }
         }
 
         private void cellClickedOn(char col, int row)
@@ -660,18 +750,20 @@ namespace GUI
             // SET DISPLAYED CONTENTS
             if (Entries[col.ToString()][row - 1].GetContainsFormula() == true)
             {
-                selectedCellContents.Text = "=" + spreadsheet.GetCellContents("" + col.ToString().ToUpper() + (row)).ToString();
-                Entries[col.ToString()][row - 1].Text = selectedCellContents.Text;
+                contentsWidget.Text = "=" + spreadsheet.GetCellContents("" + col.ToString().ToUpper() + (row)).ToString();
+                Entries[col.ToString()][row - 1].Text = contentsWidget.Text;
             }
             else
-                selectedCellContents.Text = spreadsheet.GetCellContents("" + col.ToString().ToUpper() + (row)).ToString();
+                contentsWidget.Text = spreadsheet.GetCellContents("" + col.ToString().ToUpper() + (row)).ToString();
+
+            contentsWidget.SetColumnAndRow(col, row);
 
             // SET DISPLAYED VALUE
             Type type = spreadsheet.GetCellValue("" + col.ToString().ToUpper() + (row)).GetType();
 
             if (type.Equals(typeof(SpreadsheetUtilities.FormulaError)))
                 selectedCellValue.Text = "";
-            else{
+            else {
                 selectedCellValue.Text = spreadsheet.GetCellValue("" + col.ToString().ToUpper() + (row)).ToString();
                 Entries[col.ToString()][row - 1].TextColor = Color.FromArgb("ffffff");
 
@@ -683,12 +775,14 @@ namespace GUI
 
         private void cellUnfocused(char col, int row)
         {
+            handleCellChanged(col, row, false);
+
             Type type = spreadsheet.GetCellValue("" + col.ToString().ToUpper() + (row + 1)).GetType();
 
             if (type.Equals(typeof(SpreadsheetUtilities.FormulaError)))
                 Entries[col.ToString()][row].Text = "=" + spreadsheet.GetCellContents("" + col.ToString().ToUpper() + (row + 1)).ToString();
             else
-                Entries[col.ToString()][row].Text = spreadsheet.GetCellValue("" + col.ToString().ToUpper() + (row + 1)).ToString();  
+                Entries[col.ToString()][row].Text = spreadsheet.GetCellValue("" + col.ToString().ToUpper() + (row + 1)).ToString();
         }
 
         /// <summary>
@@ -719,7 +813,7 @@ namespace GUI
                 for (int j = 0; j < numOfRows; j++)
                 {
                     // ADD THE ENTRIES TO THE RELATIVE LIST IN THE ENTRIES DICTIONARY
-                    Entries[initialTopLabels[i].ToString()].Add(new MyEntry(j, handleCellChanged, cellClickedOn, cellUnfocused));
+                    Entries[initialTopLabels[i].ToString()].Add(new MyEntry(j, pressedEnter, cellClickedOn, cellUnfocused));
                     // ADD THE CURRENT ENTRY TO THE SPREADSHEET
                     column.Add(Entries[initialTopLabels[i].ToString()][j]);
                     // SET THE COLUMN VARIABLE OF THE CURRENT ENTRY
@@ -802,65 +896,63 @@ namespace GUI
             LeftSide.Add(addRow);
         }
 
+        private void AddContentsWidget()
+        {
+            contentsWidget = new ContentsEntry(handleCellChanged)
+            {
+                Text = "",
+                FontAttributes = FontAttributes.Bold,
+                WidthRequest = 75,
+                HeightRequest = 40,
+                FontSize = 15,
+                VerticalOptions = LayoutOptions.Start,
+                VerticalTextAlignment = TextAlignment.Center,
+                HorizontalTextAlignment = TextAlignment.Center,
+                Background = Color.FromArgb("#1C1C1C")
+            };
+
+            Widgets.Add(contentsWidget);
+        }
+
         // COLOR CHANGING METHODS
         private void ChangeColorToRed(object sender, EventArgs e)
         {
-            foreach (RowLabel label in LeftLabels)
-            {
-                label.Content.BackgroundColor = Color.FromArgb("#A7361C");
-            }
-
-            addRow.TextColor = Color.FromArgb("#A7361C");
-            GUIColorTheme = "#A7361C";
+            ChangeColor("#A7361C");
         }
 
         private void ChangeColorToOrange(object sender, EventArgs e)
         {
-            foreach (RowLabel label in LeftLabels)
-            {
-                label.Content.BackgroundColor = Color.FromArgb("#d1603d");
-            }
-
-            addRow.TextColor = Color.FromArgb("#d1603d");
-            GUIColorTheme = "#d1603d";
+            ChangeColor("#d1603d");
         }
 
         private void ChangeColorToGreen(object sender, EventArgs e)
         {
-            foreach (RowLabel label in LeftLabels)
-            {
-                label.Content.BackgroundColor = Color.FromArgb("#377868");
-            }
-
-            addRow.TextColor = Color.FromArgb("#377868");
-            GUIColorTheme = "#377868";
+            ChangeColor("#377868");
 
         }
 
         private void ChangeColorToBlue(object sender, EventArgs e)
         {
-            foreach (RowLabel label in LeftLabels)
-            {
-                label.Content.BackgroundColor = Color.FromArgb("#436d8f");
-            }
-
-            addRow.TextColor = Color.FromArgb("#436d8f");
-            GUIColorTheme = "#436d8f";
+            ChangeColor("#436d8f");
         }
 
         private void ChangeColorToPurple(object sender, EventArgs e)
         {
+            ChangeColor("#745987");
+        }
+
+        private void ChangeColor(string color)
+        {
             foreach (RowLabel label in LeftLabels)
             {
-                label.Content.BackgroundColor = Color.FromArgb("#745987");
+                label.Content.BackgroundColor = Color.FromArgb(color);
             }
 
-            addRow.TextColor = Color.FromArgb("#745987");
-            GUIColorTheme = "#745987";
+            addRow.TextColor = Color.FromArgb(color);
+            GUIColorTheme = color;
         }
 
         // HELP MENU METHODS
-
         private async void HelpMenuText(object sender, EventArgs e)
         {
             await DisplayAlert("Text Inputs", "Simply enter any text into a cell, " +
@@ -914,5 +1006,5 @@ namespace GUI
                 "the program the exit process is lengthy.", "Ok");
         }
 
-    } 
+    }
 }

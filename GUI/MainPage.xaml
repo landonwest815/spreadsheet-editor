@@ -51,7 +51,7 @@
             <Border
             StrokeThickness="0"
             HeightRequest="60">
-                <HorizontalStackLayout>
+                <HorizontalStackLayout x:Name="Widgets">
                     <Label Text="" WidthRequest="152.5" />
                     <Entry x:Name="selectedCellName" Text="" WidthRequest="75" VerticalOptions="Start" IsReadOnly="True"
                            VerticalTextAlignment="Center" HorizontalTextAlignment="Center" Background="#1C1C1C" />
@@ -59,8 +59,6 @@
                     <Entry x:Name="selectedCellValue" Text="" WidthRequest="75" VerticalOptions="Start" IsReadOnly="True"
                            VerticalTextAlignment="Center" HorizontalTextAlignment="Center" Background="#1C1C1C" />
                     <Label Text="" WidthRequest="37.5" />
-                    <Entry x:Name="selectedCellContents" Text="" WidthRequest="75" VerticalOptions="Start"
-                           VerticalTextAlignment="Center" HorizontalTextAlignment="Center" Background="#1C1C1C" />
                 </HorizontalStackLayout>
             </Border>
 
