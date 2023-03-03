@@ -35,8 +35,23 @@ namespace GUI
         private const string allTopLabels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         private const string initialTopLabels = "ABCDEFGHIJKL";
         private int numOfTopLabels;
-        private int numOfLeftLabels = 25;
+        private int numOfLeftLabels = 15;
         private EnhancedSpreadsheet spreadsheet = new EnhancedSpreadsheet(s => true, s => s.ToUpper(), "six");
+
+
+
+        private string FindNextColumn(string col)
+        {
+            if (col.Last() != 'Z')
+            {
+                col.TrimEnd();
+                
+            }
+            return "sure";
+        }
+
+
+
 
         /// <summary>
         ///   Definition of the method signature that must be true for clear methods
