@@ -33,9 +33,9 @@ namespace GUI
     {
         // SETUP
         private const string allTopLabels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        private const string initialTopLabels = "ABCDEFGHIJ";
+        private const string initialTopLabels = "ABCDEFGHIJKL";
         private int numOfTopLabels;
-        private int numOfLeftLabels = 15;
+        private int numOfLeftLabels = 25;
         private EnhancedSpreadsheet spreadsheet = new EnhancedSpreadsheet(s => true, s => s.ToUpper(), "six");
 
         /// <summary>
@@ -742,11 +742,21 @@ namespace GUI
             }
 
             // UPDATE ALL ENTRIES
-            if (Entries[col.ToString()][row].Text != "") {
+            if (Entries[col.ToString()][row].Text != "")
+            {
                 foreach (string cell in toRecalculate)
                 {
-                    Entries[cell[0].ToString()][int.Parse(cell[1].ToString()) - 1].Text = spreadsheet.GetCellValue(cell).ToString();
-                    Entries[cell[0].ToString()][int.Parse(cell[1].ToString()) - 1].TextColor = Color.FromArgb("#ffffff");
+                    string cellColumn = "";
+                    string cellRow = "";
+                    foreach (Char c in cell)
+                    {
+                        if (Char.IsLetter(c))
+                            cellColumn += c;
+                        else
+                            cellRow += c;
+                    }
+                    Entries[cellColumn][int.Parse(cellRow) - 1].Text = spreadsheet.GetCellValue(cell).ToString();
+                    Entries[cellColumn][int.Parse(cellRow) - 1].TextColor = Color.FromArgb("#ffffff");
                 }
             }
             else
@@ -777,7 +787,8 @@ namespace GUI
 
             if (type.Equals(typeof(SpreadsheetUtilities.FormulaError)))
                 selectedCellValue.Text = "";
-            else {
+            else
+            {
                 selectedCellValue.Text = spreadsheet.GetCellValue("" + col.ToString().ToUpper() + (row)).ToString();
                 Entries[col.ToString()][row - 1].TextColor = Color.FromArgb("ffffff");
 
@@ -992,7 +1003,7 @@ namespace GUI
         {
             await DisplayAlert("Formula Inputs", "To enter a Formula, start the expression " +
                 "with an '=' sign and continue with an arithmetic sequence of cell names. " +
-                "Examples can include the following: \n \t '=A1+B1' \t '=G1' \t '=3*F2' \n Formulas " +
+                "Examples can include the following: \n \t '=A1+B1' '=G1' '=3*F2' \n Formulas " +
                 "that create a circular dependency are not allowed. Formulas that result in a " +
                 "Formula Error will not change anything and will be highlighted red. Fixing the " +
                 "formula will result in a correct cell.", "Ok");
