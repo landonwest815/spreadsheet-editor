@@ -15,6 +15,7 @@ using SpreadsheetUtilities;
 namespace GUI
 {
     /// <summary>
+    /// 
     /// Author:    Landon West
     /// Partner:   None
     /// Date:      24-Feb-2023
@@ -26,6 +27,7 @@ namespace GUI
     /// did not copy it in part or whole from another source.  All 
     /// references used in the completion of the assignments are cited 
     /// in my README file.
+    /// 
     /// </summary>
     public partial class MainPage : ContentPage
     {
@@ -51,6 +53,8 @@ namespace GUI
         ///     Holds all entries within the spreadsheet
         /// </summary>
         private Dictionary<string, List<MyEntry>> Entries = new Dictionary<string, List<MyEntry>>();
+
+        private List<MyEntry> FormulaEntries = new List<MyEntry>();
 
         /// <summary>
         ///     Holds all the columns within the spreadsheet
@@ -548,6 +552,7 @@ namespace GUI
                     {
                         Formula formula = (Formula)spreadsheet.GetCellContents(cell);
                         Entries[cell[0].ToString()][int.Parse(cell[1].ToString()) - 1].SetContainsFormula(true);
+                        FormulaEntries.Add(Entries[cell[0].ToString()][int.Parse(cell[1].ToString()) - 1]);
                         Entries[cell[0].ToString()][int.Parse(cell[1].ToString()) - 1].Text = spreadsheet.GetCellValue(cell).ToString();
                     }
                     catch (InvalidCastException) // it is a number or string
@@ -674,7 +679,6 @@ namespace GUI
             if (fromContentsWidget)
             {
                 Entries[col.ToString()][row].Text = contentsWidget.Text;
-
             }
 
             // SET CONTENTS OF EDITED CELL
@@ -689,6 +693,7 @@ namespace GUI
                     Entries[col.ToString()][row].Text = "";
                     spreadsheet.SetContentsOfCell("" + col.ToString().ToUpper() + (row + 1), "");
                     Entries[col.ToString()][row].SetContainsFormula(false);
+                    FormulaEntries.Remove(Entries[col.ToString()][row]);
                     await DisplayAlert("Error", "Circular Dependencies are not allowed", "Ok");
                     return;
                 }
@@ -697,13 +702,20 @@ namespace GUI
             if (Entries[col.ToString()][row].Text != "" && Entries[col.ToString()][row].Text != null)
             {
                 if (Entries[col.ToString()][row].Text[0] == '=')
+                {
                     Entries[col.ToString()][row].SetContainsFormula(true);
+                    FormulaEntries.Add(Entries[col.ToString()][row]);
+                }
                 else
+                {
                     Entries[col.ToString()][row].SetContainsFormula(false);
+                    FormulaEntries.Remove(Entries[col.ToString()][row]);
+                }
             }
             else
             {
                 Entries[col.ToString()][row].SetContainsFormula(false);
+                FormulaEntries.Remove(Entries[col.ToString()][row]);
             }
 
             // SET ENTRY TEXT AS THE VALUE
@@ -714,6 +726,8 @@ namespace GUI
                 {
                     Entries[col.ToString()][row].Text = value.ToString();
                     Entries[col.ToString()][row].TextColor = Color.FromArgb("#ffffff");
+                    if (fromContentsWidget)
+                        selectedCellValue.Text = value.ToString();
                 }
                 else
                 {
@@ -792,7 +806,12 @@ namespace GUI
         /// <param name="e"> ignored </param>
         private void ClearButtonClicked(object sender, EventArgs e)
         {
+            foreach (MyEntry entry in FormulaEntries)
+            {
+                entry.SetContainsFormula(false);
+            }
             ClearAll();
+            CreateNewSpreadsheet();
             Entries[initialTopLabels[0].ToString()][0].Focus();
         }
 
