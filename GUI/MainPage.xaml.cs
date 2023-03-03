@@ -33,9 +33,9 @@ namespace GUI
     {
         // SETUP
         private const string allTopLabels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        private const string initialTopLabels = "ABCDEFGHIJKL";
+        private const string initialTopLabels = "ABCDEFGHIJ";
         private int numOfTopLabels;
-        private int numOfLeftLabels = 25;
+        private int numOfLeftLabels = 15;
         private EnhancedSpreadsheet spreadsheet = new EnhancedSpreadsheet(s => true, s => s.ToUpper(), "six");
 
         /// <summary>
@@ -992,7 +992,7 @@ namespace GUI
         {
             await DisplayAlert("Formula Inputs", "To enter a Formula, start the expression " +
                 "with an '=' sign and continue with an arithmetic sequence of cell names. " +
-                "Examples can include the following: \n \t '=A1+B1' '=G1' '=3*F2' \n Formulas " +
+                "Examples can include the following: \n \t '=A1+B1' \t '=G1' \t '=3*F2' \n Formulas " +
                 "that create a circular dependency are not allowed. Formulas that result in a " +
                 "Formula Error will not change anything and will be highlighted red. Fixing the " +
                 "formula will result in a correct cell.", "Ok");

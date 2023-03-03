@@ -161,6 +161,7 @@ namespace SS
                 // Create an XmlReader inside this block, and automatically Dispose() it at the end.
                 using (XmlReader reader = XmlReader.Create(filepath))
                 {
+
                     try
                     {
                         if (GetSavedVersion(filepath) != version)
