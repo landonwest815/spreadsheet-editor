@@ -1035,6 +1035,5 @@ namespace GUI
                 "the File Menu you will be notified. Also be aware that due to the limitiations of " +
                 "the program the exit process is lengthy.", "Ok");
         }
-
     }
 }
