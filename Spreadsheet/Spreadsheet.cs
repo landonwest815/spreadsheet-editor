@@ -408,13 +408,21 @@ namespace SS
         /// </returns>
         protected override IList<string> SetCellContents(string name, string text)
         {
-            if (!cells.ContainsKey(name)) // Checks if the cell exists already
-                cells.Add(name, new Cell(name, text, text));
+            if (text == "")
+            {
+                cells.Remove(name);
+            }
             else
             {
-                PreviousContentsContainedFormula(name); // This method checks if the contents being replaced was a formula and adjusts the dependencyGraph if so
-                cells[name].SetContents(text);
-                cells[name].SetValue(text);
+
+                if (!cells.ContainsKey(name)) // Checks if the cell exists already
+                    cells.Add(name, new Cell(name, text, text));
+                else
+                {
+                    PreviousContentsContainedFormula(name); // This method checks if the contents being replaced was a formula and adjusts the dependencyGraph if so
+                    cells[name].SetContents(text);
+                    cells[name].SetValue(text);
+                }
             }
 
             RecalculateCells(GetAllDependents(name));

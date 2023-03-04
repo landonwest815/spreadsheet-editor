@@ -755,7 +755,7 @@ namespace GUI
         private async void DataLoss(OnDisplayWarning afterWarning)
         {
             // gets the users decision (lose data or not)
-            bool overwrite = await DisplayAlert("Warning", "There are unsaved Changes. \n Do you want to contiue?", "Yes", "No");
+            bool overwrite = await DisplayAlert("Warning", "There are unsaved Changes. \nDo you want to continue?", "Yes", "No");
 
             // if they want to lose the data -> go through with the process
             if (overwrite)
@@ -883,7 +883,7 @@ namespace GUI
             }
 
             // set the contents of the altered cell
-            if (alteredCell.Text != null)
+            if (alteredCell.Text != null && alteredCell.Text != " ")
             {
                 try
                 {
@@ -907,7 +907,7 @@ namespace GUI
                 }
             }
 
-            if (alteredCell.Text != "" && alteredCell.Text != null)
+            if (alteredCell.Text != "" && alteredCell.Text != null && alteredCell.Text != " ")
             {
                 // if the user entered a formula
                 if (alteredCell.Text[0] == '=')
@@ -934,7 +934,7 @@ namespace GUI
             }
 
             // set the cell's text to its value
-            if (alteredCell.Text != "" && alteredCell.Text != null)
+            if (alteredCell.Text != "" && alteredCell.Text != null && alteredCell.Text != " ")
             {
                 // try to retrieve the value of the entered cell
                 bool isNum = double.TryParse(spreadsheet.GetCellValue(alteredCellName).ToString(), out double value);
@@ -977,7 +977,7 @@ namespace GUI
                 alteredCell.Text = "";
 
             // update all dependent cells
-            if (alteredCell.Text != "")
+            if (alteredCell.Text != "" && alteredCell.Text != null)
             {
                 // loop through each dependent cell
                 foreach (string cell in toRecalculate)
