@@ -5,7 +5,7 @@ Date:       13-Jan-2023
 Course:     CS 3500, University of Utah, School of Computing
 GitHub ID:  landonwest815
 Repo:       https://github.com/uofu-cs3500-spring23/spreadsheet-landonwest815
-Date:       20-Feb-2023 4:00am (when submission was completed) 
+Date:       03-Mar-2023 7:00pm (when submission was completed) 
 Solution:   Spreadsheet
 Copyright:  CS 3500 and Landon West - This work may not be copied for use in Academic Coursework.
 ```
@@ -15,11 +15,14 @@ Copyright:  CS 3500 and Landon West - This work may not be copied for use in Aca
 The Spreadsheet program is currently capable of:
     - Creating Formula objects that are syntactically correct and can contain variables depending on how the user defines their validity
     - Creating a Dependency Graph that can show which variables need to be calculated before others
-    - Creating spreadsheet objects from a spreadsheet class that can get and set cells
+    - Creating Spreadsheet objects from a spreadsheet class that can get and set cell information
     - Managing filepaths and Save/Load functionality
+    - Displaying the Spreadsheet in a spreadsheet editor GUI via .NET MAUI
     
 Future extensions include:
-    - Implementing a GUI to work with the written code
+    - None required for this course, however, I am planning on adding the following:
+        * Incrementing column names 'infinitely'
+        * Setting the size of the spreadsheet on creation
 
 # Time Expenditures:
 
@@ -28,3 +31,8 @@ Future extensions include:
     3. Assignment Three:        Predicted Hours:          15        Actual Hours:    15
     4. Assignment Four:         Predicted Hours:          10        Actual Hours:    12    
     5. Assignment Five:         Predicted Hours:          10        Actual Hours:    13
+    6. Assignment Six:          Predicted Hours:          15        Actual Hours:    32
+
+    Note on Assignment Six: 
+        The excessive amount of time spent was due to me wanting it to look exactly how I wanted it to.
+        It was an enjoyable 32 hours rather than a stressful 32 hours.

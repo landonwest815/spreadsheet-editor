@@ -1,9 +1,27 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    <summary>
+    /// 
+    /// Author:    Landon West
+    /// Partner:   None
+    /// Date:      24-Feb-2023
+    /// Course:    CS 3500, University of Utah, School of Computing
+    /// Copyright: CS 3500 and Landon West - This work may not 
+    ///            be copied for use in Academic Coursework.
+    ///
+    /// I, Landon West, certify that I wrote this code from scratch and
+    /// did not copy it in part or whole from another source.  All 
+    /// references used in the completion of the assignments are cited 
+    /// in my README file.
+    /// 
+    ///</summary>
+-->
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="GUI.MainPage"
-             Title="">
+             Title="Landon's Spreadsheet">
 
+    <!-- Sets up File Menu, Color Menu, and Help Menu -->
     <ContentPage.MenuBarItems>
         <MenuBarItem Text="File">
             <MenuFlyoutItem Text="New" Clicked="FileMenuNew" />
@@ -28,26 +46,25 @@
             <MenuFlyoutItem Text="Exiting Spreadsheets" Clicked="HelpMenuExiting" />
         </MenuBarItem>
     </ContentPage.MenuBarItems>
-
+    
     <ScrollView BackgroundColor="#1C1C1C" >
         <VerticalStackLayout x:Name="Entire" >
 
-            <!-- A Place to put the currently selected cell "namd" and "value" -->
-            <Border
-            StrokeThickness="0"
-            HeightRequest="30">
+            <!-- A Place to put the currently selected cell "name" and "value" -->
+            <Border StrokeThickness="0" HeightRequest="30">
                 <HorizontalStackLayout>
-                    <Label Text="" WidthRequest="152.5" />
+                    <Label Text="" WidthRequest="162.5" />
                     <Label x:Name="selectedCellNameLabel" Text="CELL" WidthRequest="75" VerticalOptions="End"
                            FontAttributes="Bold" VerticalTextAlignment="End" HorizontalTextAlignment="Start" />
                     <Label Text="" WidthRequest="37.5" />
                     <Label x:Name="selectedCellValueLabel" Text="VALUE" WidthRequest="75" VerticalOptions="End"
                            FontAttributes="Bold" VerticalTextAlignment="End" HorizontalTextAlignment="Start" />
-                    <Label Text="" WidthRequest="37.5" />
+                    <Label Text="" WidthRequest="75" />
                     <Label x:Name="selectedCellContentsLabel" Text="CONTENTS" WidthRequest="75" VerticalOptions="End"
                            FontAttributes="Bold" VerticalTextAlignment="End" HorizontalTextAlignment="Start" />
                 </HorizontalStackLayout>
             </Border>
+            
             <Border
             StrokeThickness="0"
             HeightRequest="60">
@@ -56,17 +73,16 @@
                     <Entry x:Name="selectedCellName" Text="" WidthRequest="75" VerticalOptions="Start" IsReadOnly="True"
                            VerticalTextAlignment="Center" HorizontalTextAlignment="Center" Background="#1C1C1C" />
                     <Label Text="" WidthRequest="37.5" />
-                    <Entry x:Name="selectedCellValue" Text="" WidthRequest="75" VerticalOptions="Start" IsReadOnly="True"
+                    <Entry x:Name="selectedCellValue" Text="" WidthRequest="112.5" VerticalOptions="Start" IsReadOnly="True"
                            VerticalTextAlignment="Center" HorizontalTextAlignment="Center" Background="#1C1C1C" />
                     <Label Text="" WidthRequest="37.5" />
                 </HorizontalStackLayout>
             </Border>
 
             <!-- the column headers: A, B, C, ... -->
-            
             <HorizontalStackLayout x:Name="TopLabels">
                 <Label WidthRequest="40" />
-                <Button WidthRequest="75" HeightRequest="40" Text="CLEAR" Clicked="ClearButtonClicked" BackgroundColor="#1C1C1C" />
+                <Button x:Name="addColumnButton" WidthRequest="75" HeightRequest="40" Text="CLEAR" Clicked="ClearButtonClicked" BackgroundColor="#1C1C1C" />
             </HorizontalStackLayout>
 
             <!-- the Grid of Spreadsheet GUI Cells -->
