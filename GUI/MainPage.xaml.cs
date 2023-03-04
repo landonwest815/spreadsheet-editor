@@ -39,9 +39,10 @@ namespace GUI
     {
         // SETUP
         private const string allTopLabels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        private const string initialTopLabels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        //private const string initialTopLabels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        private const string initialTopLabels = "ABCDEFGH";
         private int numOfTopLabels;
-        private int numOfLeftLabels = 99;
+        private int numOfLeftLabels = 15;
         private EnhancedSpreadsheet spreadsheet;
 
         /// <summary>
@@ -869,14 +870,16 @@ namespace GUI
             if (fromContentsWidget)
             {
                 // set the text and focus on the cell
+                //string newContents = contentsWidget.Text;
+                //alteredCell.Focus();
                 alteredCell.Text = contentsWidget.Text;
-                alteredCell.Focus();
 
                 // set the contents and refocus on the cell
-                pressedEnter(col, row);
-                alteredCell.Focus();
+                //pressedEnter(col, row);
+                //alteredCell.Unfocus();
+                //alteredCell.Focus();
 
-                return;
+                //return;
             }
 
             // set the contents of the altered cell
@@ -934,12 +937,18 @@ namespace GUI
             if (alteredCell.Text != "" && alteredCell.Text != null)
             {
                 // try to retrieve the value of the entered cell
-                if (double.TryParse(spreadsheet.GetCellValue(alteredCellName).ToString(), out double value) || alteredCell.Text[0] != '=')
+                bool isNum = double.TryParse(spreadsheet.GetCellValue(alteredCellName).ToString(), out double value);
+                if (isNum || alteredCell.Text[0] != '=')
                 {
                     alteredCell.Text = value.ToString();
 
-                    if (fromContentsWidget)
-                        selectedCellValue.Text = value.ToString();
+                    if (fromContentsWidget) 
+                    {
+                        if (isNum)
+                            selectedCellValue.Text = value.ToString();
+                        else
+                            selectedCellValue.Text = spreadsheet.GetCellValue(alteredCellName).ToString();
+                    }
 
                     // takes care of the case where the previous contents contained a formula error
                     alteredCell.TextColor = Color.FromArgb("#ffffff");
